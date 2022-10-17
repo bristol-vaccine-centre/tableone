@@ -1,0 +1,71 @@
+---
+title: "tableone: Configuration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tableone: Configuration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+```{r}
+
+
+# get_shape:
+# label_fn - a function to convert a column name (as a symbol) into a label
+# units - named list of column names and units
+
+# summary_stats:
+# override_type - names list of column names and summary type out of options
+# `r paste0(names(.summary_types),collapse=", ")`
+
+# format_summary:
+# layout - a predefined format, as one of `r paste0(names(default.format),collapse=", ")`
+# this is overridden by the `option("tableone.format_list")`
+# override_percent_dp - named list relating column name to dp of percentages in counts
+# override_real_dp - named list relating column name to dp of real values
+
+# significance_tests:
+# override_method - named list of columns and significance method which is one of:
+# `r paste0(names(.comparison.fns),collapse=", ")`
+
+# format_significance:
+# p_format - one of `r paste0(names(.pvalue.defaults),collapse=", ")` overridden by
+# option("tableone.pvalue_formatter"=function(...))
+
+# table layout:
+# defaultFontSize=8
+# defaultFont = "Roboto"
+# some control over nesting variable?
+
+# Customisation:
+
+# data analysis
+# options("tableone.max_discrete_levels"=0)
+# options("tableone.normality_test"="ad")
+# options("tableone.normality_significance"=0.005)
+# options("tableone.tolerance_to_ties"=0.25)
+
+# summary table layout
+# options("tableone.format_list" = list(...))
+# options("tableone.pvalue_formatter" = function(...))
+# options("tableone.show_pvalue_method"=FALSE)
+# options("tableone.pvalue_column_name"="P value")
+
+# printing control
+# getOption("tableone.dp",".")
+# getOption("tableone.missing","<?>")
+# getOption("tableone.na","\u2014")
+
+
+```
+
+
