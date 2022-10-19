@@ -3,7 +3,7 @@
 }
 
 .df_shape = function() {
-  two_class_test %>% .get_shape(cols = ggplot2::vars(multinom_class))
+  two_class_test %>% .get_shape(cols = dplyr::vars(multinom_class))
 }
 
 .df_shape2 = function() {
@@ -64,6 +64,7 @@ test_that("format summary is high level OK", {
   )
 
   ss = .df_shape1() %>% .summary_stats()
-  fs = ss %>% .format_summary(override_percent_dp = list(binomial_class=6), override_real_dp = list(normal_variable="5"))
+  # TODO: some error checking for bad formats woudl be helpful here
+  fs = ss %>% .format_summary(override_percent_dp = list(binomial_class=6), override_real_dp = list(normal_variable="5g"))
   # difficult to test. ?vignette
 })

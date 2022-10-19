@@ -68,6 +68,10 @@
   return(tibble::tibble(p.value = NA_real_, p.method = "\u2014"))
 }
 
+.do_missing = function(xy_df) {
+  return(tibble::tibble(p.value = NA_real_, p.method = "Not calculated due to missing values"))
+}
+
 ### mapping to comparion method ----
 # these functions must accept a dataframe with y (cateogory) and x (data) columns.
 # and output a single row tibble containing a p-value and a method column
@@ -129,9 +133,14 @@
   for (i in 1:nrow(df_shape)) {
     # get dataframe row as a list
     tmp = df_shape %>% purrr::map(~ .x[[i]])
-    message(tmp$.comparison_method, " test on ",tmp$.label)
+    .message(tmp$.comparison_method, " test on ",tmp$.label)
     fun = .comparison.fns[[tmp$.comparison_method]]
     d = tmp$.source
+    if (any(is.na(d$x))) {
+      .message("Significance testing skipped due to missing values: ", tmp$.label)
+      fun = .do_missing
+    }
+    # this is where the significance test is done
     result = fun(d)
     df_shape$.significance_test[[i]] = result
   }
@@ -167,9 +176,9 @@
     dplyr::pull(t)
   if (method) {
     methods = methods %>% dplyr::mutate(daggers = lapply(1:nrow(methods), rep_len, x="\u2020") %>% lapply(paste0, collapse="") %>% unlist())
-    tmp = tmp %>% dplyr::left_join(methods, by="p.method") %>%
+    tmp = tmp %>% dplyr::left_join(methods, by=c("p.method",".type")) %>%
       dplyr::mutate(!!p_col := paste0(fun(p.value)," ",daggers))
-    methods_key = paste0(methods$daggers,", ",methods$p.method, collapse = "; ")
+    methods_key = paste0(sprintf("%s, %s (%s)",methods$daggers,methods$p.method, methods$.type), collapse = "; ")
     tmp = structure(tmp %>% dplyr::select(variable, !!p_col),
         methods = c(list(
           table_key = methods_key,

@@ -1,6 +1,6 @@
 ---
 title: "tableone: Configuration"
-output: rmarkdown::html_vignette
+output: html_document
 vignette: >
   %\VignetteIndexEntry{tableone: Configuration}
   %\VignetteEngine{knitr::rmarkdown}
@@ -9,62 +9,246 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+here::i_am("vignettes/configuration.Rmd")
+source(here::here("vignettes/vignette-utils.R"))
+
+original_opts = options()
+.Last = function() {
+  options(original_opts)
+}
+
+options(tableone.quiet = TRUE)
+
+library(tidyverse)
+library(tableone)
+library(survival)
 ```
 
-## R Markdown
+```{r}
+# set up the data 
+gcd = survival::cgd %>% 
+  # filter to include only the first visit
+  filter(enum==1) %>% 
+  # make the steroids and propylac columns into a logical value
+  # see later for a better way of doing this.
+  mutate(
+    steroids = as.logical(steroids),
+    propylac = as.logical(propylac)
+  )
+  
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# A basic unstratified population description table is as follows:
+formula = Surv(tstart, tstop, status) ~ treat + 
+  sex + age + height + weight + inherit + steroids + hos.cat
+
+gcd %>% compare_population(formula)
+```
+
+## Column labelling
+
+* A custom labeller function defined for the table
+* Control of whether or not to display the footer.
 
 
 ```{r}
 
+# set a table relabelling function
+rename_cols = function(col) {
+  case_when(
+    col == "hos.cat" ~ "Location",
+    col == "steroids" ~ "Steroid treatment",
+    TRUE ~ stringr::str_to_sentence(col)
+  )
+}
 
-# get_shape:
-# label_fn - a function to convert a column name (as a symbol) into a label
-# units - named list of column names and units
+# set it using an option
+# we are not going to reset this as we will use in all the subsequent examples:
 
-# summary_stats:
+options("tableone.labeller"=rename_cols)
+
+# we can choose to hide the footer
+old = options("tableone.hide_footer"=TRUE)
+
+gcd %>% compare_population(formula) 
+
+options(old)
+
+```
+
+## Content format
+
+* Change the decimal point
+* Change the font and font size
+* Change the labelling of the p-value column
+* Change the format of the p-value
+* Show the method for the p-value as daggers
+
+```{r}
+old = options(
+  # set a mid point as decimal point
+  "tableone.dp"="\u00B7",
+  "tableone.font"="Arial Narrow",
+  "tableone.font_size"=12,
+  "tableone.pvalue_column_name"="p-value",
+  "tableone.pvalue_formatter" = 
+          scales::label_pvalue(accuracy = 0.01,decimal.mark = "\u00B7"),
+  "tableone.show_pvalue_method"=TRUE
+)
+
+
+gcd %>% compare_population(formula) 
+
+# reset
+options(old)
+
+```
+
+## Summary types
+
+The default statistics may seem wrong for the data, particularly the decision 
+around whether to present mean or median, which depends on the detection of 
+normality in the data. The presentation can be overridden by supplying
+a named list to `override_type`, the names here being the original column names
+to override. This won't change the method of detection of 
+significance which depends on the detection of normality. The test type and 
+significance levels are also configurable.
+
+```{r}
 # override_type - names list of column names and summary type out of options
-# `r paste0(names(.summary_types),collapse=", ")`
 
-# format_summary:
-# layout - a predefined format, as one of `r paste0(names(default.format),collapse=", ")`
-# this is overridden by the `option("tableone.format_list")`
-# override_percent_dp - named list relating column name to dp of percentages in counts
-# override_real_dp - named list relating column name to dp of real values
+# with this looser definition of normality (i.e. less likely to reject the null
+# that the data is normally distributed), height and weight are found to be
+# and hence the t-test is used.
+old = options(
+  "tableone.normality_test"="lillie",
+  "tableone.normality_significance"=0.00001
+)
 
-# significance_tests:
-# override_method - named list of columns and significance method which is one of:
-# `r paste0(names(.comparison.fns),collapse=", ")`
+gcd %>% compare_population(
+    formula,
+    # age is still not normally distributed but we can override it to be 
+    # presented as a mean and SD.
+    override_type = list(age="mean_sd")
+  )
 
-# format_significance:
-# p_format - one of `r paste0(names(.pvalue.defaults),collapse=", ")` overridden by
-# option("tableone.pvalue_formatter"=function(...))
+options(old)
 
-# table layout:
-# defaultFontSize=8
-# defaultFont = "Roboto"
-# some control over nesting variable?
-
-# Customisation:
-
-# data analysis
-# options("tableone.max_discrete_levels"=0)
-# options("tableone.normality_test"="ad")
-# options("tableone.normality_significance"=0.005)
+# the following option also controls which parametric test is chosen (between)
+# wilcoxon and ks tests
 # options("tableone.tolerance_to_ties"=0.25)
 
-# summary table layout
-# options("tableone.format_list" = list(...))
-# options("tableone.pvalue_formatter" = function(...))
-# options("tableone.show_pvalue_method"=FALSE)
-# options("tableone.pvalue_column_name"="P value")
+```
 
-# printing control
-# getOption("tableone.dp",".")
+
+
+## Customising the number of decimal places
+
+Need to change this on a column by column basis (eg. here reals using a named list)
+or on a systematic bases (e.g. percent). Specification can either be as fixed (e.g. "2f")
+or significant figures (e.g. "3g"). N.b. This setting is independent of the p-value
+formatter.
+
+```{r}
+gcd %>% compare_population(
+    formula,
+    override_real_dp = list(age="0f",height="0f",weight="2f"),
+    override_percent_dp = 0
+  )
+```
+
+## Summary format customisation
+
+Standard layouts are defined, `r paste0("\"", names(default.format),"\"",collapse=", ")`, 
+and these can be used in the layout parameter to give a particular format to the
+columns and content of the table.
+
+```{r}
+
+gcd %>% compare_population(
+    formula,
+    layout = "relaxed"
+  )
+
+```
+
+## Custom layouts
+
+The "relaxed" standard layout is defined using a list. This is shown below:
+
+```{r echo=FALSE}
+paste0("```R\n",paste0(.f(tableone::default.format$relaxed),collapse="\n"),"\n```") %>% knitr::asis_output()
+```
+
+We can produce a customised list based on this and supply it to a formatting
+function as the `layout` parameter. The named list defines the column name and 
+the column contents. The column contents can refer to the following variables:
+
+* `subtype_count` can use `{level}`, `{prob.0.5}`, `{prob.0.025}`, `{prob.0.975}`, `{n}`, `{N}` - `n` is subgroup count, `N` is data count.
+* `median_iqr` can use `{q.0.5}`, `{q.0.25}`, ..., `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
+* `mean_sd` can use `{mean}`, `{sd}`, `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
+* `skipped` can use `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
+
+There are a few useful formatting functions that the spec can also use beyond
+the usual text processing functions:
+
+* `.sprintf_na` - sprintfs a set of numbers replacing the output with 
+  `getOption("tableone.na","\u2014")` if all values are missing, and if some
+  values are missing relacing each individial missing value with  
+  `getOption("tableone.missing","<?>")`
+* `.sprintf_no_na`  - sprintfs a set of numbers replacing the output with 
+  `getOption("tableone.na","\u2014")` if any values are missing
+* `.maybe` - returns a string if it is present or "" if NA
+
+```{r}
+
+custom = list(
+    subtype_count = list(
+        characteristic = "{level}",
+        value = "{.sprintf_na('%1.1f%% (%d/%d)',prob.0.5*100,n,N)}"
+    ),
+    median_iqr = list(
+        characteristic = "Median (N)",
+        value = "{.sprintf_na('%1.3g (%d)',q.0.5,n)}"
+    ),
+    mean_sd = list(
+        characteristic = "Mean (N)", 
+        value = "{.sprintf_na('%1.3g (%d)',mean,n)}"
+    ),
+    skipped = list(
+        characteristic = "(N)", 
+        value = "{.sprintf_na('— (%d)',n)}"
+    )
+)
+
+# printing control the following options control missing values
+# produced by the .sprintf_na function:
 # getOption("tableone.missing","<?>")
 # getOption("tableone.na","\u2014")
 
+
+gcd %>% compare_population(
+    formula,
+    layout = custom
+  )
+```
+
+## Footer customisation
+
+Additional information can be added to the default footer. Handy for acronyms 
+
+```{r}
+
+ gcd %>% compare_population(
+   formula,
+   footer_text = c(
+      "IQR: Interquartile range; CI: Confidence interval",
+      "Additional information could be supplied")
+   )
+
+# or we can choose to hide the footer altogether
+# old = options("tableone.hide_footer"=TRUE)
+# or by setting `footer_text` to false
 
 ```
 

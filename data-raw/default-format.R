@@ -51,6 +51,25 @@ default.format = list(
     )
   ),
 
+  simple = list(
+    subtype_count = list(
+      characteristic = "{level}",
+      value = "{.sprintf_na('%1.1f%% (%d/%d)',prob.0.5*100,n,N)}"
+    ),
+    median_iqr = list(
+      characteristic = "Median (N)",
+      value = "{.sprintf_na('%1.3g (%d)',q.0.5,n)}"
+    ),
+    mean_sd = list(
+      characteristic = "Mean (N)",
+      value = "{.sprintf_na('%1.3g (%d)',mean,n)}"
+    ),
+    skipped = list(
+      characteristic = "(N)",
+      value = "{.sprintf_na('\u2014 (%d)',n)}"
+    )
+  ),
+
   single = list(
     subtype_count = list(
       characteristic = "{level} % [95% CI]",

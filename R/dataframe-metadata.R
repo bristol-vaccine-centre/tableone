@@ -5,6 +5,7 @@
   return(fun(stats::rnorm(50))$method)
 }
 
+#' @importFrom nortest ad.test
 .wrap = function(fun) {
   return(function(x) {
     tryCatch({fun(x)$p.value}, error=function(e) NA_real_)
@@ -120,6 +121,7 @@
 
   df = df %>% dplyr::ungroup()
 
+  label_fn = getOption("tableone.labeller",label_fn)
   max_levels = getOption("tableone.max_discrete_levels",0)
   normality_test = getOption("tableone.normality_test","ad")
 

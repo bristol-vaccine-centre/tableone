@@ -1,0 +1,34 @@
+url: https://bristol-vaccine-centre.github.io/tableone/
+template:
+  bootstrap: 5
+destination: docs
+reference:
+- title: "Table creators"
+  desc: >
+    Create tabular summaries of data in a simple manner.
+  contents:
+  - describe_population
+  - compare_population
+  - compare_missing
+- title: "Supporting functions"
+  desc: >
+    Modify data for making tabular summaries, making missing data more
+    explicit or by converting discrete data types to explicit factors.
+  contents:
+  - make_factors
+  - explicit_na
+  - get_footer_text
+- title: "Configuration"
+  contents:
+  - default.format
+- title: "Test data"
+  contents:
+  - test_cols
+  - bad_test_cols
+  - diamonds
+  - missing_diamonds
+  - mnar_two_class_1000
+  - multi_class_negative
+  - one_class_test_100
+  - one_class_test_1000
+  - two_class_test

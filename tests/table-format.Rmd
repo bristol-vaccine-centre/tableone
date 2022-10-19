@@ -1,0 +1,18 @@
+---
+output: rmarkdown::html_vignette
+---
+
+```{r}
+
+here::i_am("tests/table-format.Rmd")
+source(here::here("vignettes/vignette-utils.R"))
+
+library(tidyverse)
+tibble(col="cell") %>% 
+  huxtable::hux() %>%
+  huxtable::set_all_borders(value = 0)
+```
+
+```{r}
+paste0("```R\n",paste0(.f(tableone::default.format$relaxed),collapse="\n"),"\n```") %>% knitr::asis_output()
+```

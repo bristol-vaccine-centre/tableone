@@ -1,25 +1,38 @@
 Package: tableone
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Descriptive Tables for Observational or Interventional Studies
+Version: 0.1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person(given = "Robert",
+           family = "Challen",
+           role = c("aut", "cre"),
+           email = "rob.challen@bristol.ac.uk",
+           comment = c(ORCID = "0000-0002-5504-7768"))
+Description: 
+    Generating tabular summaries of data in a format suitable for reporting in
+    journal articles is fiddly and slows down more detailed analysis. Comparing
+    two populations with respect to an intervention, and reporting it 
+    is a task that can be largely automated.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Suggests: 
+    covr,
+    formatR,
+    here,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    survival,
+    scales,
+    ggplot2,
+    tidyverse
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
 LazyData: true
 Imports: 
-    ggplot2,
     dplyr,
     huxtable,
     magrittr,
@@ -37,3 +50,7 @@ Imports:
     glue,
     purrr,
     tidyselect
+URL: https://bristol-vaccine-centre.github.io/tableone/,
+    https://github.com/bristol-vaccine-centre/tableone,
+    https://doi.org/10.5281/zenodo.7226522
+BugReports: https://github.com/bristol-vaccine-centre/tableone/issues

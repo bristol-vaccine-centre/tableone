@@ -13,8 +13,8 @@ describe_population(
   layout = "single",
   override_percent_dp = list(),
   override_real_dp = list(),
-  font_size = 8,
-  font = "Arial",
+  font_size = getOption("tableone.font_size", 8),
+  font = getOption("tableone.font", "Arial"),
   footer_text = NULL
 )
 }
@@ -37,7 +37,10 @@ this kind of table).}
 printable label. This is by default a no-operation and the output table
 will contain the dataframe column names as labels. A simple alternative
 would be some form of \link[dplyr:case_when]{dplyr::case_when} lookup, or a string function such
-as \link[stringr:case]{stringr::str_to_sentence}. (N.b. this function must be vectorised)}
+as \link[stringr:case]{stringr::str_to_sentence}. (N.b. this function must be vectorised).
+Any value provided here will be overridden by the
+\code{options("tableone.labeller" = my_label_fn)} which allows global setting of
+the labeller.}
 
 \item{units}{(optional) a named list of units, following a \verb{c(<colname_1> = "<unit_1>", <colname_2> = "<unit_2>", ...)} format. columns not present in
 this list are assumed to have no units. Units may be involved in the
@@ -55,7 +58,7 @@ errors if this is not done correctly.}
 
 \item{layout}{(optional) various layouts are defined as default. As of this
 version of \code{tableone} they are
-"relaxed","compact","single","missing". The layouts can be
+"relaxed","compact","simple","single","missing". The layouts can be
 customised using the options \verb{options("tableone.format_list"=list(...)")},
 and this is described in more detail in the vignettes.}
 
@@ -73,7 +76,9 @@ will use the defaults defined in the layout. See the
 \item{font}{(optional) the font family for the table (which will be matched to
 closest on your system)}
 
-\item{footer_text}{any text that needs to be added at the end of the table.}
+\item{footer_text}{any text that needs to be added at the end of the table,
+setting this to FALSE dsables the whole footer (as does
+\code{options("tableone.hide_footer"=TRUE)}) .}
 }
 \value{
 a \code{huxtable} formatted table.

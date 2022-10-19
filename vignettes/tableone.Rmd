@@ -1,6 +1,6 @@
 ---
 title: "tableone: Getting started"
-output: rmarkdown::html_vignette
+output: html_document
 vignette: >
   %\VignetteIndexEntry{tableone: Getting started}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,8 +12,236 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+here::i_am("vignettes/tableone.Rmd")
+source(here::here("vignettes/vignette-utils.R"))
+
+original_opts = options()
+.Last = function() {
+  options(original_opts)
+}
+
+options(tableone.quiet = TRUE)
+
+library(tidyverse)
+library(tableone)
+library(survival)
 ```
 
-```{r setup}
-library(tableone)
+# Formula versus `tidyselect` interface
+
+`tableone` is implemented to allow a subset of columns in a large dataset to be
+pulled into a table without any fuss. It is also designed with a workflow in
+mind that involves building statistical models from the data later. We assume
+the data follows a general pattern in that there are one observation per row,
+individual columns are specific data points in those observations and may be one
+of:
+
+* `outcome`: something that we will be assessing in a statistical model, maybe a 
+continuous outcome, or a time measure, or a logical measure.
+* `intervention`: the thing that is varied between the different observations
+* `covariates`: the other factors that may influence the outcome that we want to 
+control for.
+
+In the end we will want to construct a model that takes the following high level
+structure:
+
+`outcome ~ intervention + covariate_1 + covariate_2 + ... + covariate_n`
+
+## Simple population description example
+
+Before we build a model we need to firstly compare the distribution of the
+covariates in the population and secondly compare them in the intervention and
+non-intervention groups, usually done without reference to outcome. To demonstrate
+this we are using the `survival::cgd` data set.
+
+
+```{r}
+gcd = survival::cgd %>% 
+  # filter to include only the first visit
+  filter(enum==1) %>% 
+  # make the steroids and propylac columns into a logical value
+  # see later for a better way of doing this.
+  mutate(
+    steroids = as.logical(steroids),
+    propylac = as.logical(propylac)
+  )
+  
+
+# A basic unstratified population description table is as follows:
+gcd %>% describe_population(everything())
 ```
+
+This could have been specified using the formula interface. In this example we
+have taken an example of the formula we might wish to use for a survival model
+and we reuse it to give us a more targetted descriptive table. It is also 
+possible to define a relabelling function that :
+
+```{r}
+# define a formula - this might be reused in model building later
+formula = Surv(tstart, tstop, status) ~ treat + 
+  sex + age + height + weight + inherit + steroids + hos.cat
+
+# set a table relabelling function
+rename_cols = function(col) {
+  case_when(
+    col == "hos.cat" ~ "Location",
+    col == "steroids" ~ "Steroid treatment",
+    TRUE ~ stringr::str_to_sentence(col)
+  )
+}
+options("tableone.labeller"=rename_cols)
+
+# create a simple description
+gcd %>% describe_population(formula)
+
+```
+
+We will generally use the formula interface from here on but for exploration
+of larger datasets with more covariates the `tidyselect` interface may be
+more useful.
+
+## Comparing the population by intervention
+
+In this example a more useful table compares the treatment groups. We can use the
+same formula syntax for this, but in this case the first predictor is assumed to
+be the intervention and the data set is compared by intervention (in this case
+the `treat` column). From this we can conclude that the population is well
+distributed between placebo and treatment groups and there is no major bias in 
+the randomisation process:
+
+```{r}
+
+# same as above
+formula = Surv(tstart, tstop, status) ~ treat + 
+  sex + age + height + weight + inherit + steroids + hos.cat
+
+# labelling function is still active
+gcd %>% compare_population(formula)
+
+```
+
+Alternatively if we were using the `tidyselect` interface this alternate syntax
+would have given us the same table. Note that we must group the data by
+intervention, for the `tidyselect` to work as intended:
+
+```R
+gcd %>% group_by(treat) %>% 
+  compare_population(sex,age,height,weight,inherit,steroids,hos.cat)
+```
+
+# Analysis of missing data
+
+We need to make sure that not only is the data equivalent between the intervention
+groups but also that missing data is not unevenly distributed or excessive.
+Reporting on the frequency of missing data stratified by intervention is also
+easy, and to demonstrate this we make a data set with 10% of the placebo
+arm haveing missing values, but 25% of the treament arm: 
+
+```{r}
+
+# generate a dataset with values missing not at random compared to the intervention:
+cgd_treat = cgd %>% mutate(treat = as.character(treat)) %>% filter(treat != "placebo")
+cgd_placebo = cgd %>% mutate(treat = as.character(treat)) %>% filter(treat == "placebo")
+
+set.seed(100)
+mnar_cgd = bind_rows(
+  cgd_placebo %>% .make_missing(p_missing = 0.1),
+  cgd_treat %>% .make_missing(p_missing = 0.25)
+)
+
+```
+
+Comparing this new data set we see that there is significant differences in some
+of the data (but not the `steroids` variable). As this is quite a small dataset
+it is not sufficiently powered to reliably detect the difference in missingness
+at this level (15% difference).
+
+```{r}
+# compare the MNAR dataset against the intervention:
+formula = Surv(tstart, tstop, status) ~ treat + 
+  sex + age + height + weight + inherit + steroids + hos.cat
+
+mnar_cgd %>% compare_missing(formula)
+
+```
+
+# Conversion of discrete data
+
+Using this new data set with missing data it may be necessary to discretise some
+or all of the data, or convert logical values into properly named factors.
+
+```{r}
+
+decade = function(x) sprintf("%d-%d",x-(x%%10),x-(x%%10)+9)
+
+discrete_cgd = mnar_cgd %>% 
+  # pick out the first episode
+  filter(enum == 1) %>%
+  # convert data
+  make_factors(
+    steroids,propylac,age,weight,height,
+    .logical = c("recieved","not recieved"),
+    .numeric = list(
+      age="{decade(value)}",
+      weight="{ifelse(value<20,'<20','20+')}",
+      height="{ifelse(value<mean(value, na.rm=TRUE),'below average','above average')}"
+    )
+  )
+
+formula = Surv(tstart, tstop, status) ~ treat + 
+  sex + age + height + weight + inherit + steroids + hos.cat
+
+options("tableone.show_pvalue_method"=TRUE)
+
+# This comparison implicitly ignores missing values.
+discrete_cgd %>% compare_population(formula)
+
+# N.B. The following option is important when converting integer data:
+# options("tableone.max_discrete_levels"=0)
+
+```
+
+# Making missing factors explicit:
+
+In the comparison above missing values were not included, and we should be
+cautious of the findings. If factor values are missing (as in this case) then we
+can include them as a new group and get a more robust comparison which includes
+the distribution of missingness. In contrast to the previous comparison
+
+```{r}
+discrete_cgd %>% explicit_na() %>% compare_population(formula)
+```
+
+# Non biomedical data
+
+Beyond the bio-medical example `tableone` can make any more general comparison between
+data that has a structure like:
+
+`~ group + observation_1 + observation_2 + ... + observation_n`
+
+We will use the `iris` and the `diamonds` datasets to demonstrate this more general
+use case for `tableone`. 
+
+```{r}
+
+# revert the labeller setting to the default
+# and additionally hide the footer.
+options("tableone.labeller"=NULL)
+options("tableone.show_pvalue_method"=FALSE)
+options("tableone.hide_footer"=TRUE)
+
+# the heuristics detect that Petals in the iris data set are not normally
+# distributed and hence report median and IQR:
+iris %>% group_by(Species) %>% compare_population(tidyselect::everything())
+```
+
+The `missing_diamonds` data set which is included in this package has 10% of 
+the values removed. This demonstrates the need for reporting the denominator.
+
+```{r}
+# The counts sometimes seem redundant if there is no missing information:
+# however in a data set with missing values the denominators are important:
+missing_diamonds %>% describe_population(tidyselect::everything())
+```
+

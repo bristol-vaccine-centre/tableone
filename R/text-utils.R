@@ -32,11 +32,22 @@
 
 # .adjust_fmt(c("'%1.1f%% [%1.1f%%\u2014%1.1f%%]'","'%1.1f%% [%1.1f%%\u2014%1.1f%%]'","'%1.1f%% [%1.1f%%\u2014%1.1f%%]'"), percent=c(3,4,NA), real=c(2,NA,5))
 # .adjust_fmt(c("'%1.3g %s [%1.3g\u2014%1.3g]'","'%1.3g %s [%1.3g\u2014%1.3g]'","'%1.3g %s [%1.3g\u2014%1.3g]'"), percent=c(3,4,NA), real=c(2,NA,5))
+# .adjust_fmt(c("'%1.3g %s [%1.3g\u2014%1.3g]'","'%1.3g %s [%1.3g\u2014%1.3g]'","'%1.3g %s [%1.3g\u2014%1.3g]'"), percent=c("3g","4f",NA), real=c("2g",NA,"5f"))
 .adjust_fmt = function(fmt, percent=1, real=3) {
   percent = rep_len(percent, length(fmt))
   real = rep_len(real, length(fmt))
-  fmt = ifelse(is.na(percent), fmt, fmt %>% stringr::str_replace_all("%([0-9]+)\\.([0-9]+)(f|g)%%", paste0("%\\1.",percent,"\\3%%")))
-  fmt = ifelse(is.na(real), fmt, fmt %>% stringr::str_replace_all("%([0-9]+)\\.([0-9]+)(f|g)(?!%%)", paste0("%\\1.",real,"\\3")))
+  fmt = dplyr::case_when(
+    is.na(percent) ~ fmt,
+    is.numeric(percent) ~ fmt %>% stringr::str_replace_all("%([0-9]+)\\.([0-9]+)(f|g)%%", paste0("%\\1.",percent,"\\3%%")),
+    is.character(percent) ~ fmt %>% stringr::str_replace_all("%([0-9]+)\\.([0-9]+)(f|g)%%", paste0("%\\1.",percent,"%%")),
+    TRUE ~ fmt
+  )
+  fmt = dplyr::case_when(
+    is.na(real) ~ fmt,
+    is.numeric(real) ~ fmt %>% stringr::str_replace_all("%([0-9]+)\\.([0-9]+)(f|g)(?!%%)", paste0("%\\1.",real,"\\3")),
+    is.character(real) ~ fmt %>% stringr::str_replace_all("%([0-9]+)\\.([0-9]+)(f|g)(?!%%)", paste0("%\\1.",real)),
+    TRUE ~ fmt
+  )
   return(fmt)
 }
 

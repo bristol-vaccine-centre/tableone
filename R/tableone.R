@@ -1,4 +1,8 @@
 
+# disable messages with option
+.message = function(...) {
+  if (!getOption("tableone.quiet",FALSE)) message(...)
+}
 
 #' Get footer text if available
 #'
@@ -109,7 +113,7 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
 
   for (col in cols) {
     tmp = df %>% dplyr::pull(!!col)
-    if (is.logical(tmp)) {
+    if (is.logical(tmp) | (is.numeric(tmp) & all(tmp %in% c(0,1,NA)))) {
       # the column is a logical which is definitely discrete
       df = df %>% dplyr::mutate(!!col := ifelse(tmp, .logical[[1]],.logical[[2]]) %>% factor(levels = .logical))
     } else {
@@ -138,14 +142,14 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
           tmp_max_levels = max_levels
         }
         if (is.null(numeric_glue)) {
-          message("Skipping conversion of ",col_label," as `.numeric` does not contain an entry for this column or a `.default` value")
+          .message("Skipping conversion of ",col_label," as `.numeric` does not contain an entry for this column or a `.default` value")
         } else {
           levels = unique(glue::glue(numeric_glue, value=sort(unique(tmp)), name = col_label))
           if (length(levels) < max_levels) {
             new_tmp = glue::glue(numeric_glue, value=tmp, name = col_label)
             df = df %>% dplyr::mutate(!!col := factor(new_tmp,levels = levels,ordered = TRUE))
           } else {
-            message("Skipping factor conversion for ",col_label," because is has ",
+            .message("Skipping factor conversion for ",col_label," because is has ",
                     length(levels)," levels and the maximum number allowed is set to ",max_levels)
           }
         }
@@ -181,49 +185,76 @@ explicit_na = function(df, na_level = "<missing>") {
   df %>% dplyr::mutate(across(tidyselect::everything(), ~ ifelse(is.na(.x) | is.infinite(.x) | is.nan(.x), "missing", "not missing") %>% factor(levels = c("missing","not missing"))))
 }
 
+# .parse_formulae(iris, ~ Species + Petal.Width + Missing, a ~ b+Sepal.Width)
+# .parse_formulae(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width, side="lhs")
+# .parse_formulae(iris, Species ~ .) # everything except species
+.parse_formulae = function(df, ..., side="rhs") {
+  list_form = rlang::list2(...)
+  lapply(list_form, function(form) {
+
+    if (side == "lhs") {
+      vars = rlang::f_lhs(form) %>% all.vars()
+    } else if (side == "rhs") {
+      vars = rlang::f_rhs(form) %>% all.vars()
+      if (all(vars == c("."))) vars = setdiff(colnames(df),all.vars(rlang::f_lhs(form)))
+    } else {
+      vars = form %>% all.vars()
+    }
+
+    wronguns = setdiff(vars, colnames(df))
+    if (length(wronguns) > 0) warning("Removing variables in formula but not in dataframe: `", wronguns %>% paste0(collapse = " + "), "`; formula was: `", rlang::as_label(form), "`")
+    vars = intersect(vars, colnames(df))
+    vars = vars %>% sapply(as.symbol, USE.NAMES = FALSE)
+    return(vars)
+  })
+}
+
+# .parse_tidyselect(iris,tidyselect::everything())
+.parse_tidyselect = function(df, ...) {
+  # zero inputs and formulae should have been dealt with.
+  # anything else is a tidyselect error?
+  # evaluate as a tidyselect
+  expr = rlang::expr(c(...))
+  pos = tidyselect::eval_select(expr, data = df)
+  cols = colnames(df)[pos]
+  cols = cols %>% sapply(as.symbol, USE.NAMES = FALSE)
+  return(cols)
+}
+
+# works for a single formula or a tidyselect input.
 # where dots is either a function (in which case we only want rhs) or a tidyselect.
 # .parse_vars(iris, tidyselect::everything())
 # .parse_vars(iris, ~ Species + Petal.Width + Missing)
+# form =  ~ Species + Petal.Width + Missing
+# .parse_vars(iris, form)
 .parse_vars = function(df, ...) {
-  expr = rlang::expr(c(...))
-  vars = tryCatch(
-    {
-      pos = tidyselect::eval_select(expr, data = df)
-      cols = (df %>% colnames() %>% sapply(as.symbol, USE.NAMES = FALSE))[pos]
-      if (length(cols)==0) {
-        stop("No columns given: please supply a formula or a tidyselect expression e.g. `tidyselect::everything()`")
-      }
-      return(cols)
-    }, error = function(e) {
-      dots = rlang::list2(...)
-      if (length(dots) == 0)
-        stop("No columns given: please supply a formula or a tidyselect expression e.g. `tidyselect::everything()`")
-      if (rlang::is_formula(dots[[1]])) {
-        vars = rlang::f_rhs(dots[[1]]) %>% all.vars()
-        wronguns = vars %>% setdiff(colnames(df))
-        if (length(wronguns) > 0) warning("Ignoring variables in formula but not in `df`: ", wronguns %>% paste0(collapse = ", "))
-        vars = vars %>%
-          intersect(colnames(df)) %>%
-          sapply(as.symbol, USE.NAMES = FALSE)
-      } else {
-        stop("No columns given: please supply a formula or a tidyselect expression e.g. `tidyselect::everything()`")
-      }
-    }
-  )
-  return(vars)
+
+  if (.is_formula_interface(...)) {
+    list_vars = .parse_formulae(df, ...)
+    if (length(list_vars) == 0) stop("No columns given: please supply a formula or a tidyselect expression e.g. `tidyselect::everything()`")
+    if (length(list_vars) > 1) warning("This function only supports single formulae in input. We are only using the first one.")
+    return(list_vars[[1]])
+  } else {
+    return(.parse_tidyselect(df,...))
+  }
+
 }
 
 # where dots is either a function (in which case we only want rhs) or a tidyselect.
-# .is_formula_interface(iris, ~ Species + Petal.Width + Missing)
-# .is_formula_interface(iris, tidyselect::everything())
-.is_formula_interface = function(df, ...) {
-  expr = rlang::expr(c(...))
+# .is_formula_interface(~ Species + Petal.Width + Missing)
+# .is_formula_interface(~ Species + Petal.Width + Missing, a ~ b+c)
+# .is_formula_interface(c(~ Species + Petal.Width + Missing, a ~ b+c))
+# .is_formula_interface(list(~ Species + Petal.Width + Missing, a ~ b+c))
+# .is_formula_interface(tidyselect::everything())
+# .is_formula_interface()
+.is_formula_interface = function(...) {
   out = tryCatch({
-      pos = tidyselect::eval_select(expr, data = df)
-      cols = (df %>% colnames() %>% sapply(as.symbol, USE.NAMES = FALSE))[pos]
-      if (length(cols)==0) {  return(NA)  }
-      return(FALSE)
-    }, error = function(e) rlang::is_formula(...))
+    tmp = sapply(c(...),rlang::is_formula)
+    return(all(tmp))
+  }, error = function(e) {
+    # could have been a tidyselect.
+    FALSE
+  })
   return(out)
 }
 
@@ -295,26 +326,35 @@ describe_population = function(
   layout = "single",
   override_percent_dp = list(),
   override_real_dp = list(),
-  font_size = 8,
-  font = "Arial",
+  font_size = getOption("tableone.font_size",8),
+  font = getOption("tableone.font","Arial"),
   footer_text = NULL
 ) {
   if (dplyr::is.grouped_df(df)) {
-    message("describe_population(...) ignores grouping.")
+    .message("describe_population(...) ignores grouping.")
     df = df %>% dplyr::ungroup()
   }
   cols = .parse_vars(df, ...)
   label_fn = purrr::as_mapper(label_fn)
   shape = .get_shape(df,cols,label_fn,units)
   summary = .summary_stats(shape, override_type)
-  fmt = .format_summary(summary, layout, override_percent_dp, override_real_dp)
-  hux = fmt %>% .hux_tidy(rowGroupVars = ggplot2::vars(variable, characteristic), colGroupVars = ggplot2::vars(), defaultFontSize= font_size, defaultFont = font)
+  if (is.list(layout)) {
+    format = layout
+  } else {
+    format = getOption("tableone.format_list", default.format[[layout]])
+  }
+  fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp)
+  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, characteristic), colGroupVars = dplyr::vars(), defaultFontSize= font_size, defaultFont = font)
   tmp = get_footer_text(summary)
   footer = c(
     sprintf("Normality of distributions determined using %s", tmp$normality_test),
     footer_text
   )
-  hux = hux %>% huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="",copy_cell_props = FALSE)
+  if (!getOption("tableone.hide_footer",isFALSE(footer_text))) {
+    hux = hux %>%
+      huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
+      huxtable::set_bottom_border(row=huxtable::final(),value=0)
+  }
   return(hux)
 }
 
@@ -352,15 +392,15 @@ compare_missing = function(
   ...,
   label_fn = ~ .x,
   p_format = names(.pvalue.defaults),
-  font_size = 8,
-  font = "Arial",
+  font_size = getOption("tableone.font_size",8),
+  font = getOption("tableone.font","Arial"),
   footer_text = NULL
 ) {
   cols = .parse_vars(df, ...)
   p_format = match.arg(p_format)
-  if (.is_formula_interface(df,...)) {
+  if (.is_formula_interface(...)) {
     intervention = cols[[1]]
-    if (dplyr::is.grouped_df(df) & df %>% dplyr::groups() != intervention)
+    if (dplyr::is.grouped_df(df) && (df %>% dplyr::groups() != intervention))
       warning("compare_missing(...) ignores grouping when using the formula interface.")
     df = df %>% dplyr::group_by(!!intervention)
   } else {
@@ -385,15 +425,18 @@ compare_missing = function(
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
   sign = .significance_tests(summary) %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(sign, by="variable")
-  hux = fmt %>% .hux_tidy(rowGroupVars = ggplot2::vars(variable, !!p_col), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
+  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
     dplyr::relocate(2, .after = tidyselect::everything())
   tmp = get_footer_text(sign)
   footer = c(
     sprintf("Signifiance determined using %s", tmp$significance_test),
     footer_text
   )
-  hux = hux %>% huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="",copy_cell_props = FALSE)
-  # hux = structure(hux, methods = get_footer_text(summary))
+  if (!getOption("tableone.hide_footer",isFALSE(footer_text))) {
+    hux = hux %>%
+      huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
+      huxtable::set_bottom_border(row=huxtable::final(),value=0)
+  }
   return(hux)
 }
 
@@ -423,7 +466,10 @@ compare_missing = function(
 #'   printable label. This is by default a no-operation and the output table
 #'   will contain the dataframe column names as labels. A simple alternative
 #'   would be some form of [dplyr::case_when] lookup, or a string function such
-#'   as [stringr::str_to_sentence]. (N.b. this function must be vectorised)
+#'   as [stringr::str_to_sentence]. (N.b. this function must be vectorised).
+#'   Any value provided here will be overridden by the
+#'   `options("tableone.labeller" = my_label_fn)` which allows global setting of
+#'   the labeller.
 #' @param units (optional) a named list of units, following a `c(<colname_1> =
 #'   "<unit_1>", <colname_2> = "<unit_2>", ...)` format. columns not present in
 #'   this list are assumed to have no units. Units may be involved in the
@@ -432,7 +478,7 @@ compare_missing = function(
 #'   default type for a column in a data set are calculated using heurisitics
 #'   depending on the nature of the data (categorical or continuous), and result
 #'   of normality tests. if you want to override this the options are
-#'   `r paste0("\"", names(tableone::.summary_types), "\"", collapse= ",")` and you
+#'   `r paste0("\"", names(tableone:::.summary_types), "\"", collapse= ",")` and you
 #'   specify this on a column by column bases with a named list (e.g
 #'   `c("Petal.Width"="mean_sd")`). Overriding the default does not check the
 #'   type of data is correct for the summary type and will potentially cause
@@ -457,7 +503,9 @@ compare_missing = function(
 #' @param font_size (optional) the font size for the table in points
 #' @param font (optional) the font family for the table (which will be matched to
 #'   closest on your system)
-#' @param footer_text any text that needs to be added at the end of the table.
+#' @param footer_text any text that needs to be added at the end of the table,
+#'   setting this to FALSE dsables the whole footer (as does
+#'   `options("tableone.hide_footer"=TRUE)`) .
 #'
 #' @return a `huxtable` formatted table.
 #' @export
@@ -489,15 +537,15 @@ compare_population = function(
   override_percent_dp = list(),
   override_real_dp = list(),
   p_format = names(.pvalue.defaults),
-  font_size = 8,
-  font = "Arial",
+  font_size = getOption("tableone.font_size",8),
+  font = getOption("tableone.font","Arial"),
   footer_text = NULL
 ) {
   cols = .parse_vars(df, ...)
   p_format = match.arg(p_format)
-  if (.is_formula_interface(df,...)) {
+  if (.is_formula_interface(...)) {
     intervention = cols[[1]]
-    if (dplyr::is.grouped_df(df) & df %>% dplyr::groups() != intervention)
+    if (dplyr::is.grouped_df(df) && (df %>% dplyr::groups() != intervention))
       warning("compare_missing(...) ignores grouping when using the formula interface.")
     df = df %>% dplyr::group_by(!!intervention)
   } else {
@@ -513,15 +561,20 @@ compare_population = function(
   label_fn = purrr::as_mapper(label_fn)
 
   shape = .get_shape(df,cols,label_fn)
-  summary = .summary_stats(shape)
-  fmt = .format_summary(summary, layout = layout)
+  summary = .summary_stats(shape,override_type = override_type)
+  if (is.list(layout)) {
+    format = layout
+  } else {
+    format = getOption("tableone.format_list", default.format[[layout]])
+  }
+  fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp)
 
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
   method = getOption("tableone.show_pvalue_method",FALSE)
 
   sign = .significance_tests(summary) %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(sign, by="variable")
-  hux = fmt %>% .hux_tidy(rowGroupVars = ggplot2::vars(variable, !!p_col, characteristic), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
+  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col, characteristic), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
     dplyr::relocate(2, .after = tidyselect::everything())
   tmp = get_footer_text(sign)
 
@@ -539,13 +592,17 @@ compare_population = function(
     )
   }
 
-  hux = hux %>% huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="",copy_cell_props = FALSE)
+  if (!getOption("tableone.hide_footer",isFALSE(footer_text))) {
+    hux = hux %>%
+      huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
+      huxtable::set_bottom_border(row=huxtable::final(),value=0)
+  }
   # hux = structure(hux, methods = get_footer_text(summary))
   return(hux)
 }
 
 
-
+# use a new .parse_vars that can take mulitlpe formulae and
 # compare_outcomes
 # grouping is intervention
 # possible formula outcome_1 + outcome_2 + outcome_3 ~ intervention + covariates

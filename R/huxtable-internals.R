@@ -15,15 +15,16 @@
   defaultFont = .check_font(defaultFont)
   if(!huxtable::is_hux(hux)) hux = huxtable::as_hux(hux)
   return( hux %>%
-            huxtable::set_font_size(huxtable::everywhere,huxtable::everywhere,defaultFontSize) %>%
-            huxtable::set_font(huxtable::everywhere,huxtable::everywhere,defaultFont) %>%
-            huxtable::set_top_border(1, huxtable::everywhere, 1) %>%
-            huxtable::set_bottom_border(headerRows, huxtable::everywhere, 1) %>%
-            huxtable::set_bottom_border(nrow(hux), huxtable::everywhere, 1) %>%
-            huxtable::set_wrap(huxtable::everywhere, huxtable::everywhere, TRUE) %>%
-            huxtable::set_top_padding(huxtable::everywhere,huxtable::everywhere,1) %>%
-            huxtable::set_bottom_padding(huxtable::everywhere,huxtable::everywhere,0) %>%
-            huxtable::set_valign(huxtable::everywhere,huxtable::everywhere,"top")
+            huxtable::set_font_size(huxtable::everywhere,huxtable::everywhere, value = defaultFontSize) %>%
+            huxtable::set_all_borders(huxtable::everywhere, huxtable::everywhere, value=0) %>%
+            huxtable::set_font(huxtable::everywhere,huxtable::everywhere, value = defaultFont) %>%
+            huxtable::set_top_border(1, huxtable::everywhere, value=1) %>%
+            huxtable::set_bottom_border(headerRows, huxtable::everywhere, value=1) %>%
+            huxtable::set_bottom_border(nrow(hux), huxtable::everywhere, value=1) %>%
+            huxtable::set_wrap(huxtable::everywhere, huxtable::everywhere, value=TRUE) %>%
+            huxtable::set_top_padding(huxtable::everywhere,huxtable::everywhere, value=1) %>%
+            huxtable::set_bottom_padding(huxtable::everywhere,huxtable::everywhere, value=0) %>%
+            huxtable::set_valign(huxtable::everywhere,huxtable::everywhere,value="top")
   )
 }
 
@@ -35,11 +36,25 @@
     huxtable::set_font(huxtable::everywhere,huxtable::everywhere,defaultFont)
 }
 
+## symbol conversion ----
+.as_symbol_list = function(x,...) {
+  UseMethod(".as_symbol_list",x)
+}
+
+.as_symbol_list.quosures = function(x,...) {
+  x %>% lapply(rlang::as_label) %>% dplyr::syms()
+}
+
+.as_symbol_list.default = function(x,...) {
+  dplyr::syms(as.character(x))
+}
 
 # Convert a dataframe to a huxtable with nested rows and columns.
 .hux_tidy = function(tidyDf, rowGroupVars, colGroupVars, missing="\u2014", na="\u2014", ...) {
 
   name = .y = .x = value = rows = NULL  # remove global binding note
+  rowGroupVars = .as_symbol_list(rowGroupVars)
+  colGroupVars = .as_symbol_list(colGroupVars)
 
   if(tidyDf %>% dplyr::group_by(!!!colGroupVars,!!!rowGroupVars) %>% dplyr::count() %>% dplyr::pull(n) %>% max() > 1) stop("rowGroupVars and colGroupVars do not define unique rows (did you forget to summarise?)")
 
@@ -52,6 +67,9 @@
   if (preserveDataOrder) {
     colJoin = sapply(colGroupVars, rlang::as_label) %>% unlist() %>% as.character()
     rowJoin = sapply(rowGroupVars, rlang::as_label) %>% unlist() %>% as.character()
+    # TODO: this is usually correct but actually we do want this to be nested
+    # so we really want col1 in order it appears, then col1 & col2, etc.
+    # we need a test case for this
     colOrder = tidyDf %>% dplyr::select(!!!colGroupVars) %>% dplyr::distinct() %>% dplyr::mutate(.x = dplyr::row_number())
     rowOrder = tidyDf %>% dplyr::select(!!!rowGroupVars) %>% dplyr::distinct() %>% dplyr::mutate(.y = dplyr::row_number())
     tmp = tidyDf %>%
@@ -105,7 +123,8 @@
 
   fullHux = fullHux %>% huxtable::hux(add_colnames = FALSE) %>%
     huxtable::set_header_rows(1:yOffset, TRUE) %>%
-    huxtable::set_header_cols(1:xOffset, TRUE) %>%
+    # this leads to small but annoying inherited borders (I think).
+    # huxtable::set_header_cols(1:xOffset, TRUE) %>%
     .hux_default_layout(headerRows = yOffset, ...)
 
   # do column merges
@@ -135,6 +154,9 @@
         colIndex = length(tmpVars)
         l = min(mergeRows)+yOffset
         lr = c(min(mergeRows),max(mergeRows))+yOffset
+        # TODO: there is an issue in here somehwere.
+        # I think if the columns do not nest properly the overlap is
+        # badly thrown off. maybe introduced by the keep in order.
         # fullHux = fullHux %>% huxtable::set_valign(lr,colindex,"middle")
         fullHux = fullHux %>% huxtable::merge_cells(row=lr, col=colIndex)
         fullHux = fullHux %>%

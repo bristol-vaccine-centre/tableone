@@ -2,7 +2,7 @@
 
 # generates a summary of a grouped dataframe with x column for data for discrete
 # counts.
-# df_shape = diamonds %>% dplyr::group_by(cut) %>% .get_shape(cols = ggplot2::vars(color))
+# df_shape = diamonds %>% dplyr::group_by(cut) %>% .get_shape(cols = dplyr::vars(color))
 # grp_df = df_shape$.source[[1]]
 # .subtype_count(grp_df)
 .subtype_count = function(grp_df) {
@@ -114,7 +114,7 @@
   for (i in 1:nrow(df_shape)) {
     # get dataframe row as a list
     tmp = df_shape %>% purrr::map(~ .x[[i]])
-    message(tmp$.summary_type, " summary for ",tmp$.label)
+    .message(tmp$.summary_type, " summary for ",tmp$.label)
     fun = .summary_types[[tmp$.summary_type]]
     d = tmp$.source
     result = fun(d)
@@ -135,13 +135,14 @@
 # df_shape = diamonds %>%  dplyr::mutate(is_clear = ifelse(clarity>"VS2","clear","less clear")) %>% dplyr::group_by(is_clear) %>% .get_shape()
 # df_summary = df_shape %>% .summary_stats()
 # df_summary %>% .format_summary()
-.format_summary = function(df_summary, layout = names(default.format), override_percent_dp = list(), override_real_dp = list() ) {
+.format_summary = function(df_summary, layout = names(default.format), format = NULL, override_percent_dp = list(), override_real_dp = list() ) {
 
   layout = match.arg(layout)
+  if(is.null(format)) format = getOption("tableone.format_list", default.format[[layout]])
   override_percent_dp = as.list(override_percent_dp)
   override_real_dp = as.list(override_real_dp)
 
-  format = getOption("tableone.format_list", default.format[[layout]])
+
   if (!".glue" %in% colnames(df_summary)) {
     df_summary = df_summary %>% dplyr::mutate(
       .glue = format[.summary_type]
@@ -154,7 +155,8 @@
       .name = names(override_percent_dp),
       .percent_dp = unlist(override_percent_dp)
     )
-    df_summary = df_summary %>% dplyr::left_join(override, by=".name")
+    jc = if(is.null(names(override_percent_dp))) character() else ".name"
+    df_summary = df_summary %>% dplyr::left_join(override, by=jc)
   } else {
     df_summary = df_summary %>% dplyr::mutate(.percent_dp = NA)
   }
@@ -164,7 +166,8 @@
       .name = names(override_real_dp),
       .real_dp = unlist(override_real_dp)
     )
-    df_summary = df_summary %>% dplyr::left_join(override, by=".name")
+    jc = if(is.null(names(override_real_dp))) character() else ".name"
+    df_summary = df_summary %>% dplyr::left_join(override, by=jc)
   } else {
     df_summary = df_summary %>% dplyr::mutate(.real_dp = NA)
   }
