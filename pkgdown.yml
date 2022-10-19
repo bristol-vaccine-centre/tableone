@@ -1,0 +1,11 @@
+pandoc: 2.14.2
+pkgdown: 2.0.6
+pkgdown_sha: ~
+articles:
+  configuration: configuration.html
+  tableone: tableone.html
+last_built: 2022-10-19T23:34Z
+urls:
+  reference: https://bristol-vaccine-centre.github.io/tableone/reference
+  article: https://bristol-vaccine-centre.github.io/tableone/articles
+
