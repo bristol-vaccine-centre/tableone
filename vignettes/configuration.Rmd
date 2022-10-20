@@ -25,6 +25,11 @@ library(tableone)
 library(survival)
 ```
 
+# Configuration and formatting options
+
+This vignette provides examples of some of the formatting options. To demonstrate
+them we will use the `survival::cgd` dataset:
+
 ```{r}
 # set up the data 
 gcd = survival::cgd %>% 
@@ -47,9 +52,7 @@ gcd %>% compare_population(formula)
 
 ## Column labelling
 
-* A custom labeller function defined for the table
-* Control of whether or not to display the footer.
-
+* A custom labeller function can be defined for the table.
 
 ```{r}
 
@@ -64,15 +67,9 @@ rename_cols = function(col) {
 
 # set it using an option
 # we are not going to reset this as we will use in all the subsequent examples:
-
 options("tableone.labeller"=rename_cols)
 
-# we can choose to hide the footer
-old = options("tableone.hide_footer"=TRUE)
-
 gcd %>% compare_population(formula) 
-
-options(old)
 
 ```
 
@@ -91,6 +88,8 @@ old = options(
   "tableone.font"="Arial Narrow",
   "tableone.font_size"=12,
   "tableone.pvalue_column_name"="p-value",
+  # the p-value formatter must be a function that takes a vector of numbers and returns
+  # a vector of characters. The example here is a function that returns a function.
   "tableone.pvalue_formatter" = 
           scales::label_pvalue(accuracy = 0.01,decimal.mark = "\u00B7"),
   "tableone.show_pvalue_method"=TRUE
@@ -134,10 +133,13 @@ gcd %>% compare_population(
 
 options(old)
 
-# the following option also controls which parametric test is chosen (between)
-# wilcoxon and ks tests
-# options("tableone.tolerance_to_ties"=0.25)
+```
 
+
+```R
+# the following option also controls which parametric test is chosen (between)
+# wilcoxon and ks tests:
+# options("tableone.tolerance_to_ties"=0.25)
 ```
 
 
@@ -152,6 +154,8 @@ formatter.
 ```{r}
 gcd %>% compare_population(
     formula,
+    # can supply either numbers or the "5f" (for 5 digits floating point) or "6g"
+    # for 6 significant figures syntax.
     override_real_dp = list(age="0f",height="0f",weight="2f"),
     override_percent_dp = 0
   )
@@ -182,7 +186,8 @@ paste0("```R\n",paste0(.f(tableone::default.format$relaxed),collapse="\n"),"\n``
 
 We can produce a customised list based on this and supply it to a formatting
 function as the `layout` parameter. The named list defines the column name and 
-the column contents. The column contents can refer to the following variables:
+the column contents, at the moment one item in this list must be named 
+`characteristic`. The column contents can refer to the following variables:
 
 * `subtype_count` can use `{level}`, `{prob.0.5}`, `{prob.0.025}`, `{prob.0.975}`, `{n}`, `{N}` - `n` is subgroup count, `N` is data count.
 * `median_iqr` can use `{q.0.5}`, `{q.0.25}`, ..., `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
@@ -235,7 +240,7 @@ gcd %>% compare_population(
 
 ## Footer customisation
 
-Additional information can be added to the default footer. Handy for acronyms 
+* Additional information can be added to the default footer. Handy for acronyms: 
 
 ```{r}
 
@@ -246,10 +251,16 @@ Additional information can be added to the default footer. Handy for acronyms
       "Additional information could be supplied")
    )
 
-# or we can choose to hide the footer altogether
-# old = options("tableone.hide_footer"=TRUE)
-# or by setting `footer_text` to false
-
 ```
 
+* or we can choose to hide the footer altogether:
 
+```{r}
+old = options("tableone.hide_footer"=TRUE)
+
+# or we can choose to hide the footer altogether
+gcd %>% compare_population(formula)
+
+options(old)
+
+```

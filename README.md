@@ -7,6 +7,8 @@
 
 [![R-CMD-check](https://github.com/bristol-vaccine-centre/tableone/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bristol-vaccine-centre/tableone/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/551386697.svg)](https://zenodo.org/badge/latestdoi/551386697)
+[![tableone status
+badge](https://bristol-vaccine-centre.r-universe.dev/badges/tableone)](https://bristol-vaccine-centre.r-universe.dev)
 <!-- badges: end -->
 
 The goal of `tableone` is to make it easy to generate comparison tables
@@ -23,6 +25,20 @@ file types.
 
 ## Installation
 
+There is a different `tableone` package on CRAN. This package is hosted
+in the [Bristol Vaccine Centre
+r-universe](https://https://bristol-vaccine-centre.r-universe.dev/).
+Installation from there is as follows:
+
+``` r
+options(repos = c(
+  "bristol-vaccine-centre" = 'https://https://bristol-vaccine-centre.r-universe.dev/',
+  CRAN = 'https://cloud.r-project.org'))
+
+# Download and install tableone in R
+install.packages("tableone")
+```
+
 You can install the development version of `tableone` from
 [GitHub](https://github.com/bristol-vaccine-centre/tableone) with:
 
@@ -33,7 +49,7 @@ devtools::install_github("bristol-vaccine-centre/tableone")
 
 ## Example
 
-`tableone` is there to make descriptive stats consistent and easy.
+`tableone` is there to make descriptive statistics consistent and easy.
 
 ``` r
 library(tidyverse)

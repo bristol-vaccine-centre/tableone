@@ -345,7 +345,9 @@ to outcome. To demonstrate this we are using the
 <p>This could have been specified using the formula interface. In this
 example we have taken an example of the formula we might wish to use for
 a survival model and we reuse it to give us a more targetted descriptive
-table. It is also possible to define a relabelling function that :</p>
+table. It is also possible to supply <code>tableone</code> with a
+relabelling function that maps column names to printable labels, as
+demonstrated here:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define a formula - this might be reused in model building later</span></span>
 <span><span class="va">formula</span> <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">tstart</span>, <span class="va">tstop</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> </span>
@@ -459,6 +461,10 @@ table. It is also possible to define a relabelling function that :</p>
 </tr>
 <tr><td colspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
+<p>The relabelling function can either be passed to each invocation of
+<code>tableone</code> functions or as an option as shown here, which
+makes the labeller available to all subsequent calls. This is useful if
+you are generating many tables from a single dataset.</p>
 <p>We will generally use the formula interface from here on but for
 exploration of larger datasets with more covariates the
 <code>tidyselect</code> interface may be more useful.</p>
@@ -598,8 +604,8 @@ work as intended:</p>
 intervention groups but also that missing data is not unevenly
 distributed or excessive. Reporting on the frequency of missing data
 stratified by intervention is also easy, and to demonstrate this we make
-a data set with 10% of the placebo arm haveing missing values, but 25%
-of the treament arm:</p>
+a data set with 10% of the placebo arm having missing values, but 25% of
+the treatment arm:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># generate a dataset with values missing not at random compared to the intervention:</span></span>
@@ -711,7 +717,7 @@ properly named factors.</p>
 <span><span class="va">formula</span> <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">tstart</span>, <span class="va">tstop</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> </span>
 <span>  <span class="va">sex</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">height</span> <span class="op">+</span> <span class="va">weight</span> <span class="op">+</span> <span class="va">inherit</span> <span class="op">+</span> <span class="va">steroids</span> <span class="op">+</span> <span class="va">hos.cat</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.show_pvalue_method"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.show_pvalue_method"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># This comparison implicitly ignores missing values.</span></span>
 <span><span class="va">discrete_cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="va">formula</span><span class="op">)</span></span></code></pre></div>
@@ -843,18 +849,22 @@ properly named factors.</p>
 </table>
 
 
-# N.B. The following option is important when converting integer data:
-# options("tableone.max_discrete_levels"=0)
+options(old)
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># N.B. The following option is involved when converting integer data:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.max_discrete_levels"</span><span class="op">=</span><span class="fl">0</span><span class="op">)</span></span>
+<span><span class="co"># and is described in the documentation for make_factors().</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="making-missing-factors-explicit">Making missing factors explicit:<a class="anchor" aria-label="anchor" href="#making-missing-factors-explicit"></a>
 </h2>
 <p>In the comparison above missing values were not included, and we
-should be cautious of the findings. If factor values are missing (as in
-this case) then we can include them as a new group and get a more robust
-comparison which includes the distribution of missingness. In contrast
-to the previous comparison</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+should be cautious of the findings. Because of the missingness
+<code>tableone</code> will not calculate p-values. If factor values are
+missing (as in this case) then we can include them as a new group and
+get a more robust comparison which includes the distribution of
+missingness, and for which we can calculate a p-value.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">discrete_cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/explicit_na.html">explicit_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="va">formula</span><span class="op">)</span></span></code></pre></div>
 <table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-8">
 <col>
@@ -881,7 +891,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">male % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">70.2% [57.3%—80.5%] (40)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">60.0% [46.2%—72.4%] (30)</td>
-<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.2 †</td>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.2</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">female % [95% CI] (N)</td>
@@ -898,7 +908,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0-9 % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">31.6% [21.0%—44.5%] (18)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">32.0% [20.8%—45.8%] (16)</td>
-<td rowspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.37 †</td>
+<td rowspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.37</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">10-19 % [95% CI] (N)</td>
@@ -925,7 +935,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">below average % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">40.4% [28.6%—53.3%] (23)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">42.0% [29.4%—55.8%] (21)</td>
-<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.13 †</td>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.13</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">above average % [95% CI] (N)</td>
@@ -942,7 +952,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">&lt;20 % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">14.0% [7.3%—25.3%] (8)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">20.0% [11.2%—33.0%] (10)</td>
-<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.1 †</td>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.1</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">20+ % [95% CI] (N)</td>
@@ -959,7 +969,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">X-linked % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">56.1% [43.3%—68.2%] (32)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">54.0% [40.4%—67.0%] (27)</td>
-<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.066 †</td>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.066</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">autosomal % [95% CI] (N)</td>
@@ -976,7 +986,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">recieved % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">1.8% [0.3%—9.3%] (1)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">2.0% [0.4%—10.5%] (1)</td>
-<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.33 †</td>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.33</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">not recieved % [95% CI] (N)</td>
@@ -993,7 +1003,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:NIH % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">17.5% [9.8%—29.4%] (10)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">18.0% [9.8%—30.8%] (9)</td>
-<td rowspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.027 †</td>
+<td rowspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.027</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:other % [95% CI] (N)</td>
@@ -1015,7 +1025,7 @@ to the previous comparison</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">3.5% [1.0%—11.9%] (2)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">22.0% [12.8%—35.2%] (11)</td>
 </tr>
-<tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">†, Fisher's exact test (categorical)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
+<tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
 </div>
 <div class="section level2">
@@ -1027,7 +1037,7 @@ more general comparison between data that has a structure like:</p>
 <p>We will use the <code>iris</code> and the <code>diamonds</code>
 datasets to demonstrate this more general use case for
 <code>tableone</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># revert the labeller setting to the default</span></span>
 <span><span class="co"># and additionally hide the footer.</span></span>
@@ -1099,7 +1109,7 @@ datasets to demonstrate this more general use case for
 <p>The <code>missing_diamonds</code> data set which is included in this
 package has 10% of the values removed. This demonstrates the need for
 reporting the denominator.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The counts sometimes seem redundant if there is no missing information:</span></span>
 <span><span class="co"># however in a data set with missing values the denominators are important:</span></span>
 <span><span class="va">missing_diamonds</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/describe_population.html">describe_population</a></span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>

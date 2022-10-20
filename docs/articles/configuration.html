@@ -87,6 +87,11 @@
 
     
     
+<div class="section level2">
+<h2 id="configuration-and-formatting-options">Configuration and formatting options<a class="anchor" aria-label="anchor" href="#configuration-and-formatting-options"></a>
+</h2>
+<p>This vignette provides examples of some of the formatting options. To
+demonstrate them we will use the <code><a href="https://rdrr.io/pkg/survival/man/cgd.html" class="external-link">survival::cgd</a></code> dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set up the data </span></span>
 <span><span class="va">gcd</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/cgd.html" class="external-link">cgd</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -206,12 +211,11 @@
 </tr>
 <tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
-<div class="section level2">
-<h2 id="column-labelling">Column labelling<a class="anchor" aria-label="anchor" href="#column-labelling"></a>
-</h2>
+<div class="section level3">
+<h3 id="column-labelling">Column labelling<a class="anchor" aria-label="anchor" href="#column-labelling"></a>
+</h3>
 <ul>
-<li>A custom labeller function defined for the table</li>
-<li>Control of whether or not to display the footer.</li>
+<li>A custom labeller function can be defined for the table.</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set a table relabelling function</span></span>
@@ -225,11 +229,7 @@
 <span></span>
 <span><span class="co"># set it using an option</span></span>
 <span><span class="co"># we are not going to reset this as we will use in all the subsequent examples:</span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.labeller"</span><span class="op">=</span><span class="va">rename_cols</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># we can choose to hide the footer</span></span>
-<span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.hide_footer"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="va">formula</span><span class="op">)</span> </span></code></pre></div>
 <table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-2">
@@ -331,13 +331,12 @@
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">18.5% [10.9%—29.6%] (12)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">12.7% [6.6%—23.1%] (8)</td>
 </tr>
+<tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="content-format">Content format<a class="anchor" aria-label="anchor" href="#content-format"></a>
-</h2>
+<div class="section level3">
+<h3 id="content-format">Content format<a class="anchor" aria-label="anchor" href="#content-format"></a>
+</h3>
 <ul>
 <li>Change the decimal point</li>
 <li>Change the font and font size</li>
@@ -345,13 +344,15 @@
 <li>Change the format of the p-value</li>
 <li>Show the method for the p-value as daggers</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span></span>
 <span>  <span class="co"># set a mid point as decimal point</span></span>
 <span>  <span class="st">"tableone.dp"</span><span class="op">=</span><span class="st">"\u00B7"</span>,</span>
 <span>  <span class="st">"tableone.font"</span><span class="op">=</span><span class="st">"Arial Narrow"</span>,</span>
 <span>  <span class="st">"tableone.font_size"</span><span class="op">=</span><span class="fl">12</span>,</span>
 <span>  <span class="st">"tableone.pvalue_column_name"</span><span class="op">=</span><span class="st">"p-value"</span>,</span>
+<span>  <span class="co"># the p-value formatter must be a function that takes a vector of numbers and returns</span></span>
+<span>  <span class="co"># a vector of characters. The example here is a function that returns a function.</span></span>
 <span>  <span class="st">"tableone.pvalue_formatter"</span> <span class="op">=</span> </span>
 <span>          <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/label_pvalue.html" class="external-link">label_pvalue</a></span><span class="op">(</span>accuracy <span class="op">=</span> <span class="fl">0.01</span>,decimal.mark <span class="op">=</span> <span class="st">"\u00B7"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"tableone.show_pvalue_method"</span><span class="op">=</span><span class="cn">TRUE</span></span>
@@ -460,13 +461,13 @@
 </tr>
 <tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Liberation Sans Narrow; font-size: 12pt;">†, Fisher's exact test (categorical); ††, 2 sample Wilcoxon Rank Sum test (continuous); †††, 2 sample Kolmogorov-Smirnov test (continuous)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># reset</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="summary-types">Summary types<a class="anchor" aria-label="anchor" href="#summary-types"></a>
-</h2>
+<div class="section level3">
+<h3 id="summary-types">Summary types<a class="anchor" aria-label="anchor" href="#summary-types"></a>
+</h3>
 <p>The default statistics may seem wrong for the data, particularly the
 decision around whether to present mean or median, which depends on the
 detection of normality in the data. The presentation can be overridden
@@ -475,7 +476,7 @@ being the original column names to override. This won’t change the
 method of detection of significance which depends on the detection of
 normality. The test type and significance levels are also
 configurable.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># override_type - names list of column names and summary type out of options</span></span>
 <span></span>
 <span><span class="co"># with this looser definition of normality (i.e. less likely to reject the null</span></span>
@@ -593,16 +594,16 @@ configurable.</p>
 </tr>
 <tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sided student's t-test (continuous variables)<br>Normality of distributions determined using Lilliefors (Kolmogorov-Smirnov) normality test</td></tr>
 </table>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># the following option also controls which parametric test is chosen (between)</span></span>
-<span><span class="co"># wilcoxon and ks tests</span></span>
+<code class="sourceCode R"><span><span class="co"># the following option also controls which parametric test is chosen (between)</span></span>
+<span><span class="co"># wilcoxon and ks tests:</span></span>
 <span><span class="co"># options("tableone.tolerance_to_ties"=0.25)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="customising-the-number-of-decimal-places">Customising the number of decimal places<a class="anchor" aria-label="anchor" href="#customising-the-number-of-decimal-places"></a>
-</h2>
+<div class="section level3">
+<h3 id="customising-the-number-of-decimal-places">Customising the number of decimal places<a class="anchor" aria-label="anchor" href="#customising-the-number-of-decimal-places"></a>
+</h3>
 <p>Need to change this on a column by column basis (eg. here reals using
 a named list) or on a systematic bases (e.g. percent). Specification can
 either be as fixed (e.g. “2f”) or significant figures (e.g. “3g”). N.b.
@@ -610,6 +611,8 @@ This setting is independent of the p-value formatter.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span></span>
 <span>    <span class="va">formula</span>,</span>
+<span>    <span class="co"># can supply either numbers or the "5f" (for 5 digits floating point) or "6g"</span></span>
+<span>    <span class="co"># for 6 significant figures syntax.</span></span>
 <span>    override_real_dp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age<span class="op">=</span><span class="st">"0f"</span>,height<span class="op">=</span><span class="st">"0f"</span>,weight<span class="op">=</span><span class="st">"2f"</span><span class="op">)</span>,</span>
 <span>    override_percent_dp <span class="op">=</span> <span class="fl">0</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
@@ -715,9 +718,9 @@ This setting is independent of the p-value formatter.</p>
 <tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
 </div>
-<div class="section level2">
-<h2 id="summary-format-customisation">Summary format customisation<a class="anchor" aria-label="anchor" href="#summary-format-customisation"></a>
-</h2>
+<div class="section level3">
+<h3 id="summary-format-customisation">Summary format customisation<a class="anchor" aria-label="anchor" href="#summary-format-customisation"></a>
+</h3>
 <p>Standard layouts are defined, “relaxed”, “compact”, “simple”,
 “single”, “missing”, and these can be used in the layout parameter to
 give a particular format to the columns and content of the table.</p>
@@ -858,9 +861,9 @@ give a particular format to the columns and content of the table.</p>
 <tr><td colspan="7" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
 </div>
-<div class="section level2">
-<h2 id="custom-layouts">Custom layouts<a class="anchor" aria-label="anchor" href="#custom-layouts"></a>
-</h2>
+<div class="section level3">
+<h3 id="custom-layouts">Custom layouts<a class="anchor" aria-label="anchor" href="#custom-layouts"></a>
+</h3>
 <p>The “relaxed” standard layout is defined using a list. This is shown
 below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -886,8 +889,9 @@ below:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>We can produce a customised list based on this and supply it to a
 formatting function as the <code>layout</code> parameter. The named list
-defines the column name and the column contents. The column contents can
-refer to the following variables:</p>
+defines the column name and the column contents, at the moment one item
+in this list must be named <code>characteristic</code>. The column
+contents can refer to the following variables:</p>
 <ul>
 <li>
 <code>subtype_count</code> can use <code>{level}</code>,
@@ -1057,11 +1061,13 @@ NA</li>
 <tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test</td></tr>
 </table>
 </div>
-<div class="section level2">
-<h2 id="footer-customisation">Footer customisation<a class="anchor" aria-label="anchor" href="#footer-customisation"></a>
-</h2>
-<p>Additional information can be added to the default footer. Handy for
-acronyms</p>
+<div class="section level3">
+<h3 id="footer-customisation">Footer customisation<a class="anchor" aria-label="anchor" href="#footer-customisation"></a>
+</h3>
+<ul>
+<li>Additional information can be added to the default footer. Handy for
+acronyms:</li>
+</ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span> <span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span></span>
 <span>   <span class="va">formula</span>,</span>
@@ -1070,6 +1076,115 @@ acronyms</p>
 <span>      <span class="st">"Additional information could be supplied"</span><span class="op">)</span></span>
 <span>   <span class="op">)</span></span></code></pre></div>
 <table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-9">
+<col>
+<col>
+<col>
+<col>
+<col>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;"></th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;"></th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">placebo</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">rIFN-g</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;"></th>
+</tr>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">variable</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">characteristic</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">value</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">value</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">P value</th>
+</tr>
+<tr>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Sex</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">male % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">81.5% [70.4%—89.1%] (53)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">81.0% [69.6%—88.8%] (51)</td>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">1</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">female % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">18.5% [10.9%—29.6%] (12)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">19.0% [11.2%—30.4%] (12)</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Age</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Median [IQR] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">14 [7—24] (65)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">12 [7—19.5] (63)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.56</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Height</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Median [IQR] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">143 [115—171] (65)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">139 [119—167] (63)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.45</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Weight</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Median [IQR] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">36.1 [21.6—63.7] (65)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">34.4 [20.6—53.7] (63)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.4</td>
+</tr>
+<tr>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Inherit</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">X-linked % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">63.1% [50.9%—73.8%] (41)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">71.4% [59.3%—81.1%] (45)</td>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.35</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">autosomal % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">36.9% [26.2%—49.1%] (24)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">28.6% [18.9%—40.7%] (18)</td>
+</tr>
+<tr>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Steroid treatment</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">false % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">96.9% [89.5%—99.2%] (63)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">98.4% [91.5%—99.7%] (62)</td>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">1</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">true % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">3.1% [0.8%—10.5%] (2)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">1.6% [0.3%—8.5%] (1)</td>
+</tr>
+<tr>
+<td rowspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Location</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:NIH % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">16.9% [9.7%—27.8%] (11)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">23.8% [15.0%—35.6%] (15)</td>
+<td rowspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.69</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:other % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">49.2% [37.5%—61.1%] (32)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">49.2% [37.3%—61.2%] (31)</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Europe:Amsterdam % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">15.4% [8.6%—26.1%] (10)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">14.3% [7.7%—25.0%] (9)</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Europe:other % [95% CI] (N)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">18.5% [10.9%—29.6%] (12)</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">12.7% [6.6%—23.1%] (8)</td>
+</tr>
+<tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test<br>IQR: Interquartile range; CI: Confidence interval<br>Additional information could be supplied</td></tr>
+</table>
+<ul>
+<li>or we can choose to hide the footer altogether:</li>
+</ul>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.hide_footer"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># or we can choose to hide the footer altogether</span></span>
+<span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="va">formula</span><span class="op">)</span></span></code></pre></div>
+<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-10">
 <col>
 <col>
 <col>
@@ -1168,12 +1283,10 @@ acronyms</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">18.5% [10.9%—29.6%] (12)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">12.7% [6.6%—23.1%] (8)</td>
 </tr>
-<tr><td colspan="5" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Signifiance determined using Fisher's exact test (categorical variables) or 2 sample Wilcoxon Rank Sum test, 2 sample Kolmogorov-Smirnov test (continuous variables)<br>Normality of distributions determined using Anderson-Darling normality test<br>IQR: Interquartile range; CI: Confidence interval<br>Additional information could be supplied</td></tr>
 </table>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># or we can choose to hide the footer altogether</span></span>
-<span><span class="co"># old = options("tableone.hide_footer"=TRUE)</span></span>
-<span><span class="co"># or by setting `footer_text` to false</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

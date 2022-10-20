@@ -75,7 +75,8 @@ gcd %>% describe_population(everything())
 This could have been specified using the formula interface. In this example we
 have taken an example of the formula we might wish to use for a survival model
 and we reuse it to give us a more targetted descriptive table. It is also 
-possible to define a relabelling function that :
+possible to supply `tableone` with a relabelling function that maps column names
+to printable labels, as demonstrated here:
 
 ```{r}
 # define a formula - this might be reused in model building later
@@ -96,6 +97,11 @@ options("tableone.labeller"=rename_cols)
 gcd %>% describe_population(formula)
 
 ```
+
+The relabelling function can either be passed to each invocation of `tableone`
+functions or as an option as shown here, which makes the labeller available to
+all subsequent calls. This is useful if you are generating many tables from
+a single dataset.
 
 We will generally use the formula interface from here on but for exploration
 of larger datasets with more covariates the `tidyselect` interface may be
@@ -136,7 +142,7 @@ We need to make sure that not only is the data equivalent between the interventi
 groups but also that missing data is not unevenly distributed or excessive.
 Reporting on the frequency of missing data stratified by intervention is also
 easy, and to demonstrate this we make a data set with 10% of the placebo
-arm haveing missing values, but 25% of the treament arm: 
+arm having missing values, but 25% of the treatment arm: 
 
 ```{r}
 
@@ -192,22 +198,27 @@ discrete_cgd = mnar_cgd %>%
 formula = Surv(tstart, tstop, status) ~ treat + 
   sex + age + height + weight + inherit + steroids + hos.cat
 
-options("tableone.show_pvalue_method"=TRUE)
+old = options("tableone.show_pvalue_method"=TRUE)
 
 # This comparison implicitly ignores missing values.
 discrete_cgd %>% compare_population(formula)
 
-# N.B. The following option is important when converting integer data:
-# options("tableone.max_discrete_levels"=0)
+options(old)
+```
 
+```R
+# N.B. The following option is involved when converting integer data:
+options("tableone.max_discrete_levels"=0)
+# and is described in the documentation for make_factors().
 ```
 
 # Making missing factors explicit:
 
 In the comparison above missing values were not included, and we should be
-cautious of the findings. If factor values are missing (as in this case) then we
+cautious of the findings. Because of the missingness `tableone` will not 
+calculate p-values. If factor values are missing (as in this case) then we
 can include them as a new group and get a more robust comparison which includes
-the distribution of missingness. In contrast to the previous comparison
+the distribution of missingness, and for which we can calculate a p-value. 
 
 ```{r}
 discrete_cgd %>% explicit_na() %>% compare_population(formula)
@@ -215,13 +226,13 @@ discrete_cgd %>% explicit_na() %>% compare_population(formula)
 
 # Non biomedical data
 
-Beyond the bio-medical example `tableone` can make any more general comparison between
-data that has a structure like:
+Beyond the bio-medical example `tableone` can make any more general comparison
+between data that has a structure like:
 
 `~ group + observation_1 + observation_2 + ... + observation_n`
 
-We will use the `iris` and the `diamonds` datasets to demonstrate this more general
-use case for `tableone`. 
+We will use the `iris` and the `diamonds` datasets to demonstrate this more
+general use case for `tableone`.
 
 ```{r}
 
