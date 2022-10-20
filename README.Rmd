@@ -12,8 +12,9 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 
-options("huxtable.knitr_output_format"="md")
-
+options("huxtable.knitr_output_format"="html")
+library(tidyverse)
+library(tableone)
 ```
 
 
@@ -60,16 +61,7 @@ devtools::install_github("bristol-vaccine-centre/tableone")
 
 ## Example
 
-`tableone` is there to make descriptive statistics consistent and easy. 
-
-```{r example}
-library(tidyverse)
-library(tableone)
-
-```
-
-Summarising the dataset in a a nicely formatted summary table (although this is
-not seen at its best in a github readme) is as simple as the following code. For
+`tableone` is there to make descriptive statistics consistent and easy. Summarising the dataset in a a nicely formatted summary table is as simple as the following code. For
 the proper formatted output head to the [main documentation
 website](https://bristol-vaccine-centre.github.io/tableone/).
 
@@ -77,11 +69,12 @@ website](https://bristol-vaccine-centre.github.io/tableone/).
 # hide messages 
 old = options(tableone.quiet = TRUE)
 
-
 # generate table 
 iris %>% 
-  describe_population(everything())
+  describe_population(everything()) 
+```
 
+```{r include=FALSE}
 # reset options
 options(old)
 ```

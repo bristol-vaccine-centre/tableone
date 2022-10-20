@@ -154,9 +154,11 @@ formatter.
 ```{r}
 gcd %>% compare_population(
     formula,
-    # can supply either numbers or the "5f" (for 5 digits floating point) or "6g"
-    # for 6 significant figures syntax.
+    # can supply either the "5f" (for 5 digits floating point) or "6g"
+    # for 6 significant figures syntax:
     override_real_dp = list(age="0f",height="0f",weight="2f"),
+    # or a plain set of numbers. If the option is unnamed it is applied to 
+    # all the variables:
     override_percent_dp = 0
   )
 ```

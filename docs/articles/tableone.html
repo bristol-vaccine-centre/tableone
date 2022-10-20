@@ -122,17 +122,17 @@ to outcome. To demonstrate this we are using the
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gcd</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/cgd.html" class="external-link">cgd</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># filter to include only the first visit</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">enum</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">enum</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># make the steroids and propylac columns into a logical value</span></span>
 <span>  <span class="co"># see later for a better way of doing this.</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span></span>
 <span>    steroids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">steroids</span><span class="op">)</span>,</span>
 <span>    propylac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">propylac</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span>  </span>
 <span></span>
 <span><span class="co"># A basic unstratified population description table is as follows:</span></span>
-<span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/describe_population.html">describe_population</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/describe_population.html">describe_population</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-2">
 <col>
 <col>
@@ -355,7 +355,7 @@ demonstrated here:</p>
 <span></span>
 <span><span class="co"># set a table relabelling function</span></span>
 <span><span class="va">rename_cols</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">col</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>  <span class="fu">case_when</span><span class="op">(</span></span>
 <span>    <span class="va">col</span> <span class="op">==</span> <span class="st">"hos.cat"</span> <span class="op">~</span> <span class="st">"Location"</span>,</span>
 <span>    <span class="va">col</span> <span class="op">==</span> <span class="st">"steroids"</span> <span class="op">~</span> <span class="st">"Steroid treatment"</span>,</span>
 <span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/case.html" class="external-link">str_to_sentence</a></span><span class="op">(</span><span class="va">col</span><span class="op">)</span></span>
@@ -569,7 +569,7 @@ process:</p>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:NIH % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">16.9% [9.7%—27.8%] (11)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">23.8% [15.0%—35.6%] (15)</td>
-<td rowspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.7</td>
+<td rowspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.69</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:other % [95% CI] (N)</td>
@@ -593,7 +593,7 @@ this alternate syntax would have given us the same table. Note that we
 must group the data by intervention, for the <code>tidyselect</code> to
 work as intended:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">treat</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<code class="sourceCode R"><span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">group_by</span><span class="op">(</span><span class="va">treat</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="va">sex</span>,<span class="va">age</span>,<span class="va">height</span>,<span class="va">weight</span>,<span class="va">inherit</span>,<span class="va">steroids</span>,<span class="va">hos.cat</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -609,11 +609,11 @@ the treatment arm:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># generate a dataset with values missing not at random compared to the intervention:</span></span>
-<span><span class="va">cgd_treat</span> <span class="op">=</span> <span class="va">cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">treat</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">!=</span> <span class="st">"placebo"</span><span class="op">)</span></span>
-<span><span class="va">cgd_placebo</span> <span class="op">=</span> <span class="va">cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">treat</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">==</span> <span class="st">"placebo"</span><span class="op">)</span></span>
+<span><span class="va">cgd_treat</span> <span class="op">=</span> <span class="va">cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>treat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">treat</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">!=</span> <span class="st">"placebo"</span><span class="op">)</span></span>
+<span><span class="va">cgd_placebo</span> <span class="op">=</span> <span class="va">cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>treat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">treat</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">==</span> <span class="st">"placebo"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
-<span><span class="va">mnar_cgd</span> <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
+<span><span class="va">mnar_cgd</span> <span class="op">=</span> <span class="fu">bind_rows</span><span class="op">(</span></span>
 <span>  <span class="va">cgd_placebo</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">.make_missing</span><span class="op">(</span>p_missing <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
 <span>  <span class="va">cgd_treat</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">.make_missing</span><span class="op">(</span>p_missing <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -702,7 +702,7 @@ properly named factors.</p>
 <span></span>
 <span><span class="va">discrete_cgd</span> <span class="op">=</span> <span class="va">mnar_cgd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># pick out the first episode</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">enum</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">enum</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="co"># convert data</span></span>
 <span>  <span class="fu"><a href="../reference/make_factors.html">make_factors</a></span><span class="op">(</span></span>
 <span>    <span class="va">steroids</span>,<span class="va">propylac</span>,<span class="va">age</span>,<span class="va">weight</span>,<span class="va">height</span>,</span>
@@ -1047,7 +1047,7 @@ datasets to demonstrate this more general use case for
 <span></span>
 <span><span class="co"># the heuristics detect that Petals in the iris data set are not normally</span></span>
 <span><span class="co"># distributed and hence report median and IQR:</span></span>
-<span><span class="va">iris</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">Species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">iris</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">group_by</span><span class="op">(</span><span class="va">Species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in lapply(X = X, FUN = FUN, ...): restarting interrupted promise</span></span>
 <span><span class="co">#&gt; evaluation</span></span></code></pre></div>
 <table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-9">

@@ -109,103 +109,131 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p><code>tableone</code> is there to make descriptive statistics consistent and easy.</p>
+<p><code>tableone</code> is there to make descriptive statistics consistent and easy. Summarising the dataset in a a nicely formatted summary table is as simple as the following code. For the proper formatted output head to the <a href="https://bristol-vaccine-centre.github.io/tableone/">main documentation website</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──</span></span>
-<span><span class="co">#&gt; ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 </span></span>
-<span><span class="co">#&gt; ✔ tibble  3.1.8      ✔ dplyr   1.0.10</span></span>
-<span><span class="co">#&gt; ✔ tidyr   1.2.1      ✔ stringr 1.4.1 </span></span>
-<span><span class="co">#&gt; ✔ readr   2.1.2      ✔ forcats 0.5.2 </span></span>
-<span><span class="co">#&gt; ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
-<span><span class="co">#&gt; ✖ dplyr::filter() masks stats::filter()</span></span>
-<span><span class="co">#&gt; ✖ dplyr::lag()    masks stats::lag()</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bristol-vaccine-centre.github.io/tableone/">tableone</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'tableone'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:ggplot2':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     diamonds</span></span></code></pre></div>
-<p>Summarising the dataset in a a nicely formatted summary table (although this is not seen at its best in a github readme) is as simple as the following code. For the proper formatted output head to the <a href="https://bristol-vaccine-centre.github.io/tableone/">main documentation website</a>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># hide messages </span></span>
 <span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>tableone.quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co"># generate table </span></span>
 <span><span class="va">iris</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="reference/describe_population.html">describe_population</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in to_md.huxtable(structure(list(variable = c("variable",</span></span>
-<span><span class="co">#&gt; "Sepal.Length", : Markdown cannot handle cells with colspan/rowspan &gt; 1</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="29%">
-<col width="28%">
-<col width="25%">
-<col width="16%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">variable</th>
-<th align="left">characteristic</th>
-<th align="left">value</th>
-<th align="left">count (N=150)</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">Sepal.Length</td>
-<td align="left">Mean ± SD</td>
-<td align="left">5.84 ± 0.828</td>
-<td align="left">150</td>
+<span>  <span class="fu"><a href="reference/describe_population.html">describe_population</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
+<table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-2">
+<col>
+<col>
+<col>
+<col>
+<tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+variable
+</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+characteristic
+</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+value
+</th>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+count (N=150)
+</th>
 </tr>
-<tr class="even">
-<td align="center">Sepal.Width</td>
-<td align="left">Mean ± SD</td>
-<td align="left">3.06 ± 0.436</td>
-<td align="left">150</td>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Sepal.Length
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Mean ± SD
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+5.84 ± 0.828
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+150
+</td>
 </tr>
-<tr class="odd">
-<td align="center">Petal.Length</td>
-<td align="left">Median [IQR]</td>
-<td align="left">4.35 [1.6—5.1]</td>
-<td align="left">150</td>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Sepal.Width
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Mean ± SD
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+3.06 ± 0.436
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+150
+</td>
 </tr>
-<tr class="even">
-<td align="center">Petal.Width</td>
-<td align="left">Median [IQR]</td>
-<td align="left">1.3 [0.3—1.8]</td>
-<td align="left">150</td>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Petal.Length
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Median [IQR]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+4.35 [1.6—5.1]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+150
+</td>
 </tr>
-<tr class="odd">
-<td align="center">Species</td>
-<td align="left">setosa % [95% CI]</td>
-<td align="left">33.3% [26.3%—41.2%]</td>
-<td align="left">50/150</td>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Petal.Width
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Median [IQR]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+1.3 [0.3—1.8]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+150
+</td>
 </tr>
-<tr class="even">
-<td align="center"></td>
-<td align="left">versicolor % [95% CI]</td>
-<td align="left">33.3% [26.3%—41.2%]</td>
-<td align="left">50/150</td>
+<tr>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Species
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+setosa % [95% CI]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+33.3% [26.3%—41.2%]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+50/150
+</td>
 </tr>
-<tr class="odd">
-<td align="center"></td>
-<td align="left">virginica % [95% CI]</td>
-<td align="left">33.3% [26.3%—41.2%]</td>
-<td align="left">50/150</td>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+versicolor % [95% CI]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+33.3% [26.3%—41.2%]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+50/150
+</td>
 </tr>
-<tr class="even">
-<td align="center">Normality of distri test</td>
-<td align="left">butions determined</td>
-<td align="left">using Anderson-Darl</td>
-<td align="left">ing normality</td>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+virginica % [95% CI]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+33.3% [26.3%—41.2%]
+</td>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+50/150
+</td>
 </tr>
-</tbody>
+<tr>
+<td colspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">
+Normality of distributions determined using Anderson-Darling normality test
+</td>
+</tr>
 </table>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># reset options</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></code></pre></div>
 <p>As a <code>huxtable</code> output the table can be saved as a wide range of formats from spreadsheets or documents to latex and html (even as a github README.md with limited success). This default output of <code>tableone</code> can be very substantially customised to fit into a specific journal’s requirements.</p>
 </div>
 </div>

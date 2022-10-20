@@ -96,10 +96,10 @@ demonstrate them we will use the <code><a href="https://rdrr.io/pkg/survival/man
 <code class="sourceCode R"><span><span class="co"># set up the data </span></span>
 <span><span class="va">gcd</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/cgd.html" class="external-link">cgd</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># filter to include only the first visit</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">enum</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">enum</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="co"># make the steroids and propylac columns into a logical value</span></span>
 <span>  <span class="co"># see later for a better way of doing this.</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span></span>
 <span>    steroids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">steroids</span><span class="op">)</span>,</span>
 <span>    propylac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">propylac</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
@@ -220,7 +220,7 @@ demonstrate them we will use the <code><a href="https://rdrr.io/pkg/survival/man
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set a table relabelling function</span></span>
 <span><span class="va">rename_cols</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">col</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>  <span class="fu">case_when</span><span class="op">(</span></span>
 <span>    <span class="va">col</span> <span class="op">==</span> <span class="st">"hos.cat"</span> <span class="op">~</span> <span class="st">"Location"</span>,</span>
 <span>    <span class="va">col</span> <span class="op">==</span> <span class="st">"steroids"</span> <span class="op">~</span> <span class="st">"Steroid treatment"</span>,</span>
 <span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/case.html" class="external-link">str_to_sentence</a></span><span class="op">(</span><span class="va">col</span><span class="op">)</span></span>
@@ -611,9 +611,11 @@ This setting is independent of the p-value formatter.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gcd</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/compare_population.html">compare_population</a></span><span class="op">(</span></span>
 <span>    <span class="va">formula</span>,</span>
-<span>    <span class="co"># can supply either numbers or the "5f" (for 5 digits floating point) or "6g"</span></span>
-<span>    <span class="co"># for 6 significant figures syntax.</span></span>
+<span>    <span class="co"># can supply either the "5f" (for 5 digits floating point) or "6g"</span></span>
+<span>    <span class="co"># for 6 significant figures syntax:</span></span>
 <span>    override_real_dp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age<span class="op">=</span><span class="st">"0f"</span>,height<span class="op">=</span><span class="st">"0f"</span>,weight<span class="op">=</span><span class="st">"2f"</span><span class="op">)</span>,</span>
+<span>    <span class="co"># or a plain set of numbers. If the option is unnamed it is applied to </span></span>
+<span>    <span class="co"># all the variables:</span></span>
 <span>    override_percent_dp <span class="op">=</span> <span class="fl">0</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <table class="table huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-5">
@@ -1157,7 +1159,7 @@ acronyms:</li>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:NIH % [95% CI] (N)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">16.9% [9.7%—27.8%] (11)</td>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">23.8% [15.0%—35.6%] (15)</td>
-<td rowspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.69</td>
+<td rowspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">0.7</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">US:other % [95% CI] (N)</td>

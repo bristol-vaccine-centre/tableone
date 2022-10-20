@@ -50,60 +50,40 @@ devtools::install_github("bristol-vaccine-centre/tableone")
 ## Example
 
 `tableone` is there to make descriptive statistics consistent and easy.
-
-``` r
-library(tidyverse)
-#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-#> ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
-#> ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-#> ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-#> ✔ readr   2.1.2      ✔ forcats 0.5.2 
-#> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-#> ✖ dplyr::filter() masks stats::filter()
-#> ✖ dplyr::lag()    masks stats::lag()
-library(tableone)
-#> 
-#> Attaching package: 'tableone'
-#> 
-#> The following object is masked from 'package:ggplot2':
-#> 
-#>     diamonds
-```
-
-Summarising the dataset in a a nicely formatted summary table (although
-this is not seen at its best in a github readme) is as simple as the
-following code. For the proper formatted output head to the [main
-documentation
+Summarising the dataset in a a nicely formatted summary table is as
+simple as the following code. For the proper formatted output head to
+the [main documentation
 website](https://bristol-vaccine-centre.github.io/tableone/).
 
 ``` r
 # hide messages 
 old = options(tableone.quiet = TRUE)
 
-
 # generate table 
 iris %>% 
-  describe_population(everything())
-#> Warning in to_md.huxtable(structure(list(variable = c("variable",
-#> "Sepal.Length", : Markdown cannot handle cells with colspan/rowspan > 1
+  describe_population(everything()) 
 ```
 
-|         variable         | characteristic          | value                 | count (N=150) |
-|:------------------------:|:------------------------|:----------------------|:--------------|
-|       Sepal.Length       | Mean ± SD               | 5.84 ± 0.828          | 150           |
-|       Sepal.Width        | Mean ± SD               | 3.06 ± 0.436          | 150           |
-|       Petal.Length       | Median \[IQR\]          | 4.35 \[1.6—5.1\]      | 150           |
-|       Petal.Width        | Median \[IQR\]          | 1.3 \[0.3—1.8\]       | 150           |
-|         Species          | setosa % \[95% CI\]     | 33.3% \[26.3%—41.2%\] | 50/150        |
-|                          | versicolor % \[95% CI\] | 33.3% \[26.3%—41.2%\] | 50/150        |
-|                          | virginica % \[95% CI\]  | 33.3% \[26.3%—41.2%\] | 50/150        |
-| Normality of distri test | butions determined      | using Anderson-Darl   | ing normality |
-
-``` r
-
-# reset options
-options(old)
-```
+<table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:unnamed-chunk-2">
+<col><col><col><col><tr>
+<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">variable</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">characteristic</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">value</th><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">count (N=150)</th></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Sepal.Length</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Mean ± SD</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">5.84 ± 0.828</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">150</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Sepal.Width</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Mean ± SD</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">3.06 ± 0.436</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">150</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Petal.Length</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Median [IQR]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">4.35 [1.6—5.1]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">150</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Petal.Width</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Median [IQR]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">1.3 [0.3—1.8]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0.5pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">150</td></tr>
+<tr>
+<td rowspan="3" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Species</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">setosa % [95% CI]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">33.3% [26.3%—41.2%]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0.5pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">50/150</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">versicolor % [95% CI]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">33.3% [26.3%—41.2%]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">50/150</td></tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">virginica % [95% CI]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">33.3% [26.3%—41.2%]</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">50/150</td></tr>
+<tr>
+<td colspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 1pt 6pt 0pt 6pt; font-weight: normal; font-family: Arial; font-size: 8pt;">Normality of distributions determined using Anderson-Darling normality test</td></tr>
+</table>
 
 As a `huxtable` output the table can be saved as a wide range of formats
 from spreadsheets or documents to latex and html (even as a github

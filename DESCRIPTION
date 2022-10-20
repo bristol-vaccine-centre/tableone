@@ -26,7 +26,8 @@ Suggests:
     survival,
     scales,
     ggplot2,
-    tidyverse
+    tidyverse,
+    htmltools
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 
