@@ -50,6 +50,8 @@ Imports:
     glue,
     purrr,
     tidyselect
+Remotes:
+    hughjonesd/huxtable
 URL: https://bristol-vaccine-centre.github.io/tableone/,
     https://github.com/bristol-vaccine-centre/tableone,
     https://doi.org/10.5281/zenodo.7226522

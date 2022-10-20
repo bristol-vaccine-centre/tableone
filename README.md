@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tableone: Descriptive Tables for Observational or Interventional Studies
+# tableone: Descriptive Tables for Observational or Interventional Studies <a href='https://bristol-vaccine-centre.github.io/tableone/index.html'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 
