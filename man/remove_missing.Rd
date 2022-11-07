@@ -43,6 +43,15 @@ Comparing missingness by looking at a table is good but we also want to update
 models to exclude missing data from the predictors.
 }
 \examples{
-df = iris \%>\% mutate(Petal.Width = ifelse(runif(n()) < case_when(Species == "setosa" ~ 0.2,Species == "virginica" ~ 0.1,TRUE~0), NA, Petal.Width))
+df = iris \%>\%
+  dplyr::mutate(Petal.Width = ifelse(
+    stats::runif(dplyr::n()) < dplyr::case_when(
+      Species == "setosa" ~ 0.2,
+      Species == "virginica" ~ 0.1,
+      TRUE~0
+    ),
+    NA,
+    Petal.Width
+  ))
 remove_missing(df, ~ Species + Petal.Width + Sepal.Width, ~ Species + Petal.Length + Sepal.Length)
 }

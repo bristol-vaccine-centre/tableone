@@ -10,6 +10,9 @@ reference:
   - describe_population
   - compare_population
   - compare_missing
+  - compare_outcomes
+  - compare_variables
+  - remove_missing
 - title: "Supporting functions"
   desc: >
     Modify data for making tabular summaries, making missing data more
@@ -18,6 +21,7 @@ reference:
   - make_factors
   - explicit_na
   - get_footer_text
+  - as_vars
 - title: "Configuration"
   contents:
   - default.format

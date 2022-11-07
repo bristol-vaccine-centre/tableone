@@ -20,7 +20,7 @@ of whether data is correlated to intervention."><meta property="og:image" conten
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -190,7 +190,6 @@ setting this to FALSE dsables the whole footer (as does
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># the heuristics detect that Petals in the iris data set are not normally</span></span></span>
 <span class="r-in"><span><span class="co"># distributed and hence report median and IQR:</span></span></span>
 <span class="r-in"><span><span class="va">iris</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">Species</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_population</span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> mean_sd summary for Sepal.Length</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> mean_sd summary for Sepal.Width</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for Petal.Length</span>
@@ -215,7 +214,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>   h            [IQR] (N)    [0.2—0.3]    [1.2—1.5]    [1.8—2.3]                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                             (50)         (50)         (50)                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ───────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signifiance determined using Analysis of variance (linear                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Significance determined using Analysis of variance (linear                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   model), Kruskal-Wallis rank sum test (continuous variables)                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Normality of distributions determined using Anderson-Darling                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   normality test                                                               </span>
@@ -225,7 +224,6 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-in"><span><span class="co"># Missing data</span></span></span>
 <span class="r-in"><span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.show_pvalue_method"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">is_colored</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_population</span><span class="op">(</span><span class="op">-</span><span class="va">color</span>, layout<span class="op">=</span><span class="st">"relaxed"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for carat</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for cut</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for clarity</span>
@@ -339,7 +337,6 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-in"><span>      <span class="st">"IQR: Interquartile range; CI: Confidence interval"</span>,</span></span>
 <span class="r-in"><span>      <span class="st">"Line two"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for carat</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for cut</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for clarity</span>

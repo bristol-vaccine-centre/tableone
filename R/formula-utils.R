@@ -87,7 +87,7 @@ as_vars = function(tidyselect, data=NULL) {
     return(.parse_character(...))
   }
   if (.is_vars_interface(...)) {
-    return(c(...) %>% sapply(as_label) %>% lapply(as.symbol))
+    return(c(...) %>% sapply(rlang::as_label) %>% lapply(as.symbol))
   }
   if (.is_formula_interface(...)) {
     list_vars = .parse_formulae(df, ..., side = .side)
@@ -103,35 +103,35 @@ as_vars = function(tidyselect, data=NULL) {
 }
 
 .sort_symbols = function(symbols) {
-  s = order(sapply(symbols, as_label))
+  s = order(sapply(symbols, rlang::as_label))
   symbols[s]
 }
 
-# all variables in df and in one of: a set of characters, a set of formulae, 
+# all variables in df and in one of: a set of characters, a set of formulae,
 # a tidyselect spec or a dplyr::vars() call.
 # .parse_unique(iris, Sepal.Width ~ Species + Sepal.Length, Sepal.Width ~ Species + Petal.Length)
 # .parse_unique(iris, c(Sepal.Width ~ Species + Sepal.Length, Sepal.Width ~ Species + Petal.Length))
 # .parse_unique(iris, list(Sepal.Width ~ Species + Sepal.Length, Sepal.Width ~ Species + Petal.Length))
 # .parse_unique(iris, list(Sepal.Width ~ Species + Sepal.Length, Sepal.Width ~ Species + Petal.Length), .side="all")
-# .parse_unique(iris, everything())
-# .parse_unique(iris %>% group_by(Species), everything(), .side="both")
-# .parse_unique(iris %>% group_by(Species), vars(Sepal.Width,Sepal.Length), .side="rhs")
-# .parse_unique(iris %>% group_by(Species), vars(Sepal.Width,Sepal.Length), .side="lhs")
+# .parse_unique(iris, tidyselect::everything())
+# .parse_unique(iris %>% dplyr::group_by(Species), tidyselect::everything(), .side="both")
+# .parse_unique(iris %>% dplyr::group_by(Species), dplyr::vars(Sepal.Width,Sepal.Length), .side="rhs")
+# .parse_unique(iris %>% dplyr::group_by(Species), dplyr::vars(Sepal.Width,Sepal.Length), .side="lhs")
 .parse_unique = function(df, ..., .side = "rhs") {
   predictorVars = list()
   if (.is_character_list(...)) {
-    if (.side != "rhs") predictorVars = df %>% groups()
+    if (.side != "rhs") predictorVars = df %>% dplyr::groups()
     if (.side != "lhs") predictorVars = c(predictorVars,.parse_character(df,...))
   } else if(.is_vars_interface(...)) {
-    if (.side != "rhs") predictorVars = df %>% groups()
-    tmp = c(...) %>% sapply(as_label) %>% lapply(as.symbol)
+    if (.side != "rhs") predictorVars = df %>% dplyr::groups()
+    tmp = c(...) %>% sapply(rlang::as_label) %>% lapply(as.symbol)
     if (.side != "lhs") predictorVars = c(predictorVars,tmp)
   } else if(.is_formula_interface(...)) {
-    predictorVars = .parse_formulae(df, ..., side = .side) %>% 
-      purrr::discard(~ is.null(.x) | length(.x) == 0) %>% 
+    predictorVars = .parse_formulae(df, ..., side = .side) %>%
+      purrr::discard(~ is.null(.x) | length(.x) == 0) %>%
       unlist() %>% unique()
   } else {
-    if (.side != "rhs") predictorVars = df %>% groups()
+    if (.side != "rhs") predictorVars = df %>% dplyr::groups()
     if (.side != "lhs") predictorVars = c(predictorVars,.parse_tidyselect(df, ...))
   }
   return(unique(predictorVars))
@@ -188,7 +188,7 @@ as_vars = function(tidyselect, data=NULL) {
 # .is_character_list(c("a","b","c"))
 # .is_character_list(list("a","b","c"))
 # .is_character_list(a~b,"b","c") # no
-# .is_character_list(everything())
+# .is_character_list(tidyselect::everything())
 # .is_character_list(colnames(iris))
 .is_character_list = function(...) {
   out = tryCatch({

@@ -35,14 +35,14 @@ test_that("multiple formula parsing", {
 
   expect_warning(
     expect_equal(
-      .parse_formulae(c(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width), side="lhs"),
+      .parse_formulae(iris, c(Species ~ Petal.Width + Missing, a ~ b+Sepal.Width), side="lhs"),
       list(.s(Species),.s())
     )
   )
 
   expect_warning(
     expect_equal(
-      .parse_formulae(list(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width), side="lhs"),
+      .parse_formulae(iris, list(Species ~ Petal.Width + Missing, a ~ b+Sepal.Width), side="lhs"),
       list(.s(Species),.s())
     )
   )

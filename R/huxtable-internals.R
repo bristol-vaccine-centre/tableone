@@ -55,9 +55,9 @@
   sapply(symbols, rlang::as_label) %>% unlist() %>% as.character()
 }
 
-# tmp = tibble( x = c("b","a","b","a","b","a"), y = factor(c("d","e","f","d","e","f")))
-# .nested_arrange(tmp, vars(x,y))
-# tmp2 = tribble(~cat,~char,~grp,~val,~e,~e2,
+# tmp = tibble::tibble( x = c("b","a","b","a","b","a"), y = factor(c("d","e","f","d","e","f")))
+# .nested_arrange(tmp, dplyr::vars(x,y))
+# tmp2 = tibble::tribble(~cat,~char,~grp,~val,~e,~e2,
 #   "big","var Z", "level Z", 1,1,1,
 #   "big","var Z", "level Y", 2,1,2,
 #   "small","var Y", "level Z2", 7,3,1,
@@ -68,35 +68,36 @@
 #   "big","var Z", "level X", 3,1,3,
 #   "big","var Z", "missing", 4,1,4
 # )
-# .nested_arrange(tmp2, vars(cat,char,grp))
-# tmp3 = bind_rows(tmp2 %>% mutate(bigcat="colgrpZ"), tmp2 %>% mutate(bigcat="colgrpA"))
-# .nested_arrange(tmp3, vars(cat,char,grp))
-# .nested_arrange(tmp3, vars(bigcat))
+# .nested_arrange(tmp2, dplyr::vars(cat,char,grp))
+# tmp3 = dplyr::bind_rows(tmp2 %>% dplyr::mutate(bigcat="colgrpZ"), tmp2 %>% dplyr::mutate(bigcat="colgrpA"))
+# .nested_arrange(tmp3, dplyr::vars(cat,char,grp))
+# .nested_arrange(tmp3, dplyr::vars(bigcat))
 
 # get a groupwise order for a dataframe without using group and arrange which
 # enforce alphabetical order on character data. This on the other hand
 # sorts by appearance order for characters and factor order by factors.
 .nested_arrange = function(tidyDf, groupVars) {
-  colOrder = tidyDf %>% ungroup() %>% select(!!!groupVars) %>% distinct() %>% dplyr::mutate(.o=0, .o2=row_number())
+  .o=.o2=NULL
+  colOrder = tidyDf %>% dplyr::ungroup() %>% dplyr::select(!!!groupVars) %>% dplyr::distinct() %>% dplyr::mutate(.o=0, .o2=dplyr::row_number())
   for (colGroup in groupVars) {
-    col = colOrder %>% pull(!!colGroup)
+    col = colOrder %>% dplyr::pull(!!colGroup)
     if (col %>% is.factor()) {
-      colOrder = colOrder %>% mutate(.o = .o*100000 + ifelse(is.na(!!colGroup),99999,as.integer(!!colGroup)))
+      colOrder = colOrder %>% dplyr::mutate(.o = .o*100000 + ifelse(is.na(!!colGroup),99999,as.integer(!!colGroup)))
     } else {
       if (rlang::as_label(colGroup) == rlang::as_label(utils::tail(groupVars,1)[[1]])) {
         # a text column in the last group is the row label unless proven otherwise
         # if you want a different order than the exact original data order then
         # convert to a factor
-        colOrder = colOrder %>% mutate(.o = .o*100000 + .o2)
+        colOrder = colOrder %>% dplyr::mutate(.o = .o*100000 + .o2)
       } else {
         # if the column is not the last one then we want the order to be the
         # unique values of the data in data presentation order
-        colOrder = colOrder %>% mutate(.o = .o*100000 + match(!!colGroup, unique(!!colGroup)))
+        colOrder = colOrder %>% dplyr::mutate(.o = .o*100000 + match(!!colGroup, unique(!!colGroup)))
       }
     }
   }
-  colOrder = colOrder %>% mutate(.order = dplyr::dense_rank(.o)) %>% dplyr::select(-.o,-.o2)
-  return(tidyDf %>% inner_join(colOrder, by=.as_join_list(groupVars)))
+  colOrder = colOrder %>% dplyr::mutate(.order = dplyr::dense_rank(.o)) %>% dplyr::select(-.o,-.o2)
+  return(tidyDf %>% dplyr::inner_join(colOrder, by=.as_join_list(groupVars)))
 }
 
 # Convert a dataframe to a huxtable with nested rows and columns.

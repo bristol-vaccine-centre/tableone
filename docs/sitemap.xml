@@ -25,13 +25,22 @@
     <loc>https://bristol-vaccine-centre.github.io/tableone/index.html</loc>
   </url>
   <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_vars.html</loc>
+  </url>
+  <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/bad_test_cols.html</loc>
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/compare_missing.html</loc>
   </url>
   <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/compare_outcomes.html</loc>
+  </url>
+  <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/compare_population.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/compare_variables.html</loc>
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/default.format.html</loc>
@@ -71,6 +80,9 @@
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/remove_missing.html</loc>
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/test_cols.html</loc>

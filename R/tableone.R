@@ -191,16 +191,16 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
 explicit_na = function(df, na_level = "<missing>", hide_if_empty = FALSE) {
   if (hide_if_empty) {
     df %>% dplyr::ungroup() %>%
-      dplyr::mutate(across(where(is.factor), ~ forcats::fct_explicit_na(.x, na_level)))
+      dplyr::mutate(dplyr::across(tidyselect::where(is.factor), ~ forcats::fct_explicit_na(.x, na_level)))
   } else {
     df %>% dplyr::ungroup() %>%
-      dplyr::mutate(across(where(is.factor), ~ .fct_explicit_na(.x, na_level)))
+      dplyr::mutate(dplyr::across(tidyselect::where(is.factor), ~ .fct_explicit_na(.x, na_level)))
   }
 }
 
 # missing_diamonds %>% data_missingness() %>% describe_population(tidyselect::everything())
 .data_missingness = function(df) {
-  df %>% dplyr::mutate(across(tidyselect::everything(), ~ ifelse(is.na(.x) | is.infinite(.x) | is.nan(.x), "missing", "not missing") %>% factor(levels = c("missing","not missing"))))
+  df %>% dplyr::mutate(dplyr::across(tidyselect::everything(), ~ ifelse(is.na(.x) | is.infinite(.x) | is.nan(.x), "missing", "not missing") %>% factor(levels = c("missing","not missing"))))
 }
 
 
@@ -468,6 +468,43 @@ compare_population = function(
   return(hux)
 }
 
+.comparison_printer = function(sign, intervention, p_fun) {
+  # TODO:
+  # list fo functions: significance(.variable) - includes p_fun formatting
+  # statistics(.variable, .characteristic=NULL) - list of stats, checks it is single
+  # checks characteristics match. exactuly one row.
+  #
+  function(.variable, .characteristic = NULL) {
+    .summary_data = NULL
+    .variable = rlang::ensym(.variable)
+    tmp = sign %>% dplyr::filter(.name==rlang::as_label(.variable))
+    tmp2 = tmp %>% dplyr::select(.summary_type, .summary_data) %>%
+      tidyr::unnest(.summary_data) %>%
+      dplyr::mutate(.group = as.character(!!intervention))
+    if (!is.null(.characteristic)) tmp2 = tmp2 %>% dplyr::filter(level == .characteristic)
+    simple = list(
+      # "subtype_count" = "{.sprintf_na('%1.1f%% %s (%d/%d - %s)',prob.0.5*100,as.character(level),n,N,.group)}",
+      "subtype_count" = "{.sprintf_na('%1.1f%% - %s (%d/%d)',prob.0.5*100,.group,n,N)}",
+      "median_iqr" = "{.sprintf_na('%1.3g (%s)',q.0.5, .group)}",
+      "mean_sd" = "{.sprintf_na('%1.3g (%s)',mean, .group)}"
+    )
+    out = rep(NA_character_, nrow(tmp2))
+    for (i in 1:nrow(tmp2)) {
+      l = lapply(tmp2, `[[`, i)
+      glue = simple[[l$.summary_type]]
+      out[[i]] = glue::glue_data(l, glue)
+    }
+
+    s = out %>% paste0(collapse = " versus ")
+    p = tmp %>% dplyr::select(.significance_test) %>% tidyr::unnest(.significance_test) %>%
+      dplyr::pull(p.value) %>% p_fun()
+    # q = tmp %>% dplyr::select(.significance_test) %>% tidyr::unnest(.significance_test) %>%
+    #   dplyr::pull(p.method)
+    p_col = getOption("tableone.pvalue_column_name","P value")
+    return(sprintf("%s [%s: %s]",s,p_col,p))
+
+  }
+}
 
 #' Get summary comparisons and statistics between variables as raw data.
 #'
@@ -485,6 +522,7 @@ compare_population = function(
 compare_variables = function(
     df,
     ...,
+    label_fn = ~ .x,
     override_type = list(),
     p_format = names(.pvalue.defaults)
 ) {
@@ -512,42 +550,7 @@ compare_variables = function(
   return(.comparison_printer(sign, intervention, p_fun))
 }
 
-.comparison_printer = function(sign, intervention, p_fun) {
-  # TODO:
-  # list fo functions: significance(.variable) - includes p_fun formatting
-  # statistics(.variable, .characteristic=NULL) - list of stats, checks it is single
-  # checks characteristics match. exactuly one row.
-  #
-  function(.variable, .characteristic = NULL) {
-    .variable = rlang::ensym(.variable)
-    tmp = sign %>% dplyr::filter(.name==as_label(.variable))
-    tmp2 = tmp %>% dplyr::select(.summary_type, .summary_data) %>%
-      tidyr::unnest(.summary_data) %>%
-      dplyr::mutate(.group = as.character(!!intervention))
-    if (!is.null(.characteristic)) tmp2 = tmp2 %>% dplyr::filter(level == .characteristic)
-    simple = list(
-      # "subtype_count" = "{.sprintf_na('%1.1f%% %s (%d/%d - %s)',prob.0.5*100,as.character(level),n,N,.group)}",
-      "subtype_count" = "{.sprintf_na('%1.1f%% - %s (%d/%d)',prob.0.5*100,.group,n,N)}",
-      "median_iqr" = "{.sprintf_na('%1.3g (%s)',q.0.5, .group)}",
-      "mean_sd" = "{.sprintf_na('%1.3g (%s)',mean, .group)}"
-    )
-    out = rep(NA_character_, nrow(tmp2))
-    for (i in 1:nrow(tmp2)) {
-      l = lapply(tmp2, `[[`, i)
-      glue = simple[[l$.summary_type]]
-      out[[i]] = glue::glue_data(l, glue)
-    }
 
-    s = out %>% paste0(collapse = " versus ")
-    p = tmp %>% select(.significance_test) %>% unnest(.significance_test) %>%
-      pull(p.value) %>% p_fun()
-    # q = tmp %>% select(.significance_test) %>% unnest(.significance_test) %>%
-    #   pull(p.method)
-    p_col = getOption("tableone.pvalue_column_name","P value")
-    return(sprintf("%s [%s: %s]",s,p_col,p))
-
-  }
-}
 
 #' Compares multiple outcomes against an intervention in a summary table
 #'
@@ -592,7 +595,7 @@ compare_outcomes = function(df,
     )
   } else {
     rhs = .parse_formulae(df, ..., side="rhs")
-    first = rhs %>% purrr::map(~ as_label(.x[[1]]))
+    first = rhs %>% purrr::map(~ rlang::as_label(.x[[1]]))
     interv = unique(unlist(first))
     if (length(interv)>1) stop(
       "The formulae input have multiple different first terms in the model. ",
@@ -606,7 +609,7 @@ compare_outcomes = function(df,
       "hand side. compare_outcomes() expects each formula to have a single outcome."
     )
     new_form = sprintf("~ %s + %s", interv, paste0(unlist(outcomes),collapse = " + "))
-    new_form = as.formula(new_form)
+    new_form = stats::as.formula(new_form)
     compare_population(df, new_form, label_fn = label_fn, units = units,
        override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
        override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
@@ -682,7 +685,7 @@ compare_missing = function(
   footer = footer_text
   label_fn = purrr::as_mapper(label_fn)
   shape1 = .get_shape(df,cols,label_fn)
-  too_missing = shape1 %>% filter(.p_missing > missingness_limit) %>% pull(.cols)
+  too_missing = shape1 %>% dplyr::filter(.p_missing > missingness_limit) %>% dplyr::pull(.cols)
 
   if (length(too_missing)>0) {
     footer = c(footer, .missing_message(too_missing, missingness_limit, label_fn))
@@ -699,10 +702,10 @@ compare_missing = function(
 
   comparisons = nrow(sign)
 
-  mnar = sign %>% select(.cols, .significance_test) %>%
-    unnest(.significance_test) %>%
-    filter(!is.na(p.value) & p.value < significance_limit/comparisons) %>%
-    pull(.cols)
+  mnar = sign %>% dplyr::select(.cols, .significance_test) %>%
+    tidyr::unnest(.significance_test) %>%
+    dplyr::filter(!is.na(p.value) & p.value < significance_limit/comparisons) %>%
+    dplyr::pull(.cols)
   if (length(mnar)>0) {
     footer = c(footer, .mnar_message(mnar, intervention, significance_limit, comparisons, label_fn))
   }
@@ -734,7 +737,16 @@ compare_missing = function(
 #' @export
 #'
 #' @examples
-#' df = iris %>% mutate(Petal.Width = ifelse(runif(n()) < case_when(Species == "setosa" ~ 0.2,Species == "virginica" ~ 0.1,TRUE~0), NA, Petal.Width))
+#' df = iris %>%
+#'   dplyr::mutate(Petal.Width = ifelse(
+#'     stats::runif(dplyr::n()) < dplyr::case_when(
+#'       Species == "setosa" ~ 0.2,
+#'       Species == "virginica" ~ 0.1,
+#'       TRUE~0
+#'     ),
+#'     NA,
+#'     Petal.Width
+#'   ))
 #' remove_missing(df, ~ Species + Petal.Width + Sepal.Width, ~ Species + Petal.Length + Sepal.Length)
 remove_missing = function(df,
       ...,
@@ -754,7 +766,8 @@ remove_missing = function(df,
   # missingness
   df = df %>% dplyr::group_by(!!intervention)
   shape1 = .get_shape(df,cols,label_fn)
-  too_missing = shape1 %>% filter(.p_missing > missingness_limit) %>% pull(.cols)
+  too_missing = shape1 %>%
+    dplyr::filter(.p_missing > missingness_limit) %>% dplyr::pull(.cols)
 
   df_missing = .data_missingness(df)
   shape = .get_shape(df_missing,cols,label_fn)
@@ -763,23 +776,24 @@ remove_missing = function(df,
   # boneferoni adjustment:
   comparisons = nrow(sign)
 
-  mnar = sign %>% select(.cols, .significance_test) %>%
-    unnest(.significance_test) %>%
-    filter(!is.na(p.value) & p.value < significance_limit/comparisons) %>%
-    pull(.cols)
+  mnar = sign %>%
+    dplyr::select(.cols, .significance_test) %>%
+    tidyr::unnest(.significance_test) %>%
+    dplyr::filter(!is.na(p.value) & p.value < significance_limit/comparisons) %>%
+    dplyr::pull(.cols)
 
   if (length(too_missing)>0) {
-    message(.missing_message(too_missing, missingness_limit, comparisons, label_fn))
-    mod_forms = lapply(too_missing, function(x) as.formula(paste0(". ~ . -",x)))
+    message(.missing_message(too_missing, missingness_limit, label_fn))
+    mod_forms = lapply(too_missing, function(x) stats::as.formula(paste0(". ~ . -",x)))
     for (i in  1:length(mod_forms)) {
-      forms = lapply(forms, function(x) update(x,mod_forms[[i]]))
+      forms = lapply(forms, function(x) stats::update(x,mod_forms[[i]]))
     }
   }
   if (length(mnar)>0) {
     message(.mnar_message(mnar,intervention, significance_limit, label_fn))
-    mod_forms = lapply(mnar, function(x) as.formula(paste0(". ~ . -",x)))
+    mod_forms = lapply(mnar, function(x) stats::as.formula(paste0(". ~ . -",x)))
     for (i in  1:length(mod_forms)) {
-      forms = lapply(forms, function(x) update(x,mod_forms[[i]]))
+      forms = lapply(forms, function(x) stats::update(x,mod_forms[[i]]))
     }
   }
   return(forms)
@@ -799,7 +813,7 @@ remove_missing = function(df,
 .mnar_message = function(mnar, intervention, significance_limit, comparisons, label_fn) {
   label_fn = getOption("tableone.labeller",label_fn)
   sprintf("Data is missing not at random (compared to %s) at a p-value<%1.3f (%1.2f over %d comparisons) for variables %s.",
-          label_fn(as_label(intervention)),
+          label_fn(rlang::as_label(intervention)),
           significance_limit / comparisons,
           significance_limit,
           comparisons,

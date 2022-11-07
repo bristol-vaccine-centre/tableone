@@ -20,7 +20,7 @@ intervention."><meta property="og:image" content="https://bristol-vaccine-centre
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,6 +79,8 @@ intervention.</p>
 <span>  p_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">.pvalue.defaults</span><span class="op">)</span>,</span>
 <span>  font_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"tableone.font_size"</span>, <span class="fl">8</span><span class="op">)</span>,</span>
 <span>  font <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"tableone.font"</span>, <span class="st">"Arial"</span><span class="op">)</span>,</span>
+<span>  significance_limit <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  missingness_limit <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  footer_text <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -128,6 +130,16 @@ here is overridden by the <code>option("tableone.pvalue_formatter"=function(...)
 closest on your system)</p></dd>
 
 
+<dt>significance_limit</dt>
+<dd><p>the limit at which we reject the hypothesis that the
+data is missing at random.</p></dd>
+
+
+<dt>missingness_limit</dt>
+<dd><p>the limit at which too much data is missing
+to include the predictor.</p></dd>
+
+
 <dt>footer_text</dt>
 <dd><p>any text that needs to be added at the end of the table,
 setting this to FALSE dsables the whole footer (as does
@@ -149,7 +161,6 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># missing at random</span></span></span>
 <span class="r-in"><span><span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">is_colored</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_missing</span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for carat</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for cut</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for color</span>
@@ -170,39 +181,38 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on x</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on y</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on z</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       clear              colored                              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable           missing % (N)      missing % (N)      p-value           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    carat              10.0%              9.7%               0.26              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1651/16572)       (3607/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    cut                9.6%               10.2%              0.05              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1592/16572)       (3795/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    color              9.7%               10.1%              0.18              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1607/16572)       (3764/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    clarity            10.2%              10.0%              0.49              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1685/16572)       (3728/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    depth              10.0%              9.9%               0.84              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1652/16572)       (3704/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    table              9.9%               9.6%               0.22              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1647/16572)       (3586/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    price              9.6%               9.8%               0.35              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1587/16572)       (3678/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    x                  9.9%               10.0%              0.65              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1633/16572)       (3730/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    y                  10.1%              9.9%               0.39              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1675/16572)       (3687/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    z                  9.6%               10.2%              0.04              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       (1587/16572)       (3794/37368)                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Signifiance determined using Fisher's exact test (categorical              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variables)                                                                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        clear              colored                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             variable   missing % (N)      missing % (N)      p-value  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             carat      10.0%              9.7%               0.26     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1651/16572)       (3607/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             cut        9.6%               10.2%              0.05     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1592/16572)       (3795/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             color      9.7%               10.1%              0.18     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1607/16572)       (3764/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             clarity    10.2%              10.0%              0.49     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1685/16572)       (3728/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             depth      10.0%              9.9%               0.84     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1652/16572)       (3704/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             table      9.9%               9.6%               0.22     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1647/16572)       (3586/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             price      9.6%               9.8%               0.35     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1587/16572)       (3678/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x          9.9%               10.0%              0.65     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1633/16572)       (3730/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             y          10.1%              9.9%               0.39     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1675/16572)       (3687/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             z          9.6%               10.2%              0.04     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        (1587/16572)       (3794/37368)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             More than 10% of data is missing for variables            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             clarity.                                                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, 1, 2, p-value</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># nothing missing</span></span></span>
 <span class="r-in"><span><span class="va">iris</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">Species</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_missing</span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for Sepal.Length</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for Sepal.Width</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for Petal.Length</span>
@@ -211,24 +221,22 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on Sepal.Width</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on Petal.Length</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    setosa         versicolor     virginica                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     variable       missing %      missing %      missing %      p-value       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    (N)            (N)            (N)                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Sepal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Sepal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Petal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Petal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Signifiance determined using Fisher's exact test                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     (categorical variables)                                                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ───────────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      setosa         versicolor     virginica               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       variable       missing %      missing %      missing %      p-value  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      (N)            (N)            (N)                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ───────────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Petal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Petal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ───────────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, 1, 2, 3, p-value</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MNAR: by design missingness is correlated with grouping</span></span></span>
 <span class="r-in"><span><span class="va">mnar_two_class_1000</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">grouping</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_missing</span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for uniform_variable</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for normal_variable</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for binomial_class</span>
@@ -253,8 +261,13 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>    ignore_me          100.0%             100.0%             1                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       (1000/1000)        (1000/1000)                          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Signifiance determined using Fisher's exact test (categorical              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variables)                                                                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    More than 10% of data is missing for variables uniform_variable,           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    normal_variable, binomial_class, multinom_class, discrete,                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ignore_me.                                                                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Data is missing not at random (compared to &lt;list&gt;) at a                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    p-value&lt;0.008 (0.05 over 6 comparisons) for variables                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    uniform_variable, normal_variable, binomial_class,                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    multinom_class, discrete.                                                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, 1, 2, p-value</span>
 <span class="r-in"><span></span></span>

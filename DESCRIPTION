@@ -1,6 +1,6 @@
 Package: tableone
 Title: Descriptive Tables for Observational or Interventional Studies
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -50,7 +50,7 @@ Imports:
     broom,
     glue,
     purrr,
-    tidyselect
+    tidyselect (>= 1.2.0)
 Remotes:
     hughjonesd/huxtable
 URL: https://bristol-vaccine-centre.github.io/tableone/,

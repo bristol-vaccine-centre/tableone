@@ -2,9 +2,15 @@
 % Please edit documentation in R/tableone.R
 \name{compare_variables}
 \alias{compare_variables}
-\title{Get summary comparisons and statistics between variables as text.}
+\title{Get summary comparisons and statistics between variables as raw data.}
 \usage{
-compare_variables(df, ..., override_type = list())
+compare_variables(
+  df,
+  ...,
+  label_fn = ~.x,
+  override_type = list(),
+  p_format = names(.pvalue.defaults)
+)
 }
 \arguments{
 \item{df}{a dataframe of individual observations. If using the \code{tidyselect}
@@ -20,6 +26,15 @@ on the left hand side, e.g. \verb{outcome1 ~ intervention + cov1, outcome2 ~ int
 in this case the \code{intervention} must be the same for all formulae and used
 to determine the comparison groups.}
 
+\item{label_fn}{(optional) a function for mapping a co-variate column name to
+printable label. This is by default a no-operation and the output table
+will contain the dataframe column names as labels. A simple alternative
+would be some form of \link[dplyr:case_when]{dplyr::case_when} lookup, or a string function such
+as \link[stringr:case]{stringr::str_to_sentence}. (N.b. this function must be vectorised).
+Any value provided here will be overridden by the
+\code{options("tableone.labeller" = my_label_fn)} which allows global setting of
+the labeller.}
+
 \item{override_type}{(optional) a named list of data summary types. The
 default type for a column in a data set are calculated using heurisitics
 depending on the nature of the data (categorical or continuous), and result
@@ -29,10 +44,14 @@ specify this on a column by column bases with a named list (e.g
 \code{c("Petal.Width"="mean_sd")}). Overriding the default does not check the
 type of data is correct for the summary type and will potentially cause
 errors if this is not done correctly.}
+
+\item{p_format}{the format of the p-values: one of
+"sampl", "nejm", "jama", "lancet", "aim" but any value
+here is overridden by the \verb{option("tableone.pvalue_formatter"=function(...))}}
 }
 \value{
 a \code{huxtable} formatted table.
 }
 \description{
-Get summary comparisons and statistics between variables as text.
+Get summary comparisons and statistics between variables as raw data.
 }
