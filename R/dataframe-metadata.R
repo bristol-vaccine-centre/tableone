@@ -107,7 +107,7 @@
 # df_shape = diamonds %>%  dplyr::mutate(is_clear = clarity>"VS2") %>% dplyr::group_by(is_clear) %>% .get_shape()
 # e.g. with multi way comparison:
 # df_shape = iris %>% dplyr::group_by(Species) %>% .get_shape()
-.get_shape = function(df, cols = .col_symbols(df), label_fn = function(x) x, units = list()) {
+.get_shape = function(df, cols = .col_symbols(df), label_fn = ~ .x, units = list()) {
 
   grps = df %>% dplyr::groups()
   if (dplyr::is.grouped_df(df)) {
@@ -122,6 +122,8 @@
   df = df %>% dplyr::ungroup()
 
   label_fn = getOption("tableone.labeller",label_fn)
+  label_fn = purrr::as_mapper(label_fn)
+
   max_levels = getOption("tableone.max_discrete_levels",0)
   normality_test = getOption("tableone.normality_test","ad")
 
@@ -135,7 +137,7 @@
     .source = .select_content(cols, df, grps),
     .content = .pull_cols(cols, df),
     .name = .col_names(cols),
-    .label = label_fn(.col_names(cols)),
+    .label = unlist(label_fn(.col_names(cols))),
     .order = 1:length(cols),
     .comparisons = grp_count
   ) %>% dplyr::mutate(

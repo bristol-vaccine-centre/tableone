@@ -4,19 +4,23 @@
 \alias{explicit_na}
 \title{Make NA values in factor columns explicit}
 \usage{
-explicit_na(df, na_level = "<missing>")
+explicit_na(df, na_level = "<missing>", hide_if_empty = FALSE)
 }
 \arguments{
 \item{df}{the data frame}
 
 \item{na_level}{a label for NA valued factors}
+
+\item{hide_if_empty}{dont add a missing data category if no data is missing}
 }
 \value{
 the dataframe with all factor columns containing explicit na values
 }
 \description{
 Converts NA values in any factors in the dataframe into a new level -
-This is a thin wrapper for \code{\link[forcats:fct_explicit_na]{forcats::fct_explicit_na()}}
+This is a thin wrapper for \code{\link[forcats:fct_explicit_na]{forcats::fct_explicit_na()}} but with missing
+value level added regardless of whether any values missing. This forces an
+empty row in count tables.
 }
 \examples{
 # before

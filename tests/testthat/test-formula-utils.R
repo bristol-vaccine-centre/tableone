@@ -33,6 +33,20 @@ test_that("multiple formula parsing", {
     )
   )
 
+  expect_warning(
+    expect_equal(
+      .parse_formulae(c(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width), side="lhs"),
+      list(.s(Species),.s())
+    )
+  )
+
+  expect_warning(
+    expect_equal(
+      .parse_formulae(list(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width), side="lhs"),
+      list(.s(Species),.s())
+    )
+  )
+
   expect_equal(
     .parse_formulae(iris, Species ~ .), # everything except species
     list(.s(colnames(iris)[colnames(iris) != "Species"]))

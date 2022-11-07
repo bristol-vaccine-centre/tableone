@@ -159,13 +159,26 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
   return(df)
 }
 
+# explicit NA regardless of whether the level exists
+.fct_explicit_na = function(f, na_level = "<missing>") {
+  if (is.character(f)) f= factor(f)
+  if (!is.factor(f)) stop("f must be a factor or a character vector")
+  is_missing <- is.na(f)
+  f <- forcats::fct_expand(f, na_level)
+  f[is_missing] <- na_level
+  f
+}
+
 #' Make NA values in factor columns explicit
 #'
 #' Converts NA values in any factors in the dataframe into a new level -
-#' This is a thin wrapper for [forcats::fct_explicit_na()]
+#' This is a thin wrapper for [forcats::fct_explicit_na()] but with missing
+#' value level added regardless of whether any values missing. This forces an
+#' empty row in count tables.
 #'
 #' @param df the data frame
 #' @param na_level a label for NA valued factors
+#' @param hide_if_empty dont add a missing data category if no data is missing
 #'
 #' @return the dataframe with all factor columns containing explicit na values
 #' @export
@@ -175,9 +188,14 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
 #' missing_diamonds %>% dplyr::group_by(cut) %>% dplyr::count()
 #' # after
 #' missing_diamonds %>% explicit_na() %>% dplyr::group_by(cut) %>% dplyr::count()
-explicit_na = function(df, na_level = "<missing>") {
-  df %>%
-    dplyr::mutate(across(where(is.factor), ~ forcats::fct_explicit_na(.x, na_level)))
+explicit_na = function(df, na_level = "<missing>", hide_if_empty = FALSE) {
+  if (hide_if_empty) {
+    df %>% dplyr::ungroup() %>%
+      dplyr::mutate(across(where(is.factor), ~ forcats::fct_explicit_na(.x, na_level)))
+  } else {
+    df %>% dplyr::ungroup() %>%
+      dplyr::mutate(across(where(is.factor), ~ .fct_explicit_na(.x, na_level)))
+  }
 }
 
 # missing_diamonds %>% data_missingness() %>% describe_population(tidyselect::everything())
@@ -185,78 +203,7 @@ explicit_na = function(df, na_level = "<missing>") {
   df %>% dplyr::mutate(across(tidyselect::everything(), ~ ifelse(is.na(.x) | is.infinite(.x) | is.nan(.x), "missing", "not missing") %>% factor(levels = c("missing","not missing"))))
 }
 
-# .parse_formulae(iris, ~ Species + Petal.Width + Missing, a ~ b+Sepal.Width)
-# .parse_formulae(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width, side="lhs")
-# .parse_formulae(iris, Species ~ .) # everything except species
-.parse_formulae = function(df, ..., side="rhs") {
-  list_form = rlang::list2(...)
-  lapply(list_form, function(form) {
 
-    if (side == "lhs") {
-      vars = rlang::f_lhs(form) %>% all.vars()
-    } else if (side == "rhs") {
-      vars = rlang::f_rhs(form) %>% all.vars()
-      if (all(vars == c("."))) vars = setdiff(colnames(df),all.vars(rlang::f_lhs(form)))
-    } else {
-      vars = form %>% all.vars()
-    }
-
-    wronguns = setdiff(vars, colnames(df))
-    if (length(wronguns) > 0) warning("Removing variables in formula but not in dataframe: `", wronguns %>% paste0(collapse = " + "), "`; formula was: `", rlang::as_label(form), "`")
-    vars = intersect(vars, colnames(df))
-    vars = vars %>% sapply(as.symbol, USE.NAMES = FALSE)
-    return(vars)
-  })
-}
-
-# .parse_tidyselect(iris,tidyselect::everything())
-.parse_tidyselect = function(df, ...) {
-  # zero inputs and formulae should have been dealt with.
-  # anything else is a tidyselect error?
-  # evaluate as a tidyselect
-  expr = rlang::expr(c(...))
-  pos = tidyselect::eval_select(expr, data = df)
-  cols = colnames(df)[pos]
-  cols = cols %>% sapply(as.symbol, USE.NAMES = FALSE)
-  return(cols)
-}
-
-# works for a single formula or a tidyselect input.
-# where dots is either a function (in which case we only want rhs) or a tidyselect.
-# .parse_vars(iris, tidyselect::everything())
-# .parse_vars(iris, ~ Species + Petal.Width + Missing)
-# form =  ~ Species + Petal.Width + Missing
-# .parse_vars(iris, form)
-.parse_vars = function(df, ...) {
-
-  if (.is_formula_interface(...)) {
-    list_vars = .parse_formulae(df, ...)
-    if (length(list_vars) == 0) stop("No columns given: please supply a formula or a tidyselect expression e.g. `tidyselect::everything()`")
-    if (length(list_vars) > 1) warning("This function only supports single formulae in input. We are only using the first one.")
-    return(list_vars[[1]])
-  } else {
-    return(.parse_tidyselect(df,...))
-  }
-
-}
-
-# where dots is either a function (in which case we only want rhs) or a tidyselect.
-# .is_formula_interface(~ Species + Petal.Width + Missing)
-# .is_formula_interface(~ Species + Petal.Width + Missing, a ~ b+c)
-# .is_formula_interface(c(~ Species + Petal.Width + Missing, a ~ b+c))
-# .is_formula_interface(list(~ Species + Petal.Width + Missing, a ~ b+c))
-# .is_formula_interface(tidyselect::everything())
-# .is_formula_interface()
-.is_formula_interface = function(...) {
-  out = tryCatch({
-    tmp = sapply(c(...),rlang::is_formula)
-    return(all(tmp))
-  }, error = function(e) {
-    # could have been a tidyselect.
-    FALSE
-  })
-  return(out)
-}
 
 #' Describe the population in a summary table
 #'
@@ -358,87 +305,7 @@ describe_population = function(
   return(hux)
 }
 
-#' Compares missing data against an intervention in a summary table
-#'
-#' The missing data summary is a simple summary of the missingness of co-variates
-#' in a data set with no reference to outcome, but comparing intervention groups.
-#' It reports summary counts for missingness in data and reports on the
-#' significance of that missingness in relation to the intervention groups,
-#' allowing a clear summary of whether data is missing at random compared to the
-#' intervention.
-#'
-#' @inheritParams compare_population
-#'
-#' @return a `huxtable` formatted table.
-#' @export
-#'
-#' @examples
-#' # this option lets us change the column name for p value from its default
-#' # "P value"
-#' old = options("tableone.pvalue_column_name"="p-value")
-#'
-#' # missing at random
-#' missing_diamonds %>% dplyr::group_by(is_colored) %>% compare_missing(tidyselect::everything())
-#'
-#' # nothing missing
-#' iris %>% dplyr::group_by(Species) %>% compare_missing(tidyselect::everything())
-#'
-#' # MNAR: by design missingness is correlated with grouping
-#' mnar_two_class_1000 %>% dplyr::group_by(grouping) %>% compare_missing(tidyselect::everything())
-#'
-#' options(old)
-compare_missing = function(
-  df,
-  ...,
-  label_fn = ~ .x,
-  p_format = names(.pvalue.defaults),
-  font_size = getOption("tableone.font_size",8),
-  font = getOption("tableone.font","Arial"),
-  footer_text = NULL
-) {
-  cols = .parse_vars(df, ...)
-  p_format = match.arg(p_format)
-  if (.is_formula_interface(...)) {
-    intervention = cols[[1]]
-    if (dplyr::is.grouped_df(df) && (df %>% dplyr::groups() != intervention))
-      warning("compare_missing(...) ignores grouping when using the formula interface.")
-    df = df %>% dplyr::group_by(!!intervention)
-  } else {
-    intervention = df %>% dplyr::groups()
-    if (length(intervention) == 0) stop("If using the tidyselect interface, `df` must be grouped by the intervention")
-    if (length(intervention) > 1) warning(
-      "there are multiple columns defined in the intervention group.\n",
-      "If you meant to do a nested comparison use a dplyr::group_modify().\n",
-      "Otherwise this is likely a mistake."
-    )
-    cols = cols %>% setdiff(intervention)
-  }
 
-  label_fn = purrr::as_mapper(label_fn)
-
-  df_missing = .data_missingness(df)
-  shape = .get_shape(df_missing,cols,label_fn)
-  summary = .summary_stats(shape)
-  fmt = .format_summary(summary, layout = "missing") %>%
-    dplyr::filter(type == "missing") %>%
-    dplyr::select(-type)
-  p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
-  sign = .significance_tests(summary) %>% .format_significance(p_format)
-  fmt = fmt %>% dplyr::left_join(sign, by="variable")
-  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
-    dplyr::relocate(2, .after = tidyselect::everything())
-  tmp = get_footer_text(sign)
-  footer = c(
-    sprintf("Signifiance determined using %s", tmp$significance_test),
-    footer_text
-  )
-  if (!getOption("tableone.hide_footer",isFALSE(footer_text))) {
-    hux = hux %>%
-      huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
-      huxtable::set_bottom_border(row=huxtable::final(),value=0)
-  }
-  return(hux)
-}
 
 #' Compares the population against an intervention in a summary table
 #'
@@ -586,7 +453,7 @@ compare_population = function(
     )
   } else {
     footer = c(
-      sprintf("Signifiance determined using %s", tmp$significance_test),
+      sprintf("Significance determined using %s", tmp$significance_test),
       sprintf("Normality of distributions determined using %s", tmp$normality_test),
       footer_text
     )
@@ -602,12 +469,342 @@ compare_population = function(
 }
 
 
-# use a new .parse_vars that can take mulitlpe formulae and
-# compare_outcomes
-# grouping is intervention
-# possible formula outcome_1 + outcome_2 + outcome_3 ~ intervention + covariates
-# covariates ignored?
-# or list of formulae maybe from update?
-# would this need bonferroni adjustment?
+#' Get summary comparisons and statistics between variables as raw data.
+#'
+#' @inheritParams compare_population
+#' @param ... the outcomes are specified either as a `tidyselect` specification, in
+#'   which case the grouping of the `df` input determines the intervention and
+#'   the output is the same a `compare_population()` call with a tidyselect.
+#'   Alternatively a set of formulae can be provided that specify the outcomes
+#'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...`
+#'   in this case the `intervention` must be the same for all formulae and used
+#'   to determine the comparison groups.
+#'
+#' @return a `huxtable` formatted table.
+#' @export
+compare_variables = function(
+    df,
+    ...,
+    override_type = list(),
+    p_format = names(.pvalue.defaults)
+) {
+  p_format = match.arg(p_format)
+  p_fun = getOption("tableone.pvalue_formatter",.pvalue.defaults[[p_format]])
+  cols = .parse_vars(df, ...)
+  if (.is_formula_interface(...)) {
+    intervention = cols[[1]]
+    if (dplyr::is.grouped_df(df) && (df %>% dplyr::groups() != intervention))
+      warning("compare_missing(...) ignores grouping when using the formula interface.")
+    df = df %>% dplyr::group_by(!!intervention)
+  } else {
+    intervention = df %>% dplyr::groups()
+    if (length(intervention) == 0) stop("If using the tidyselect interface, `df` must be grouped by the intervention")
+    if (length(intervention) > 1) warning(
+      "there are multiple columns defined in the intervention group.\n",
+      "If you meant to do a nested comparison use a dplyr::group_modify().\n",
+      "Otherwise this is likely a mistake."
+    )
+    cols = cols %>% setdiff(intervention)
+  }
+  shape = .get_shape(df,cols,label_fn)
+  summary = .summary_stats(shape,override_type = override_type)
+  sign = .significance_tests(summary)
+  return(.comparison_printer(sign, intervention, p_fun))
+}
 
+.comparison_printer = function(sign, intervention, p_fun) {
+  # TODO:
+  # list fo functions: significance(.variable) - includes p_fun formatting
+  # statistics(.variable, .characteristic=NULL) - list of stats, checks it is single
+  # checks characteristics match. exactuly one row.
+  #
+  function(.variable, .characteristic = NULL) {
+    .variable = rlang::ensym(.variable)
+    tmp = sign %>% dplyr::filter(.name==as_label(.variable))
+    tmp2 = tmp %>% dplyr::select(.summary_type, .summary_data) %>%
+      tidyr::unnest(.summary_data) %>%
+      dplyr::mutate(.group = as.character(!!intervention))
+    if (!is.null(.characteristic)) tmp2 = tmp2 %>% dplyr::filter(level == .characteristic)
+    simple = list(
+      # "subtype_count" = "{.sprintf_na('%1.1f%% %s (%d/%d - %s)',prob.0.5*100,as.character(level),n,N,.group)}",
+      "subtype_count" = "{.sprintf_na('%1.1f%% - %s (%d/%d)',prob.0.5*100,.group,n,N)}",
+      "median_iqr" = "{.sprintf_na('%1.3g (%s)',q.0.5, .group)}",
+      "mean_sd" = "{.sprintf_na('%1.3g (%s)',mean, .group)}"
+    )
+    out = rep(NA_character_, nrow(tmp2))
+    for (i in 1:nrow(tmp2)) {
+      l = lapply(tmp2, `[[`, i)
+      glue = simple[[l$.summary_type]]
+      out[[i]] = glue::glue_data(l, glue)
+    }
 
+    s = out %>% paste0(collapse = " versus ")
+    p = tmp %>% select(.significance_test) %>% unnest(.significance_test) %>%
+      pull(p.value) %>% p_fun()
+    # q = tmp %>% select(.significance_test) %>% unnest(.significance_test) %>%
+    #   pull(p.method)
+    p_col = getOption("tableone.pvalue_column_name","P value")
+    return(sprintf("%s [%s: %s]",s,p_col,p))
+
+  }
+}
+
+#' Compares multiple outcomes against an intervention in a summary table
+#'
+#' The outcome table is a simple summary of a binary or categorical outcome
+#' in a data set compared by intervention groups. The comparison is independent
+#' of any covariates, and is a preliminary output prior to more formal statistical
+#' analysis or model fitting
+#' .
+#' It reports summary counts for the outcomes and a measure of significance of
+#' the relationship between outcome and intervention. Interpretation of
+#' significance tests, should include Bonferroni adjustment.
+#'
+#' @inheritParams compare_population
+#' @param ... the outcomes are specified either as a `tidyselect` specification, in
+#'   which case the grouping of the `df` input determines the intervention and
+#'   the output is the same a `compare_population()` call with a tidyselect.
+#'   Alternatively a set of formulae can be provided that specify the outcomes
+#'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...`
+#'   in this case the `intervention` must be the same for all formulae and used
+#'   to determine the comparison groups.
+#'
+#' @return a `huxtable` formatted table.
+#' @export
+compare_outcomes = function(df,
+      ...,
+      label_fn = ~ .x,
+      units = list(),
+      override_type = list(),
+      layout = "compact",
+      override_percent_dp = list(),
+      override_real_dp = list(),
+      p_format = names(.pvalue.defaults),
+      font_size = getOption("tableone.font_size",8),
+      font = getOption("tableone.font","Arial"),
+      footer_text = NULL
+) {
+  if (!.is_formula_interface(...)) {
+    compare_population(df, ..., label_fn = label_fn, units = units,
+      override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
+      override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
+      font = font, footer_text = footer_text
+    )
+  } else {
+    rhs = .parse_formulae(df, ..., side="rhs")
+    first = rhs %>% purrr::map(~ as_label(.x[[1]]))
+    interv = unique(unlist(first))
+    if (length(interv)>1) stop(
+      "The formulae input have multiple different first terms in the model. ",
+      "compare_outcomes() is expecting the same first term across all formulae ",
+      "representing the intervention, e.g. (out1 ~ int+cov1+cov2, out2 ~ int+cov1+cov2). ",
+      "Different covariates are ignored but the primary intervention must be the same. "
+    )
+    outcomes = .parse_formulae(df, ..., side="lhs")
+    if (any(sapply(outcomes, length) > 1)) stop(
+      "Some (or all of) the formulae input have more than one term on the left ",
+      "hand side. compare_outcomes() expects each formula to have a single outcome."
+    )
+    new_form = sprintf("~ %s + %s", interv, paste0(unlist(outcomes),collapse = " + "))
+    new_form = as.formula(new_form)
+    compare_population(df, new_form, label_fn = label_fn, units = units,
+       override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
+       override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
+       font = font, footer_text = footer_text
+    )
+  }
+}
+
+# Missingness ----
+
+#' Compares missing data against an intervention in a summary table
+#'
+#' The missing data summary is a simple summary of the missingness of co-variates
+#' in a data set with no reference to outcome, but comparing intervention groups.
+#' It reports summary counts for missingness in data and reports on the
+#' significance of that missingness in relation to the intervention groups,
+#' allowing a clear summary of whether data is missing at random compared to the
+#' intervention.
+#'
+#' @inheritParams compare_population
+#' @param significance_limit the limit at which we reject the hypothesis that the
+#'   data is missing at random.
+#' @param missingness_limit the limit at which too much data is missing
+#'   to include the predictor.
+#'
+#' @return a `huxtable` formatted table.
+#' @export
+#'
+#' @examples
+#' # this option lets us change the column name for p value from its default
+#' # "P value"
+#' old = options("tableone.pvalue_column_name"="p-value")
+#'
+#' # missing at random
+#' missing_diamonds %>% dplyr::group_by(is_colored) %>% compare_missing(tidyselect::everything())
+#'
+#' # nothing missing
+#' iris %>% dplyr::group_by(Species) %>% compare_missing(tidyselect::everything())
+#'
+#' # MNAR: by design missingness is correlated with grouping
+#' mnar_two_class_1000 %>% dplyr::group_by(grouping) %>% compare_missing(tidyselect::everything())
+#'
+#' options(old)
+compare_missing = function(
+    df,
+    ...,
+    label_fn = ~ .x,
+    p_format = names(.pvalue.defaults),
+    font_size = getOption("tableone.font_size",8),
+    font = getOption("tableone.font","Arial"),
+    significance_limit = 0.05,
+    missingness_limit = 0.1,
+    footer_text = NULL
+) {
+  cols = .parse_vars(df, ...)
+  p_format = match.arg(p_format)
+  if (.is_formula_interface(...)) {
+    intervention = cols[[1]]
+    if (dplyr::is.grouped_df(df) && (df %>% dplyr::groups() != intervention))
+      warning("compare_missing(...) ignores grouping when using the formula interface.")
+    df = df %>% dplyr::group_by(!!intervention)
+  } else {
+    intervention = df %>% dplyr::groups()
+    if (length(intervention) == 0) stop("If using the tidyselect interface, `df` must be grouped by the intervention")
+    if (length(intervention) > 1) warning(
+      "there are multiple columns defined in the intervention group.\n",
+      "If you meant to do a nested comparison use a dplyr::group_modify().\n",
+      "Otherwise this is likely a mistake."
+    )
+    cols = cols %>% setdiff(intervention)
+  }
+
+  footer = footer_text
+  label_fn = purrr::as_mapper(label_fn)
+  shape1 = .get_shape(df,cols,label_fn)
+  too_missing = shape1 %>% filter(.p_missing > missingness_limit) %>% pull(.cols)
+
+  if (length(too_missing)>0) {
+    footer = c(footer, .missing_message(too_missing, missingness_limit, label_fn))
+  }
+
+  df_missing = .data_missingness(df)
+  shape = .get_shape(df_missing,cols,label_fn)
+  summary = .summary_stats(shape)
+  fmt = .format_summary(summary, layout = "missing") %>%
+    dplyr::filter(type == "missing") %>%
+    dplyr::select(-type)
+  p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
+  sign = .significance_tests(summary)
+
+  comparisons = nrow(sign)
+
+  mnar = sign %>% select(.cols, .significance_test) %>%
+    unnest(.significance_test) %>%
+    filter(!is.na(p.value) & p.value < significance_limit/comparisons) %>%
+    pull(.cols)
+  if (length(mnar)>0) {
+    footer = c(footer, .mnar_message(mnar, intervention, significance_limit, comparisons, label_fn))
+  }
+
+  fsign = sign %>% .format_significance(p_format)
+  fmt = fmt %>% dplyr::left_join(fsign, by="variable")
+  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
+    dplyr::relocate(2, .after = tidyselect::everything())
+  tmp = get_footer_text(sign)
+
+  if (!getOption("tableone.hide_footer",isFALSE(footer_text))) {
+    hux = hux %>%
+      huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
+      huxtable::set_bottom_border(row=huxtable::final(),value=0)
+  }
+  return(hux)
+}
+
+#' Remove variables that fail a missing data test from models
+#'
+#' Comparing missingness by looking at a table is good but we also want to update
+#' models to exclude missing data from the predictors.
+#'
+#' @param ... a list of formulae that specify the models that we want to check
+#' @inheritParams compare_missing
+
+#'
+#' @return a list of formulae with missing parameters removed
+#' @export
+#'
+#' @examples
+#' df = iris %>% mutate(Petal.Width = ifelse(runif(n()) < case_when(Species == "setosa" ~ 0.2,Species == "virginica" ~ 0.1,TRUE~0), NA, Petal.Width))
+#' remove_missing(df, ~ Species + Petal.Width + Sepal.Width, ~ Species + Petal.Length + Sepal.Length)
+remove_missing = function(df,
+      ...,
+      label_fn = ~ .x,
+      significance_limit = 0.05,
+      missingness_limit = 0.1
+) {
+  rhss = .parse_formulae(df, ...)
+  # rhss = .parse_formulae(df, ~ Species + Petal.Width + Sepal.Width, ~ Species + Petal.Length + Sepal.Length)
+  # forms = c(~ Species + Petal.Width + Sepal.Width, ~ Species + Petal.Length + Sepal.Length)
+  label_fn = purrr::as_mapper(label_fn)
+  cols = rhss %>% purrr::discard(~ is.null(.x) || length(.x)==0) %>% unlist()
+  forms = c(...)
+  intervention = cols[[1]]
+  if (dplyr::is.grouped_df(df) && (df %>% dplyr::groups() != intervention))
+    warning("compare_missing(...) ignores grouping when using the formula interface.")
+  # missingness
+  df = df %>% dplyr::group_by(!!intervention)
+  shape1 = .get_shape(df,cols,label_fn)
+  too_missing = shape1 %>% filter(.p_missing > missingness_limit) %>% pull(.cols)
+
+  df_missing = .data_missingness(df)
+  shape = .get_shape(df_missing,cols,label_fn)
+  summary = .summary_stats(shape)
+  sign = .significance_tests(summary)
+  # boneferoni adjustment:
+  comparisons = nrow(sign)
+
+  mnar = sign %>% select(.cols, .significance_test) %>%
+    unnest(.significance_test) %>%
+    filter(!is.na(p.value) & p.value < significance_limit/comparisons) %>%
+    pull(.cols)
+
+  if (length(too_missing)>0) {
+    message(.missing_message(too_missing, missingness_limit, comparisons, label_fn))
+    mod_forms = lapply(too_missing, function(x) as.formula(paste0(". ~ . -",x)))
+    for (i in  1:length(mod_forms)) {
+      forms = lapply(forms, function(x) update(x,mod_forms[[i]]))
+    }
+  }
+  if (length(mnar)>0) {
+    message(.mnar_message(mnar,intervention, significance_limit, label_fn))
+    mod_forms = lapply(mnar, function(x) as.formula(paste0(". ~ . -",x)))
+    for (i in  1:length(mod_forms)) {
+      forms = lapply(forms, function(x) update(x,mod_forms[[i]]))
+    }
+  }
+  return(forms)
+
+}
+
+.missing_message = function(too_missing, missingness_limit, label_fn) {
+  label_fn = getOption("tableone.labeller",label_fn)
+  sprintf("More than %1.0f%% of data is missing for variables %s.",
+          missingness_limit*100,
+          paste0(
+            lapply(sapply(too_missing, rlang::as_label),label_fn),
+            collapse=", ")
+  )
+}
+
+.mnar_message = function(mnar, intervention, significance_limit, comparisons, label_fn) {
+  label_fn = getOption("tableone.labeller",label_fn)
+  sprintf("Data is missing not at random (compared to %s) at a p-value<%1.3f (%1.2f over %d comparisons) for variables %s.",
+          label_fn(as_label(intervention)),
+          significance_limit / comparisons,
+          significance_limit,
+          comparisons,
+          paste0(
+            lapply(sapply(mnar, rlang::as_label),label_fn),
+            collapse=", ")
+  )
+}

@@ -36,6 +36,8 @@
     huxtable::set_font(huxtable::everywhere,huxtable::everywhere,defaultFont)
 }
 
+
+
 ## symbol conversion ----
 .as_symbol_list = function(x,...) {
   UseMethod(".as_symbol_list",x)
@@ -49,6 +51,54 @@
   dplyr::syms(as.character(x))
 }
 
+.as_join_list = function(symbols) {
+  sapply(symbols, rlang::as_label) %>% unlist() %>% as.character()
+}
+
+# tmp = tibble( x = c("b","a","b","a","b","a"), y = factor(c("d","e","f","d","e","f")))
+# .nested_arrange(tmp, vars(x,y))
+# tmp2 = tribble(~cat,~char,~grp,~val,~e,~e2,
+#   "big","var Z", "level Z", 1,1,1,
+#   "big","var Z", "level Y", 2,1,2,
+#   "small","var Y", "level Z2", 7,3,1,
+#   "small","var Y", "level Y2", 8,3,2,
+#   "small","var Y", "missing", 9,3,3,
+#   "big","var X", "missing", 5,2,1,
+#   "big","var X", "level Z", 6,2,2,
+#   "big","var Z", "level X", 3,1,3,
+#   "big","var Z", "missing", 4,1,4
+# )
+# .nested_arrange(tmp2, vars(cat,char,grp))
+# tmp3 = bind_rows(tmp2 %>% mutate(bigcat="colgrpZ"), tmp2 %>% mutate(bigcat="colgrpA"))
+# .nested_arrange(tmp3, vars(cat,char,grp))
+# .nested_arrange(tmp3, vars(bigcat))
+
+# get a groupwise order for a dataframe without using group and arrange which
+# enforce alphabetical order on character data. This on the other hand
+# sorts by appearance order for characters and factor order by factors.
+.nested_arrange = function(tidyDf, groupVars) {
+  colOrder = tidyDf %>% ungroup() %>% select(!!!groupVars) %>% distinct() %>% dplyr::mutate(.o=0, .o2=row_number())
+  for (colGroup in groupVars) {
+    col = colOrder %>% pull(!!colGroup)
+    if (col %>% is.factor()) {
+      colOrder = colOrder %>% mutate(.o = .o*100000 + ifelse(is.na(!!colGroup),99999,as.integer(!!colGroup)))
+    } else {
+      if (rlang::as_label(colGroup) == rlang::as_label(utils::tail(groupVars,1)[[1]])) {
+        # a text column in the last group is the row label unless proven otherwise
+        # if you want a different order than the exact original data order then
+        # convert to a factor
+        colOrder = colOrder %>% mutate(.o = .o*100000 + .o2)
+      } else {
+        # if the column is not the last one then we want the order to be the
+        # unique values of the data in data presentation order
+        colOrder = colOrder %>% mutate(.o = .o*100000 + match(!!colGroup, unique(!!colGroup)))
+      }
+    }
+  }
+  colOrder = colOrder %>% mutate(.order = dplyr::dense_rank(.o)) %>% dplyr::select(-.o,-.o2)
+  return(tidyDf %>% inner_join(colOrder, by=.as_join_list(groupVars)))
+}
+
 # Convert a dataframe to a huxtable with nested rows and columns.
 .hux_tidy = function(tidyDf, rowGroupVars, colGroupVars, missing="\u2014", na="\u2014", ...) {
 
@@ -60,42 +110,44 @@
 
   cols = lapply(colnames(tidyDf),as.symbol)
   data = colnames(tidyDf)[!colnames(tidyDf) %in% sapply(c(rowGroupVars, colGroupVars),rlang::as_label)]
+  # dataVars = sapply(data,as.symbol)
+  # preserveDataOrder = !(tidyDf %>% dplyr::select(!!!rowGroupVars) %>%
+  #                         sapply(function(c) is.factor(c)) %>% all())
 
-  preserveDataOrder = !(tidyDf %>% dplyr::select(!!!rowGroupVars,!!!colGroupVars) %>%
-                          sapply(function(c) is.factor(c)) %>% all())
+  # TODO: iterative group by arrange by factor level or original row_number if not factor
 
-  if (preserveDataOrder) {
-    colJoin = sapply(colGroupVars, rlang::as_label) %>% unlist() %>% as.character()
-    rowJoin = sapply(rowGroupVars, rlang::as_label) %>% unlist() %>% as.character()
     # TODO: this is usually correct but actually we do want this to be nested
     # so we really want col1 in order it appears, then col1 & col2, etc.
     # we need a test case for this
-    colOrder = tidyDf %>% dplyr::select(!!!colGroupVars) %>% dplyr::distinct() %>% dplyr::mutate(.x = dplyr::row_number())
-    rowOrder = tidyDf %>% dplyr::select(!!!rowGroupVars) %>% dplyr::distinct() %>% dplyr::mutate(.y = dplyr::row_number())
     tmp = tidyDf %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(dplyr::across(.cols = tidyr::all_of(data), as.character)) %>%
-      tidyr::pivot_longer(cols = data) %>%
+      .nested_arrange(colGroupVars) %>%
+      dplyr::rename(.x=.order) %>%
+      .nested_arrange(rowGroupVars) %>%
+      dplyr::rename(.y=.order)
+    tmp = tmp %>%
+      dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(data), as.character)) %>%
+      tidyr::pivot_longer(cols = tidyselect::all_of(data)) %>%
+      # this creates name anv value columns which maybe could collide with existing
+      # grouping columns
       dplyr::mutate(name = factor(name,levels=data)) %>%
-      dplyr::inner_join(colOrder, by=colJoin) %>%
-      dplyr::inner_join(rowOrder, by=rowJoin) %>%
       dplyr::group_by(!!!colGroupVars,!!!rowGroupVars) %>%
       dplyr::mutate(.x = (.x-1)*dplyr::n()+dplyr::row_number())
-
-  } else {
-    tmp = tidyDf %>%
-      dplyr::ungroup() %>%
-      dplyr::mutate(dplyr::across(.cols = tidyr::all_of(data), as.character)) %>%
-      tidyr::pivot_longer(cols = data) %>%
-      dplyr::mutate(name = factor(name,levels=data)) %>%
-      #TODO formatters?
-      dplyr::ungroup() %>%
-      dplyr::group_by(!!!colGroupVars,name) %>%
-      dplyr::arrange(!!!rowGroupVars) %>%
-      dplyr::mutate(.x = dplyr::cur_group_id()) %>%
-      dplyr::group_by(!!!rowGroupVars) %>%
-      dplyr::mutate(.y = dplyr::cur_group_id())
-  }
+  # works for factors:
+  # } else {
+  #   tmp = tidyDf %>%
+  #     dplyr::ungroup() %>%
+  #     dplyr::mutate(dplyr::across(.cols = tidyr::all_of(data), as.character)) %>%
+  #     tidyr::pivot_longer(cols = data) %>%
+  #     dplyr::mutate(name = factor(name,levels=data)) %>%
+  #     #TODO formatters?
+  #     dplyr::ungroup() %>%
+  #     dplyr::group_by(!!!colGroupVars,name) %>%
+  #     dplyr::arrange(!!!rowGroupVars) %>%
+  #     dplyr::mutate(.x = dplyr::cur_group_id()) %>%
+  #     dplyr::group_by(!!!rowGroupVars) %>%
+  #     dplyr::mutate(.y = dplyr::cur_group_id())
+  # }
 
   # browser()
 
@@ -130,7 +182,12 @@
   # do column merges
   tmpVars = colGroupVars
   while(length(tmpVars)>0) {
-    for( mergeCols in colHeadings %>% dplyr::group_by(!!!tmpVars) %>% dplyr::summarise(cols = list(unique(.x))) %>% dplyr::pull(cols)) {
+    # This next bit is sensitive to the default behaviour of summarise
+    # it throws a message when used outside of a package context
+    # but changing it is not a good idea.
+    mergeColList = colHeadings %>% dplyr::group_by(!!!tmpVars) %>%
+      dplyr::summarise(cols = list(unique(.x))) %>% dplyr::pull(cols)
+    for( mergeCols in mergeColList) {
       # mergeCols = colHeadings %>% dplyr::group_by(!!!tmpVars) %>% dplyr::group_data() %>% dplyr::pull(.rows) %>% `[[`(1)
       rowIndex = length(tmpVars)
       l = min(mergeCols)+xOffset
@@ -146,6 +203,9 @@
   # do row merges
   tmpVars = rowGroupVars
   while(length(tmpVars)>0) {
+    # This next bit is sensitive to the default behaviour of summarise
+    # it throws a message when used outside of a package context
+    # but changing it is not a good idea.
     rowGroups = rowHeadings %>% dplyr::group_by(!!!tmpVars) %>% dplyr::summarise(rows = list(unique(.y)), count=length(unique(.y)))
     # do the merge if and only if there are multiple rows in at least one group.
     if(any(rowGroups$count > 1)) {

@@ -11,6 +11,8 @@ compare_missing(
   p_format = names(.pvalue.defaults),
   font_size = getOption("tableone.font_size", 8),
   font = getOption("tableone.font", "Arial"),
+  significance_limit = 0.05,
+  missingness_limit = 0.1,
   footer_text = NULL
 )
 }
@@ -47,6 +49,12 @@ here is overridden by the \verb{option("tableone.pvalue_formatter"=function(...)
 
 \item{font}{(optional) the font family for the table (which will be matched to
 closest on your system)}
+
+\item{significance_limit}{the limit at which we reject the hypothesis that the
+data is missing at random.}
+
+\item{missingness_limit}{the limit at which too much data is missing
+to include the predictor.}
 
 \item{footer_text}{any text that needs to be added at the end of the table,
 setting this to FALSE dsables the whole footer (as does
