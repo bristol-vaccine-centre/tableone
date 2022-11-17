@@ -51,6 +51,31 @@ default.format = list(
     )
   ),
 
+  # TODO: putting N into the column name wouldn't work as it is generated as a wide
+  # format olumn header (is it now...?) if it were generated as a long format we could
+  # support this idea but we woudl need to convert teh names to a factor and push the
+  # name into final layer of table nesting to ge the right columns. The problem
+  # then is that characteristic is handled differently as it is essentially a row label...
+  # we might have to do that as a special case...
+  # micro = list(
+  #   subtype_count = list(
+  #     characteristic = "{level} % (N)",
+  #     "value (N={N})" = "{.sprintf_na('%1.1f%% (%d)',prob.0.5*100,n)}"
+  #   ),
+  #   median_iqr = list(
+  #     characteristic = "Median [IQR]",
+  #     "value (N={N})" = "{.sprintf_na('%1.3g [%1.3g\u2014%1.3g]',q.0.5,q.0.25,q.0.75)}"
+  #   ),
+  #   mean_sd = list(
+  #     characteristic = "Mean \u00B1 SD",
+  #     "value (N={N})" = "{.sprintf_na('%1.3g \u00B1 %1.3g',mean,sd)}"
+  #   ),
+  #   skipped = list(
+  #     characteristic = "\u2014",
+  #     "value (N={N})" = "{.sprintf_na('\u2014')}"
+  #   )
+  # ),
+
   simple = list(
     subtype_count = list(
       characteristic = "{level}",

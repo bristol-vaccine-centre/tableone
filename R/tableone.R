@@ -441,20 +441,25 @@ compare_population = function(
 
   sign = .significance_tests(summary) %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(sign, by="variable")
+  # TODO: this is where characteristic gets put in as a row group. intervention
+  # is the colgroup but we need another nesting level in cols which is e.g. "value_col_name" and then "value_col_value" actually has the value.
   hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col, characteristic), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
     dplyr::relocate(2, .after = tidyselect::everything())
   tmp = get_footer_text(sign)
 
+  norm = NULL
+  if (any(shape$.type == "continuous")) norm = sprintf("Normality of distributions determined using %s", tmp$normality_test)
+
   if (method) {
     footer = c(
       sprintf("%s", tmp$table_key),
-      sprintf("Normality of distributions determined using %s", tmp$normality_test),
+      norm,
       footer_text
     )
   } else {
     footer = c(
       sprintf("Significance determined using %s", tmp$significance_test),
-      sprintf("Normality of distributions determined using %s", tmp$normality_test),
+      norm,
       footer_text
     )
   }
@@ -506,25 +511,103 @@ compare_population = function(
   }
 }
 
+.data_filter = function(sign, intervention) {
+  # TODO:
+  # list fo functions: significance(.variable) - includes p_fun formatting
+  # statistics(.variable, .characteristic=NULL) - list of stats, checks it is single
+  # checks characteristics match. exactuly one row.
+
+  get_summary = .summary_filter(sign, intervention)
+  get_comparison = .comparison_filter(sign)
+
+  function(.variable, .intervention = NULL, .characteristic = NULL) {
+
+    summary = get_summary(.variable,.intervention,.characteristic)
+    comparison = get_comparison(.variable)
+    return(summary %>% left_join(
+      comparison %>% select(-.label, -.order, -.unit, -.type, -N_total, -N_present),
+      by = ".name",
+      suffix = c("",".signif")
+    ))
+
+  }
+}
+
+# TODO: the level column here, where do I define it? It may be only in categorical data
+# In which case the filter will fall over for non cateogorical data.
+.summary_filter = function(sign, intervention) {
+  function(.variable, .intervention = NULL, .characteristic = NULL) {
+    .summary_data = NULL
+    .variable = rlang::ensym(.variable)
+    tmp = sign %>% dplyr::filter(.cols==.variable)
+    tmp2 = tmp %>% dplyr::select(.name, .label, .order, .unit, .type, N_total, N_present, .summary_data) %>%
+      tidyr::unnest(.summary_data) %>%
+      dplyr::mutate(
+        .group = as.character(!!intervention)
+      )
+    if (!is.null(.intervention)) tmp2 = tmp2 %>% dplyr::filter(.group == .intervention)
+    if (!is.null(.characteristic)) tmp2 = tmp2 %>% dplyr::filter(level == .characteristic)
+    return(tmp2)
+  }
+}
+
+.comparison_filter = function(sign) {
+  function(.variable) {
+    .summary_data = NULL
+    .variable = rlang::ensym(.variable)
+    tmp = sign
+    p = tmp %>% dplyr::select(.name, .label, .order, .unit, .type, N_total, N_present, .significance_test) %>% tidyr::unnest(.significance_test)
+    if (".power_analysis" %in% colnames(tmp)) {
+      a = tmp %>% dplyr::select(.name,.power_analysis) %>% tidyr::unnest(.power_analysis)
+      return(p %>% left_join(a, by=".name", suffix=c("","power")))
+    } else {
+      return(p)
+    }
+  }
+}
+
+
 #' Get summary comparisons and statistics between variables as raw data.
 #'
 #' @inheritParams compare_population
-#' @param ... the outcomes are specified either as a `tidyselect` specification, in
-#'   which case the grouping of the `df` input determines the intervention and
-#'   the output is the same a `compare_population()` call with a tidyselect.
+#' @param ... the outcomes are specified either as a `tidyselect` specification,
+#'   in which case the grouping of the `df` input determines the intervention
+#'   and the output is the same a `compare_population()` call with a tidyselect.
 #'   Alternatively a set of formulae can be provided that specify the outcomes
-#'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...`
-#'   in this case the `intervention` must be the same for all formulae and used
-#'   to determine the comparison groups.
+#'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~
+#'   intervention + cov1, ...` in this case the `intervention` must be the same
+#'   for all formulae and used to determine the comparison groups.
 #'
-#' @return a `huxtable` formatted table.
+#' @return a list of accessor functions for the summary data allowing granular
+#'   access to the results of the analysis: * `compare(.variable,
+#'   .characteristic = NULL)` - prints a comparison between the different
+#'   intervention groups for the specified variable (and optionally the given
+#'   characteristic if it is a categorical variable). * `filter(.variable,
+#'   .intervention = NULL, .characteristic = NULL)` - extracts a given variable
+#'   (e.g. `gender`), optionally for a given level of intervention (e.g.
+#'   `control`) and if categorical a given characteristic (e.g. `male`). This
+#'   will output a dataframe with all the calculated summary variables, for all
+#'   qualifying intervention, variable and characteristic combinations,
+#'   significance tests (and power analyses) for the qualifying variable
+#'   (comparing intervention groups). * `signif_tests(.variable)` - extracts for
+#'   a given variable (e.g. `gender`) the significance tests (and optionally
+#'   power analyses) of the univariate comparison between different
+#'   interventions and the variable. * `summary_stats(.variable, .intervention =
+#'   NULL, .characteristic = NULL)` - extracts a given variable (e.g. `gender`),
+#'   optionally for a given level of intervention (e.g. `control`) and if
+#'   categorical a given characteristic (e.g. `male`). This returns only the
+#'   summary stats for all qualifying intervention, variable and characteristic
+#'   combinations.
 #' @export
-compare_variables = function(
+extract_comparison = function(
     df,
     ...,
     label_fn = ~ .x,
     override_type = list(),
-    p_format = names(.pvalue.defaults)
+    p_format = names(.pvalue.defaults),
+    override_method = list(),
+    power_analysis = FALSE,
+    override_power = list()
 ) {
   p_format = match.arg(p_format)
   p_fun = getOption("tableone.pvalue_formatter",.pvalue.defaults[[p_format]])
@@ -536,7 +619,8 @@ compare_variables = function(
     df = df %>% dplyr::group_by(!!intervention)
   } else {
     intervention = df %>% dplyr::groups()
-    if (length(intervention) == 0) stop("If using the tidyselect interface, `df` must be grouped by the intervention")
+    if (length(intervention) == 0) stop(
+      "If using the tidyselect interface, `df` must be grouped by the intervention")
     if (length(intervention) > 1) warning(
       "there are multiple columns defined in the intervention group.\n",
       "If you meant to do a nested comparison use a dplyr::group_modify().\n",
@@ -544,10 +628,18 @@ compare_variables = function(
     )
     cols = cols %>% setdiff(intervention)
   }
-  shape = .get_shape(df,cols,label_fn)
+  shape = .get_shape(df, cols = cols, label_fn = label_fn)
   summary = .summary_stats(shape,override_type = override_type)
-  sign = .significance_tests(summary)
-  return(.comparison_printer(sign, intervention, p_fun))
+  sign = .significance_tests(summary, override_method = override_method)
+  if (power_analysis) {
+    sign = .power_analysis(sign, override_power = override_power)
+  }
+  return(list(
+    compare = .comparison_printer(sign, intervention, p_fun),
+    filter = .data_filter(sign, intervention),
+    summary_stats = .summary_filter(sign, intervention),
+    signif_tests = .comparison_filter(sign)
+  ))
 }
 
 
@@ -564,13 +656,13 @@ compare_variables = function(
 #' significance tests, should include Bonferroni adjustment.
 #'
 #' @inheritParams compare_population
-#' @param ... the outcomes are specified either as a `tidyselect` specification, in
-#'   which case the grouping of the `df` input determines the intervention and
-#'   the output is the same a `compare_population()` call with a tidyselect.
+#' @param ... the outcomes are specified either as a `tidyselect` specification,
+#'   in which case the grouping of the `df` input determines the intervention
+#'   and the output is the same a `compare_population()` call with a tidyselect.
 #'   Alternatively a set of formulae can be provided that specify the outcomes
-#'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...`
-#'   in this case the `intervention` must be the same for all formulae and used
-#'   to determine the comparison groups.
+#'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~
+#'   intervention + cov1, ...` in this case the `intervention` must be the same
+#'   for all formulae and used to determine the comparison groups.
 #'
 #' @return a `huxtable` formatted table.
 #' @export

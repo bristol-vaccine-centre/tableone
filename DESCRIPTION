@@ -50,7 +50,8 @@ Imports:
     broom,
     glue,
     purrr,
-    tidyselect (>= 1.2.0)
+    tidyselect (>= 1.2.0),
+    pwr
 Remotes:
     hughjonesd/huxtable
 URL: https://bristol-vaccine-centre.github.io/tableone/,

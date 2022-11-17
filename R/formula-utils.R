@@ -84,7 +84,7 @@ as_vars = function(tidyselect, data=NULL) {
 # .parse_vars(iris, Species ~ Petal.Width + Missing)
 .parse_vars = function(df, ..., .side="rhs") {
   if (.is_character_list(...)) {
-    return(.parse_character(...))
+    return(.parse_character(df, ...))
   }
   if (.is_vars_interface(...)) {
     return(c(...) %>% sapply(rlang::as_label) %>% lapply(as.symbol))

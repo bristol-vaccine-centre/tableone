@@ -119,6 +119,16 @@
   }
   units = as.list(units)
 
+  if (length(cols) == 0) stop(
+"No covariates/variables have been defined. This sometimes happens if you
+mis-specify the formula which should be like:
+
+outcome (optional) ~ intervention + covariate1 + .... + covariateN
+
+Alternatively it could be your tidyselect syntax is wrong and not picking up
+any columns."
+  )
+
   df = df %>% dplyr::ungroup()
 
   label_fn = getOption("tableone.labeller",label_fn)
@@ -138,7 +148,7 @@
     .content = .pull_cols(cols, df),
     .name = .col_names(cols),
     .label = unlist(label_fn(.col_names(cols))),
-    .order = 1:length(cols),
+    .order = seq_len(length(cols)),
     .comparisons = grp_count
   ) %>% dplyr::mutate(
     .unit = lapply(.name,function(n) units[[n]]) %>% sapply(function(x) ifelse(is.null(x),"",x)),
