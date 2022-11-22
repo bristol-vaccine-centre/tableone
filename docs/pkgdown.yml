@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   configuration: configuration.html
   tableone: tableone.html
-last_built: 2022-11-22T12:26Z
+last_built: 2022-11-22T12:37Z
 urls:
   reference: https://bristol-vaccine-centre.github.io/tableone/reference
   article: https://bristol-vaccine-centre.github.io/tableone/articles

@@ -200,7 +200,7 @@ discrete_cgd = mnar_cgd %>%
   # convert data
   make_factors(
     steroids,propylac,age,weight,height,
-    .logical = c("recieved","not recieved"),
+    .logical = c("received","not received"),
     .numeric = list(
       age="{decade(value)}",
       weight="{ifelse(value<20,'<20','20+')}",
