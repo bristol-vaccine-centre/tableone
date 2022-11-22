@@ -69,7 +69,7 @@ specify this on a column by column bases with a named list (e.g
 a list of accessor functions for the summary data allowing granular
 access to the results of the analysis:
 \itemize{
-\item \code{ompare(.variable, .characteristic = NULL)} -
+\item \code{compare(.variable, .characteristic = NULL)} -
 prints a comparison between the different
 intervention groups for the specified variable (and optionally the given
 characteristic if it is a categorical variable).
