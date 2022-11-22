@@ -21,13 +21,12 @@ syntax data grouping defines the intervention group and should be present. if th
 formula interface is used the first variable in the right hand side of the
 formula is used as the intervention, in which case grouping is ignored.}
 
-\item{...}{the outcomes are specified either as a \code{tidyselect} specification, in
-which case the grouping of the \code{df} input determines the intervention and
-the output is the same a \code{compare_population()} call with a tidyselect.
+\item{...}{the outcomes are specified either as a \code{tidyselect} specification,
+in which case the grouping of the \code{df} input determines the intervention
+and the output is the same a \code{compare_population()} call with a tidyselect.
 Alternatively a set of formulae can be provided that specify the outcomes
-on the left hand side, e.g. \verb{outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...}
-in this case the \code{intervention} must be the same for all formulae and used
-to determine the comparison groups.}
+on the left hand side, e.g. \verb{outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...} in this case the \code{intervention} must be the same
+for all formulae and used to determine the comparison groups.}
 
 \item{label_fn}{(optional) a function for mapping a co-variate column name to
 printable label. This is by default a no-operation and the output table
@@ -51,30 +50,39 @@ errors if this is not done correctly.}
 \item{p_format}{the format of the p-values: one of
 "sampl", "nejm", "jama", "lancet", "aim" but any value
 here is overridden by the \verb{option("tableone.pvalue_formatter"=function(...))}}
+
+\item{override_method}{if you want to override the comparison method for a
+particular variable the options are
+"fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
+specify this on a column by column bases with a named list (e.g
+\code{c("Petal.Width"="t-test")})}
+
+\item{power_analysis}{conduct sample size based power analysis.}
+
+\item{override_power}{if you want to override the power calculation method for a
+particular variable the options are
+"fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
+specify this on a column by column bases with a named list (e.g
+\code{c("Petal.Width"="t-test")})}
 }
 \value{
 a list of accessor functions for the summary data allowing granular
-access to the results of the analysis:
-\itemize{
-\item \code{compare(.variable, .characteristic = NULL)} - prints a comparison between the
-different intervention groups for the specified variable (and optionally the given
-characteristic if it is a categorical variable).
-\item \code{filter(.variable, .intervention = NULL, .characteristic = NULL)} - extracts a
-given variable (e.g. \code{gender}), optionally for a given level of intervention
-(e.g. \code{control}) and if categorical a given characteristic (e.g. \code{male}). This
+access to the results of the analysis: * \code{testthat::compare(.variable, .characteristic = NULL)} - prints a comparison between the different
+intervention groups for the specified variable (and optionally the given
+characteristic if it is a categorical variable). * \code{dplyr::filter(.variable, .intervention = NULL, .characteristic = NULL)} - extracts a given variable
+(e.g. \code{gender}), optionally for a given level of intervention (e.g.
+\code{control}) and if categorical a given characteristic (e.g. \code{male}). This
 will output a dataframe with all the calculated summary variables, for all
-qualifying intervention, variable and characteristic combinations, significance
-tests (and power analyses) for the qualifying variable (comparing
-intervention groups).
-\item \code{signif_tests(.variable)} - extracts for a given variable (e.g. \code{gender}) the
-significance tests (and optionally power analyses) of the univariate comparison
-between different interventions and the variable.
-\item \code{summary_stats(.variable, .intervention = NULL, .characteristic = NULL)} - extracts a
-given variable (e.g. \code{gender}), optionally for a given level of intervention
-(e.g. \code{control}) and if categorical a given characteristic (e.g. \code{male}). This
-returns only the summary stats for all
-qualifying intervention, variable and characteristic combinations.
-}
+qualifying intervention, variable and characteristic combinations,
+significance tests (and power analyses) for the qualifying variable
+(comparing intervention groups). * \code{signif_tests(.variable)} - extracts for
+a given variable (e.g. \code{gender}) the significance tests (and optionally
+power analyses) of the univariate comparison between different
+interventions and the variable. * \code{summary_stats(.variable, .intervention = NULL, .characteristic = NULL)} - extracts a given variable (e.g. \code{gender}),
+optionally for a given level of intervention (e.g. \code{control}) and if
+categorical a given characteristic (e.g. \code{male}). This returns only the
+summary stats for all qualifying intervention, variable and characteristic
+combinations.
 }
 \description{
 Get summary comparisons and statistics between variables as raw data.

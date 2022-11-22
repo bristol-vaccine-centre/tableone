@@ -10,6 +10,7 @@ compare_population(
   label_fn = ~.x,
   units = list(),
   override_type = list(),
+  override_method = list(),
   layout = "compact",
   override_percent_dp = list(),
   override_real_dp = list(),
@@ -58,9 +59,15 @@ specify this on a column by column bases with a named list (e.g
 type of data is correct for the summary type and will potentially cause
 errors if this is not done correctly.}
 
+\item{override_method}{if you want to override the comparison method for a
+particular variable the options are
+"fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
+specify this on a column by column bases with a named list (e.g
+\code{c("Petal.Width"="t-test")})}
+
 \item{layout}{(optional) various layouts are defined as default. As of this
 version of \code{tableone} they are
-"relaxed","compact","simple","single","missing". The layouts can be
+"relaxed","compact","micro","simple","single","missing". The layouts can be
 customised using the options \verb{options("tableone.format_list"=list(...)")},
 and this is described in more detail in the vignettes.}
 

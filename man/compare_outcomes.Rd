@@ -25,13 +25,12 @@ syntax data grouping defines the intervention group and should be present. if th
 formula interface is used the first variable in the right hand side of the
 formula is used as the intervention, in which case grouping is ignored.}
 
-\item{...}{the outcomes are specified either as a \code{tidyselect} specification, in
-which case the grouping of the \code{df} input determines the intervention and
-the output is the same a \code{compare_population()} call with a tidyselect.
+\item{...}{the outcomes are specified either as a \code{tidyselect} specification,
+in which case the grouping of the \code{df} input determines the intervention
+and the output is the same a \code{compare_population()} call with a tidyselect.
 Alternatively a set of formulae can be provided that specify the outcomes
-on the left hand side, e.g. \verb{outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...}
-in this case the \code{intervention} must be the same for all formulae and used
-to determine the comparison groups.}
+on the left hand side, e.g. \verb{outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...} in this case the \code{intervention} must be the same
+for all formulae and used to determine the comparison groups.}
 
 \item{label_fn}{(optional) a function for mapping a co-variate column name to
 printable label. This is by default a no-operation and the output table
@@ -58,7 +57,7 @@ errors if this is not done correctly.}
 
 \item{layout}{(optional) various layouts are defined as default. As of this
 version of \code{tableone} they are
-"relaxed","compact","simple","single","missing". The layouts can be
+"relaxed","compact","micro","simple","single","missing". The layouts can be
 customised using the options \verb{options("tableone.format_list"=list(...)")},
 and this is described in more detail in the vignettes.}
 

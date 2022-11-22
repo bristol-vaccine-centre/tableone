@@ -290,13 +290,30 @@ describe_population = function(
   } else {
     format = getOption("tableone.format_list", default.format[[layout]])
   }
+  variable_col = as.symbol(getOption("tableone.variable_column_name","Variable"))
+  characteristic_col = as.symbol(getOption("tableone.characteristic_column_name","Characteristic"))
   fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp)
-  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, characteristic), colGroupVars = dplyr::vars(), defaultFontSize= font_size, defaultFont = font)
-  tmp = get_footer_text(summary)
-  footer = c(
-    sprintf("Normality of distributions determined using %s", tmp$normality_test),
-    footer_text
+
+  fmt = fmt %>% dplyr::rename(
+    !!variable_col := variable,
+    !!characteristic_col := characteristic
   )
+
+  hux = fmt %>% .hux_tidy(
+    rowGroupVars = dplyr::vars(!!variable_col, !!characteristic_col),
+    colGroupVars = dplyr::vars(.tbl_col_name),
+    defaultFontSize= font_size,
+    defaultFont = font,
+    displayRedundantColumnNames=FALSE)
+
+  tmp = get_footer_text(summary)
+  footer = footer_text
+  if (any(shape$.type == "continuous")) {
+    footer = c(
+      sprintf("Normality of distributions determined using %s", tmp$normality_test),
+      footer
+    )
+  }
   if (!getOption("tableone.hide_footer",isFALSE(footer_text))) {
     hux = hux %>%
       huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
@@ -350,6 +367,11 @@ describe_population = function(
 #'   `c("Petal.Width"="mean_sd")`). Overriding the default does not check the
 #'   type of data is correct for the summary type and will potentially cause
 #'   errors if this is not done correctly.
+#' @param override_method if you want to override the comparison method for a
+#'   particular variable the options are
+#'   `r paste0("\"", names(tableone:::.comparison.fns), "\"", collapse= ",")` and you
+#'   specify this on a column by column bases with a named list (e.g
+#'   `c("Petal.Width"="t-test")`)
 #' @param layout (optional) various layouts are defined as default. As of this
 #'   version of `tableone` they are
 #'   `r paste0("\"",names(tableone::default.format), "\"", collapse= ",")`. The layouts can be
@@ -400,6 +422,7 @@ compare_population = function(
   label_fn = ~ .x,
   units = list(),
   override_type = list(),
+  override_method = list(),
   layout = "compact",
   override_percent_dp = list(),
   override_real_dp = list(),
@@ -437,14 +460,28 @@ compare_population = function(
   fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp)
 
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
+  variable_col = as.symbol(getOption("tableone.variable_column_name","Variable"))
+  characteristic_col = as.symbol(getOption("tableone.characteristic_column_name","Characteristic"))
+
   method = getOption("tableone.show_pvalue_method",FALSE)
 
-  sign = .significance_tests(summary) %>% .format_significance(p_format)
+  sign = .significance_tests(summary,override_method = override_method) %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(sign, by="variable")
-  # TODO: this is where characteristic gets put in as a row group. intervention
-  # is the colgroup but we need another nesting level in cols which is e.g. "value_col_name" and then "value_col_value" actually has the value.
-  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col, characteristic), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
+
+  fmt = fmt %>% dplyr::rename(
+    !!variable_col := variable,
+    !!characteristic_col := characteristic
+  )
+
+  hux = fmt %>% .hux_tidy(
+      rowGroupVars = dplyr::vars(!!variable_col, !!p_col, !!characteristic_col),
+      colGroupVars = c(intervention, dplyr::sym(".tbl_col_name")),
+      defaultFontSize= font_size,
+      defaultFont = font,
+      displayRedundantColumnNames=FALSE
+    ) %>%
     dplyr::relocate(2, .after = tidyselect::everything())
+
   tmp = get_footer_text(sign)
 
   norm = NULL
@@ -524,8 +561,8 @@ compare_population = function(
 
     summary = get_summary(.variable,.intervention,.characteristic)
     comparison = get_comparison(.variable)
-    return(summary %>% left_join(
-      comparison %>% select(-.label, -.order, -.unit, -.type, -N_total, -N_present),
+    return(summary %>% dplyr::left_join(
+      comparison %>% dplyr::select(-.label, -.order, -.unit, -.type, -N_total, -N_present),
       by = ".name",
       suffix = c("",".signif")
     ))
@@ -559,7 +596,7 @@ compare_population = function(
     p = tmp %>% dplyr::select(.name, .label, .order, .unit, .type, N_total, N_present, .significance_test) %>% tidyr::unnest(.significance_test)
     if (".power_analysis" %in% colnames(tmp)) {
       a = tmp %>% dplyr::select(.name,.power_analysis) %>% tidyr::unnest(.power_analysis)
-      return(p %>% left_join(a, by=".name", suffix=c("","power")))
+      return(p %>% dplyr::left_join(a, by=".name", suffix=c("","power")))
     } else {
       return(p)
     }
@@ -577,12 +614,18 @@ compare_population = function(
 #'   on the left hand side, e.g. `outcome1 ~ intervention + cov1, outcome2 ~
 #'   intervention + cov1, ...` in this case the `intervention` must be the same
 #'   for all formulae and used to determine the comparison groups.
+#' @param power_analysis conduct sample size based power analysis.
+#' @param override_power if you want to override the power calculation method for a
+#'   particular variable the options are
+#'   `r paste0("\"", names(tableone:::.power.fns), "\"", collapse= ",")` and you
+#'   specify this on a column by column bases with a named list (e.g
+#'   `c("Petal.Width"="t-test")`)
 #'
 #' @return a list of accessor functions for the summary data allowing granular
-#'   access to the results of the analysis: * `compare(.variable,
+#'   access to the results of the analysis: * `testthat::compare(.variable,
 #'   .characteristic = NULL)` - prints a comparison between the different
 #'   intervention groups for the specified variable (and optionally the given
-#'   characteristic if it is a categorical variable). * `filter(.variable,
+#'   characteristic if it is a categorical variable). * `dplyr::filter(.variable,
 #'   .intervention = NULL, .characteristic = NULL)` - extracts a given variable
 #'   (e.g. `gender`), optionally for a given level of intervention (e.g.
 #'   `control`) and if categorical a given characteristic (e.g. `male`). This
@@ -787,8 +830,8 @@ compare_missing = function(
   shape = .get_shape(df_missing,cols,label_fn)
   summary = .summary_stats(shape)
   fmt = .format_summary(summary, layout = "missing") %>%
-    dplyr::filter(type == "missing") %>%
-    dplyr::select(-type)
+    dplyr::filter(characteristic == "missing") %>%
+    dplyr::select(-characteristic)
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
   sign = .significance_tests(summary)
 
@@ -804,7 +847,13 @@ compare_missing = function(
 
   fsign = sign %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(fsign, by="variable")
-  hux = fmt %>% .hux_tidy(rowGroupVars = dplyr::vars(variable, !!p_col), colGroupVars = intervention, defaultFontSize= font_size, defaultFont = font) %>%
+  hux = fmt %>% .hux_tidy(
+    rowGroupVars = dplyr::vars(variable, !!p_col),
+    colGroupVars = c(intervention, dplyr::sym(".tbl_col_name")),
+    defaultFontSize= font_size,
+    defaultFont = font,
+    displayRedundantColumnNames=FALSE
+  ) %>%
     dplyr::relocate(2, .after = tidyselect::everything())
   tmp = get_footer_text(sign)
 
@@ -882,7 +931,7 @@ remove_missing = function(df,
     }
   }
   if (length(mnar)>0) {
-    message(.mnar_message(mnar,intervention, significance_limit, label_fn))
+    message(.mnar_message(mnar,intervention, significance_limit, comparisons, label_fn))
     mod_forms = lapply(mnar, function(x) stats::as.formula(paste0(". ~ . -",x)))
     for (i in  1:length(mod_forms)) {
       forms = lapply(forms, function(x) stats::update(x,mod_forms[[i]]))

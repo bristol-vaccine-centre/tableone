@@ -57,19 +57,19 @@ this we are using the `survival::cgd` data set.
 
 
 ```{r}
-gcd = survival::cgd %>% 
+cgd = survival::cgd %>% 
   # filter to include only the first visit
-  filter(enum==1) %>% 
+  dplyr::filter(enum==1) %>% 
   # make the steroids and propylac columns into a logical value
   # see later for a better way of doing this.
-  mutate(
+  dplyr::mutate(
     steroids = as.logical(steroids),
     propylac = as.logical(propylac)
   )
   
 
 # A basic unstratified population description table is as follows:
-gcd %>% describe_population(everything())
+cgd %>% describe_population(tidyselect::everything())
 ```
 
 This could have been specified using the formula interface. In this example we
@@ -85,7 +85,7 @@ formula = Surv(tstart, tstop, status) ~ treat +
 
 # set a table relabelling function
 rename_cols = function(col) {
-  case_when(
+  dplyr::case_when(
     col == "hos.cat" ~ "Location",
     col == "steroids" ~ "Steroid treatment",
     TRUE ~ stringr::str_to_sentence(col)
@@ -94,7 +94,7 @@ rename_cols = function(col) {
 options("tableone.labeller"=rename_cols)
 
 # create a simple description
-gcd %>% describe_population(formula)
+cgd %>% describe_population(formula)
 
 ```
 
@@ -123,7 +123,7 @@ formula = Surv(tstart, tstop, status) ~ treat +
   sex + age + height + weight + inherit + steroids + hos.cat
 
 # labelling function is still active
-gcd %>% compare_population(formula)
+cgd %>% compare_population(formula)
 
 ```
 
@@ -132,7 +132,7 @@ would have given us the same table. Note that we must group the data by
 intervention, for the `tidyselect` to work as intended:
 
 ```R
-gcd %>% group_by(treat) %>% 
+cgd %>% dplyr::group_by(treat) %>% 
   compare_population(sex,age,height,weight,inherit,steroids,hos.cat)
 ```
 
@@ -147,11 +147,11 @@ arm having missing values, but 25% of the treatment arm:
 ```{r}
 
 # generate a dataset with values missing not at random compared to the intervention:
-cgd_treat = cgd %>% mutate(treat = as.character(treat)) %>% filter(treat != "placebo")
-cgd_placebo = cgd %>% mutate(treat = as.character(treat)) %>% filter(treat == "placebo")
+cgd_treat = cgd %>% dplyr::mutate(treat = as.character(treat)) %>% dplyr::filter(treat != "placebo")
+cgd_placebo = cgd %>% dplyr::mutate(treat = as.character(treat)) %>% dplyr::filter(treat == "placebo")
 
 set.seed(100)
-mnar_cgd = bind_rows(
+mnar_cgd = dplyr::bind_rows(
   cgd_placebo %>% .make_missing(p_missing = 0.1),
   cgd_treat %>% .make_missing(p_missing = 0.25)
 )
@@ -183,7 +183,7 @@ decade = function(x) sprintf("%d-%d",x-(x%%10),x-(x%%10)+9)
 
 discrete_cgd = mnar_cgd %>% 
   # pick out the first episode
-  filter(enum == 1) %>%
+  dplyr::filter(enum == 1) %>%
   # convert data
   make_factors(
     steroids,propylac,age,weight,height,
@@ -244,7 +244,7 @@ options("tableone.hide_footer"=TRUE)
 
 # the heuristics detect that Petals in the iris data set are not normally
 # distributed and hence report median and IQR:
-iris %>% group_by(Species) %>% compare_population(tidyselect::everything())
+iris %>% dplyr::group_by(Species) %>% compare_population(tidyselect::everything())
 ```
 
 The `missing_diamonds` data set which is included in this package has 10% of 

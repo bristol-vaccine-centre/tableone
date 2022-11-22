@@ -34,10 +34,10 @@ them we will use the `survival::cgd` dataset:
 # set up the data 
 gcd = survival::cgd %>% 
   # filter to include only the first visit
-  filter(enum==1) %>% 
+  dplyr::filter(enum==1) %>% 
   # make the steroids and propylac columns into a logical value
   # see later for a better way of doing this.
-  mutate(
+  dplyr::mutate(
     steroids = as.logical(steroids),
     propylac = as.logical(propylac)
   )
@@ -58,7 +58,7 @@ gcd %>% compare_population(formula)
 
 # set a table relabelling function
 rename_cols = function(col) {
-  case_when(
+  dplyr::case_when(
     col == "hos.cat" ~ "Location",
     col == "steroids" ~ "Steroid treatment",
     TRUE ~ stringr::str_to_sentence(col)
@@ -191,19 +191,29 @@ function as the `layout` parameter. The named list defines the column name and
 the column contents, at the moment one item in this list must be named 
 `characteristic`. The column contents can refer to the following variables:
 
-* `subtype_count` can use `{level}`, `{prob.0.5}`, `{prob.0.025}`, `{prob.0.975}`, `{n}`, `{N}` - `n` is subgroup count, `N` is data count.
-* `median_iqr` can use `{q.0.5}`, `{q.0.25}`, ..., `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
-* `mean_sd` can use `{mean}`, `{sd}`, `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
+* `subtype_count` can use `{level}`, `{prob.0.5}`, `{prob.0.025}`,
+`{prob.0.975}`, `{x}`, `{n}`, `{N}` - `x` is subgroup count, `n` is data count
+excluding missing, `N` includes missing.
+* `median_iqr` can use `{q.0.5}`, `{q.0.25}`, ..., `{unit}`, `{n}`, `{N}` - `n`
+excludes missing, `N` does not.
+* `mean_sd` can use `{mean}`, `{sd}`, `{unit}`, `{n}`, `{N}` - `n` excludes
+missing, `N` does not.
 * `skipped` can use `{unit}`, `{n}`, `{N}` - `n` excludes missing, `N` does not.
+
+Other than the characteristic column, the column names are derived from the names
+of the custom configuration list. The names can 
+also be configured using `glue` and this can use intervention level data
+like `{N}` for the subgroup counts or data level variables such as `{N_total}` 
+which is the number of items across all groups or `{N_missing}` for example.
 
 There are a few useful formatting functions that the spec can also use beyond
 the usual text processing functions:
 
-* `.sprintf_na` - sprintfs a set of numbers replacing the output with 
+* `.sprintf_na` - `sprintf`s a set of numbers replacing the output with 
   `getOption("tableone.na","\u2014")` if all values are missing, and if some
-  values are missing relacing each individial missing value with  
+  values are missing replacing each individual missing value with  
   `getOption("tableone.missing","<?>")`
-* `.sprintf_no_na`  - sprintfs a set of numbers replacing the output with 
+* `.sprintf_no_na`  - `sprintf`s a set of numbers replacing the output with 
   `getOption("tableone.na","\u2014")` if any values are missing
 * `.maybe` - returns a string if it is present or "" if NA
 
@@ -212,19 +222,19 @@ the usual text processing functions:
 custom = list(
     subtype_count = list(
         characteristic = "{level}",
-        value = "{.sprintf_na('%1.1f%% (%d/%d)',prob.0.5*100,n,N)}"
+        "Value (N={N}/{N_total})" = "{.sprintf_na('%1.1f%% (%d/%d)',prob.0.5*100,x,n)}"
     ),
     median_iqr = list(
         characteristic = "Median (N)",
-        value = "{.sprintf_na('%1.3g (%d)',q.0.5,n)}"
+        "Value (N={N}/{N_total})" = "{.sprintf_na('%1.3g (%d)',q.0.5,n)}"
     ),
     mean_sd = list(
         characteristic = "Mean (N)", 
-        value = "{.sprintf_na('%1.3g (%d)',mean,n)}"
+        "Value (N={N}/{N_total})" = "{.sprintf_na('%1.3g (%d)',mean,n)}"
     ),
     skipped = list(
         characteristic = "(N)", 
-        value = "{.sprintf_na('— (%d)',n)}"
+        "Value (N={N}/{N_total})" = "{.sprintf_na('— (%d)',n)}"
     )
 )
 

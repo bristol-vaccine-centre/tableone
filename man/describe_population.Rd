@@ -58,7 +58,7 @@ errors if this is not done correctly.}
 
 \item{layout}{(optional) various layouts are defined as default. As of this
 version of \code{tableone} they are
-"relaxed","compact","simple","single","missing". The layouts can be
+"relaxed","compact","micro","simple","single","missing". The layouts can be
 customised using the options \verb{options("tableone.format_list"=list(...)")},
 and this is described in more detail in the vignettes.}
 

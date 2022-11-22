@@ -35,7 +35,7 @@ Depends:
 LazyData: true
 Imports: 
     dplyr,
-    huxtable,
+    huxtable (>= 5.5.1),
     magrittr,
     nortest,
     rlang,
@@ -52,8 +52,6 @@ Imports:
     purrr,
     tidyselect (>= 1.2.0),
     pwr
-Remotes:
-    hughjonesd/huxtable
 URL: https://bristol-vaccine-centre.github.io/tableone/,
     https://github.com/bristol-vaccine-centre/tableone,
     https://doi.org/10.5281/zenodo.7226522

@@ -13,7 +13,8 @@
 test_that("subgroup summary is OK", {
   grp_df = .df_shape()$.source[[1]]
   testthat::expect_equal(
-    .subtype_count(grp_df) %>% dplyr::pull(n),
+    # n.b. x is not subtype count, n is group count (non missing)
+    .subtype_count(grp_df) %>% dplyr::pull(x),
     two_class_test %>% dplyr::group_by(grouping, multinom_class) %>% dplyr::count() %>% dplyr::pull(n)
   )
 })
@@ -59,8 +60,9 @@ test_that("format summary is high level OK", {
   ss2 = .df_shape2() %>% .summary_stats()
   fs2 = ss2 %>% .format_summary()
   testthat::expect_equal(
-    fs %>% dplyr::pull(value),
-    fs2 %>% dplyr::filter(grouping == "second group") %>% dplyr::pull(value)
+    fs %>% dplyr::filter(.tbl_col_name=="Value") %>% dplyr::pull(.tbl_col_value),
+    fs2 %>% dplyr::filter(grouping == "second group") %>%
+      dplyr::filter(.tbl_col_name=="Value") %>% dplyr::pull(.tbl_col_value)
   )
 
   ss = .df_shape1() %>% .summary_stats()

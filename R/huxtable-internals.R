@@ -22,8 +22,7 @@
             huxtable::set_bottom_border(headerRows, huxtable::everywhere, value=1) %>%
             huxtable::set_bottom_border(nrow(hux), huxtable::everywhere, value=1) %>%
             huxtable::set_wrap(huxtable::everywhere, huxtable::everywhere, value=TRUE) %>%
-            huxtable::set_top_padding(huxtable::everywhere,huxtable::everywhere, value=1) %>%
-            huxtable::set_bottom_padding(huxtable::everywhere,huxtable::everywhere, value=0) %>%
+            huxtable::set_all_padding(huxtable::everywhere,huxtable::everywhere, value=0) %>%
             huxtable::set_valign(huxtable::everywhere,huxtable::everywhere,value="top")
   )
 }
@@ -100,8 +99,16 @@
   return(tidyDf %>% dplyr::inner_join(colOrder, by=.as_join_list(groupVars)))
 }
 
+.fully_tidy = function(df, rowGroupVars, colGroupVars) {
+  if (!is.character(rowGroupVars)) rowGroupVars = .as_join_list(rowGroupVars)
+  if (!is.character(colGroupVars)) colGroupVars = .as_join_list(colGroupVars)
+  left = colnames(df) %>% intersect(rowGroupVars) %>% intersect(col)
+  if (length(left)==1) return(TRUE)
+  return(FALSE)
+}
+
 # Convert a dataframe to a huxtable with nested rows and columns.
-.hux_tidy = function(tidyDf, rowGroupVars, colGroupVars, missing="\u2014", na="\u2014", ...) {
+.hux_tidy = function(tidyDf, rowGroupVars, colGroupVars, missing="\u2014", na="\u2014", displayRedundantColumnNames = FALSE, ...) {
 
   name = .y = .x = value = rows = NULL  # remove global binding note
   rowGroupVars = .as_symbol_list(rowGroupVars)
@@ -115,26 +122,24 @@
   # preserveDataOrder = !(tidyDf %>% dplyr::select(!!!rowGroupVars) %>%
   #                         sapply(function(c) is.factor(c)) %>% all())
 
-  # TODO: iterative group by arrange by factor level or original row_number if not factor
+  # this is usually correct  we want this to be nested
+  # so we really want col1 in order it appears, then col1 & col2, etc.
+  tmp = tidyDf %>%
+    dplyr::ungroup() %>%
+    .nested_arrange(colGroupVars) %>%
+    dplyr::rename(.x=.order) %>%
+    .nested_arrange(rowGroupVars) %>%
+    dplyr::rename(.y=.order)
+  tmp = tmp %>%
+    dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(data), as.character)) %>%
+    tidyr::pivot_longer(cols = tidyselect::all_of(data)) %>%
+    # this creates name anv value columns which maybe could collide with existing
+    # grouping columns
+    dplyr::mutate(name = factor(name,levels=data)) %>%
+    dplyr::group_by(!!!colGroupVars,!!!rowGroupVars) %>%
+    dplyr::mutate(.x = (.x-1)*dplyr::n()+dplyr::row_number())
 
-    # TODO: this is usually correct but actually we do want this to be nested
-    # so we really want col1 in order it appears, then col1 & col2, etc.
-    # we need a test case for this
-    tmp = tidyDf %>%
-      dplyr::ungroup() %>%
-      .nested_arrange(colGroupVars) %>%
-      dplyr::rename(.x=.order) %>%
-      .nested_arrange(rowGroupVars) %>%
-      dplyr::rename(.y=.order)
-    tmp = tmp %>%
-      dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(data), as.character)) %>%
-      tidyr::pivot_longer(cols = tidyselect::all_of(data)) %>%
-      # this creates name anv value columns which maybe could collide with existing
-      # grouping columns
-      dplyr::mutate(name = factor(name,levels=data)) %>%
-      dplyr::group_by(!!!colGroupVars,!!!rowGroupVars) %>%
-      dplyr::mutate(.x = (.x-1)*dplyr::n()+dplyr::row_number())
-  # works for factors:
+    # works for factors:
   # } else {
   #   tmp = tidyDf %>%
   #     dplyr::ungroup() %>%
@@ -153,7 +158,11 @@
   # browser()
 
   rowHeadings = tmp %>% dplyr::ungroup() %>% dplyr::select(!!!rowGroupVars,.y) %>% dplyr::arrange(.y) %>% dplyr::distinct()
-  colHeadings = tmp %>% dplyr::ungroup() %>% dplyr::select(!!!colGroupVars,name,.x) %>% dplyr::arrange(.x) %>% dplyr::distinct()
+  if (length(unique(tmp$name)) > 1 || displayRedundantColumnNames) {
+    colHeadings = tmp %>% dplyr::ungroup() %>% dplyr::select(!!!colGroupVars,name,.x) %>% dplyr::arrange(.x) %>% dplyr::distinct()
+  } else {
+    colHeadings = tmp %>% dplyr::ungroup() %>% dplyr::select(!!!colGroupVars,.x) %>% dplyr::arrange(.x) %>% dplyr::distinct()
+  }
 
   colHux = as.data.frame(unname(t(colHeadings %>% dplyr::select(-.x))),stringsAsFactors = FALSE)
   colnames(colHux) = 1:length(colHux)

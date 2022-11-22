@@ -13,8 +13,11 @@
     tibble::enframe(table(col),name = "level",value = "n") %>%
       dplyr::mutate(level = factor(level, levels=levels(grp_df$x)), x = as.integer(n), n = sum(n)) %>%
       dplyr::mutate(binom::binom.confint(x=x, n=n, methods="wilson")) %>%
-      dplyr::rename(N=n,n=x, prob.0.5=mean, prob.0.025=lower, prob.0.975=upper) %>%
-      dplyr::mutate(.order2 = dplyr::row_number()) %>%
+      dplyr::rename(prob.0.5=mean, prob.0.025=lower, prob.0.975=upper) %>%
+      dplyr::mutate(
+        .order2 = dplyr::row_number(),
+        N = length(col)
+      ) %>%
       dplyr::select(-method)
   })
 }
@@ -180,37 +183,73 @@
   df_summary = df_summary %>% dplyr::mutate(.labelled_data = list(rep(tibble::tibble(),nrow(df_summary))))
 
   for (i in 1:nrow(df_summary)) {
-    df_row = df_summary %>% purrr::map(~ .x[[i]])
+    df_row = df_summary %>% dplyr::filter(dplyr::row_number() == i)
 
-    data = df_row$.summary_data %>% dplyr::mutate(
-      # add in unit from above.
-      unit = df_row$.unit
-    )
-    grps = data %>% dplyr::groups()
-    glue = df_row$.glue
+    grps = df_row$.summary_data[[1]] %>% dplyr::groups()
+    data = df_row %>% tidyr::unnest(.summary_data)
+    data = data %>% dplyr::group_by(!!!grps) %>%
+      dplyr::rename(
+        name = .name,
+        label = .label,
+        unit = .unit,
+        type = .type
+      )
 
+    # at this point data should be one row per intervention group and level in the data
+    # with all the stats on a given intervention / level combination for a specific
+    # variable (defined by the row of the df_summary). The precise list of
+    # things available to the glue spec is dependent on the nature of the variable
+    glue = df_row$.glue[[1]]
 
-    outcols = c()
-    for (newcol in names(glue)) {
+    # firstly handle characteristic column. This is in every definition as is the
+    # effective table row label. We might expect `{unit}` in here but mostly this
+    # will be static text, or the `{level}` name for categorical data. This should
+    # be the same across intervention groups but probably different between levels.
+    thisglue = glue[["characteristic"]]
+    # TODO: here is where "characteristic" gets given its name. Probably easier to rename
+    # this later when printed.
+    named_data = data %>% dplyr::mutate(characteristic = glue::glue(thisglue))
+    outdata = named_data %>% dplyr::filter(FALSE)
+
+    # for the remaining formatted columns in our definition we are after a long format:
+    order3 = 1
+    for (newcol in setdiff(names(glue),"characteristic")) {
+
+      # newcol is potentially a glue spec. This is possibly going to be different
+      # for different interventions (e.g. might reference `N` as total in each)
+      # intervention, or even ({N}/{N_total}) for example. It should not reference
+      # anything that changes on a variable level or the columns will be different
+      # on a variable by variable basis (which is not what is generally wanted)
+      # the intervention group itself will be a heading above this one.
       thisglue = glue[[newcol]]
-      thisglue = .adjust_fmt(thisglue, percent = df_row$.percent_dp, real = df_row$.real_dp)
-      # data = data %>% dplyr::mutate(!!newcol := glue::glue(thisglue))
-      # TODO: This could work - using a "value (N = {N_total})" to put some
-      # stats into the column name (e.g. N or units) the column name but the columns
-      # will not be comparable between different groups and maybe will cause issues
-      newcol_name = as.character(glue::glue_data(df_row, newcol))
-      data = data %>% dplyr::mutate(!!newcol_name := glue::glue(thisglue))
-      outcols = c(outcols,newcol_name)
+      thisglue = .adjust_fmt(thisglue, percent = df_row$.percent_dp[[1]], real = df_row$.real_dp[[1]])
+
+      # we want a long format tibble now with
+      # .tbl_col_name and .tbl_col_value
+      tmp = named_data %>% dplyr::mutate(
+        .tbl_col_name = as.character(glue::glue_data(df_row, newcol)),
+        .tbl_col_value = glue::glue(thisglue),
+        .order3 = order3
+      )
+      outdata = dplyr::bind_rows(outdata, tmp)
+
+      order3 = order3+1
     }
-    df_summary$.labelled_data[[i]] = data %>% dplyr::select(!!!grps, tidyselect::any_of(outcols), .order2)
+
+    # and we nest this back one item at a time. this col will now be a list of
+    # tibbles grouped by intervention as before
+    df_summary$.labelled_data[[i]] = outdata %>% dplyr::select(!!!grps, characteristic, .tbl_col_name, .tbl_col_value, .order2, .order3)
   }
 
   tmp = suppressMessages(
-    df_summary %>% dplyr::select(variable = .label, .order, .labelled_data) %>%
+    df_summary %>%
+      # TODO: here is where "variable" gets given its name. Probably easier to rename
+      # this later when printed
+      dplyr::select(variable = .label, .order, .labelled_data) %>%
       tidyr::unnest(.labelled_data) %>%
       dplyr::relocate(!!!grps) %>%
-      dplyr::arrange(!!!grps, .order, .order2) %>%
-      dplyr::select(-.order,-.order2)
+      dplyr::arrange(!!!grps, .order, .order2, .order3) %>%
+      dplyr::select(-.order,-.order2,-.order3)
   )
   return(structure(tmp, methods = get_footer_text(df_summary)))
 

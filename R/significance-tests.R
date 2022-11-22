@@ -107,7 +107,7 @@
   # it might not be the most exactly correct.
   x = apply(chi.data,MARGIN = 1, function(x) !all(x==0))
   y = apply(chi.data,MARGIN = 2, function(x) !all(x==0))
-  tmp = suppressWarnings(chisq.test(chi.data[x,y]))
+  tmp = suppressWarnings(stats::chisq.test(chi.data[x,y]))
   chisq = tmp$statistic
 
 
@@ -118,7 +118,7 @@
   tmp2 = tryCatch(pwr::pwr.chisq.test(N=n, df=df, sig.level=significance_limit, power=power ), error = function(e) NA)
   w = tmp2$w
 
-  interp = case_when(
+  interp = dplyr::case_when(
     tmp2$w < 0.1 ~ "small",
     tmp2$w < 0.3 ~ "small to medium",
     tmp2$w < 0.5 ~ "medium to large",
@@ -151,16 +151,16 @@
   side1 = xy_df %>% dplyr::filter(y==1) %>% dplyr::pull(x)
   side2 = xy_df %>% dplyr::filter(y==2) %>% dplyr::pull(x)
   n1 = floor(length(side1) / factor)
-  s1 = sd(side1, na.rm = TRUE)
+  s1 = stats::sd(side1, na.rm = TRUE)
   n2 = floor(length(side2) / factor)
-  s2 = sd(side2, na.rm = TRUE)
+  s2 = stats::sd(side2, na.rm = TRUE)
   # Cohens D
   sd_pooled = sqrt( ((n1-1)*s1^2 + (n2-1)*s2^2 )/(n1+n2-2) )
   obs_d = abs( mean(side1,na.rm=TRUE)-mean(side2,na.rm=TRUE)) / sd_pooled
   # tmp = tryCatch(pwr::pwr.t2n.test(n1 = length(side1), n2 = length(side2), d=c(0.2,0.5,0.8), sig.level=significance_limit ), error = function(e) NA)
   tmp2 = tryCatch(pwr::pwr.t2n.test(n1 = length(side1), n2 = length(side2), sig.level=significance_limit, power=power ), error = function(e) NA)
   detectable = tmp2$d * sd_pooled
-  interp = case_when(
+  interp = dplyr::case_when(
     tmp2$d < 0.2 ~ "small",
     tmp2$d < 0.5 ~ "small to medium",
     tmp2$d < 0.8 ~ "medium to large",
@@ -185,7 +185,7 @@
   # number of groups
   k = length(unique(xy_df$y))
   # we are taking an minimum group size as we do not enforce equality
-  n = xy_df %>% group_by(y) %>% count() %>% pull(n) %>% min()
+  n = xy_df %>% dplyr::group_by(y) %>% dplyr::count() %>% dplyr::pull(n) %>% min()
   n = n / factor
   tmp2 = tryCatch(pwr::pwr.anova.test(k=k, n=n, sig.level=significance_limit, power=power ), error = function(e) NA)
   obs_f = .cohens_f(xy_df)
@@ -193,7 +193,7 @@
   method = "One-way ANOVA power analysis"
   if (factor!=1) method = sprintf("%s (+%1.0f%%)",method, (1-factor)*100)
 
-  interp = case_when(
+  interp = dplyr::case_when(
     tmp2$f < 0.1 ~ "small",
     tmp2$f < 0.25 ~ "small to medium",
     tmp2$f < 0.4 ~ "medium to large",
@@ -218,7 +218,7 @@
   # return(tibble::tibble(p.value = pval, p.method = "Analysis of variance (linear model)"))
 }
 
-# aovstat2 = rstatix::eta_squared(lm(x ~ y, xy_df))
+# aovstat2 = rstatix::eta_squared(stats::lm(x ~ y, xy_df))
 # .cohens_f(xy_df) == sqrt(aovstat2/(1 - aovstat2))
 .cohens_f = function(xy_df) {
   # adapted from https://github.com/kassambara/rstatix/blob/master/R/eta_squared.R
