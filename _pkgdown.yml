@@ -11,7 +11,7 @@ reference:
   - compare_population
   - compare_missing
   - compare_outcomes
-  - compare_variables
+  - extract_comparison
   - remove_missing
 - title: "Supporting functions"
   desc: >
@@ -22,6 +22,7 @@ reference:
   - explicit_na
   - get_footer_text
   - as_vars
+  - format_pvalue
 - title: "Configuration"
   contents:
   - default.format

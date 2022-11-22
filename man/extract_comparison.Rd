@@ -67,22 +67,31 @@ specify this on a column by column bases with a named list (e.g
 }
 \value{
 a list of accessor functions for the summary data allowing granular
-access to the results of the analysis: * \code{testthat::compare(.variable, .characteristic = NULL)} - prints a comparison between the different
+access to the results of the analysis:
+\itemize{
+\item \code{ompare(.variable, .characteristic = NULL)} -
+prints a comparison between the different
 intervention groups for the specified variable (and optionally the given
-characteristic if it is a categorical variable). * \code{dplyr::filter(.variable, .intervention = NULL, .characteristic = NULL)} - extracts a given variable
+characteristic if it is a categorical variable).
+\item \code{filter(.variable, .intervention = NULL, .characteristic = NULL)}
+extracts a given variable
 (e.g. \code{gender}), optionally for a given level of intervention (e.g.
 \code{control}) and if categorical a given characteristic (e.g. \code{male}). This
 will output a dataframe with all the calculated summary variables, for all
 qualifying intervention, variable and characteristic combinations,
 significance tests (and power analyses) for the qualifying variable
-(comparing intervention groups). * \code{signif_tests(.variable)} - extracts for
+(comparing intervention groups).
+\item \code{signif_tests(.variable)} - extracts for
 a given variable (e.g. \code{gender}) the significance tests (and optionally
 power analyses) of the univariate comparison between different
-interventions and the variable. * \code{summary_stats(.variable, .intervention = NULL, .characteristic = NULL)} - extracts a given variable (e.g. \code{gender}),
+interventions and the variable.
+\item \code{summary_stats(.variable, .intervention = NULL, .characteristic = NULL)}
+extracts a given variable (e.g. \code{gender}),
 optionally for a given level of intervention (e.g. \code{control}) and if
 categorical a given characteristic (e.g. \code{male}). This returns only the
 summary stats for all qualifying intervention, variable and characteristic
 combinations.
+}
 }
 \description{
 Get summary comparisons and statistics between variables as raw data.

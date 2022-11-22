@@ -22,7 +22,10 @@
             huxtable::set_bottom_border(headerRows, huxtable::everywhere, value=1) %>%
             huxtable::set_bottom_border(nrow(hux), huxtable::everywhere, value=1) %>%
             huxtable::set_wrap(huxtable::everywhere, huxtable::everywhere, value=TRUE) %>%
-            huxtable::set_all_padding(huxtable::everywhere,huxtable::everywhere, value=0) %>%
+            huxtable::set_top_padding(huxtable::everywhere,huxtable::everywhere, value=0) %>%
+            huxtable::set_bottom_padding(huxtable::everywhere,huxtable::everywhere, value=0) %>%
+            huxtable::set_left_padding(huxtable::everywhere,huxtable::everywhere, value=2) %>%
+            huxtable::set_right_padding(huxtable::everywhere,huxtable::everywhere, value=2) %>%
             huxtable::set_valign(huxtable::everywhere,huxtable::everywhere,value="top")
   )
 }

@@ -622,21 +622,26 @@ compare_population = function(
 #'   `c("Petal.Width"="t-test")`)
 #'
 #' @return a list of accessor functions for the summary data allowing granular
-#'   access to the results of the analysis: * `testthat::compare(.variable,
-#'   .characteristic = NULL)` - prints a comparison between the different
+#'   access to the results of the analysis:
+#'
+#'   * `ompare(.variable, .characteristic = NULL)` -
+#'   prints a comparison between the different
 #'   intervention groups for the specified variable (and optionally the given
-#'   characteristic if it is a categorical variable). * `dplyr::filter(.variable,
-#'   .intervention = NULL, .characteristic = NULL)` - extracts a given variable
+#'   characteristic if it is a categorical variable).
+#'   * `filter(.variable, .intervention = NULL, .characteristic = NULL)`
+#'   extracts a given variable
 #'   (e.g. `gender`), optionally for a given level of intervention (e.g.
 #'   `control`) and if categorical a given characteristic (e.g. `male`). This
 #'   will output a dataframe with all the calculated summary variables, for all
 #'   qualifying intervention, variable and characteristic combinations,
 #'   significance tests (and power analyses) for the qualifying variable
-#'   (comparing intervention groups). * `signif_tests(.variable)` - extracts for
+#'   (comparing intervention groups).
+#'   * `signif_tests(.variable)` - extracts for
 #'   a given variable (e.g. `gender`) the significance tests (and optionally
 #'   power analyses) of the univariate comparison between different
-#'   interventions and the variable. * `summary_stats(.variable, .intervention =
-#'   NULL, .characteristic = NULL)` - extracts a given variable (e.g. `gender`),
+#'   interventions and the variable.
+#'   * `summary_stats(.variable, .intervention = NULL, .characteristic = NULL)`
+#'   extracts a given variable (e.g. `gender`),
 #'   optionally for a given level of intervention (e.g. `control`) and if
 #'   categorical a given characteristic (e.g. `male`). This returns only the
 #'   summary stats for all qualifying intervention, variable and characteristic

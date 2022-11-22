@@ -12,7 +12,7 @@ models to exclude missing data from the predictors."><meta property="og:image" c
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,7 +132,15 @@ to include the predictor.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on Petal.Length</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on Sepal.Length</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> More than 10% of data is missing for variables Petal.Width.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in label_fn(rlang::as_label(intervention)):</span> could not find function "label_fn"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Data is missing not at random (compared to Species) at a p-value&lt;0.013 (0.05 over 4 comparisons) for variables Petal.Width.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> . ~ Species + Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x56356d1430e0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> . ~ Species + Petal.Length + Sepal.Length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x56356d1430e0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

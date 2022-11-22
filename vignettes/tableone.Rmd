@@ -172,6 +172,19 @@ mnar_cgd %>% compare_missing(formula)
 
 ```
 
+with this analysis it is useful to be able to update the analysis formula 
+removing the variables with missing data so that we are confident the models
+are based on reasonable data.
+
+```{r}
+
+# formula can also be a list of formulae
+new_formula = mnar_cgd %>% tableone::remove_missing(formula)
+
+print(new_formula)
+
+```
+
 # Conversion of discrete data
 
 Using this new data set with missing data it may be necessary to discretise some
@@ -198,16 +211,20 @@ discrete_cgd = mnar_cgd %>%
 formula = Surv(tstart, tstop, status) ~ treat + 
   sex + age + height + weight + inherit + steroids + hos.cat
 
+
 old = options("tableone.show_pvalue_method"=TRUE)
-
 # This comparison implicitly ignores missing values.
-discrete_cgd %>% compare_population(formula)
-
+t = discrete_cgd %>% compare_population(formula)
 options(old)
+
+t
 ```
 
+
 ```R
-# N.B. The following option is involved when converting integer data:
+# N.B. The following option is involved when converting integer data
+# which decides how many levels of integer data are considered discrete
+# and when to decide integer data can be treated as continuous:
 options("tableone.max_discrete_levels"=0)
 # and is described in the documentation for make_factors().
 ```

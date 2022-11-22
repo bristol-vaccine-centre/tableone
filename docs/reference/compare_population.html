@@ -20,7 +20,7 @@ of whether data is correlated to intervention."><meta property="og:image" conten
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,6 +78,7 @@ of whether data is correlated to intervention.</p>
 <span>  label_fn <span class="op">=</span> <span class="op">~</span><span class="va">.x</span>,</span>
 <span>  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  override_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  override_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"compact"</span>,</span>
 <span>  override_percent_dp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  override_real_dp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -136,10 +137,18 @@ type of data is correct for the summary type and will potentially cause
 errors if this is not done correctly.</p></dd>
 
 
+<dt>override_method</dt>
+<dd><p>if you want to override the comparison method for a
+particular variable the options are
+"fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
+specify this on a column by column bases with a named list (e.g
+<code>c("Petal.Width"="t-test")</code>)</p></dd>
+
+
 <dt>layout</dt>
 <dd><p>(optional) various layouts are defined as default. As of this
 version of <code>tableone</code> they are
-"relaxed","compact","simple","single","missing". The layouts can be
+"relaxed","compact","micro","simple","single","missing". The layouts can be
 customised using the options <code>options("tableone.format_list"=list(...)")</code>,
 and this is described in more detail in the vignettes.</p></dd>
 
@@ -200,26 +209,24 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> kruskal-wallis test on Petal.Width</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ───────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                             setosa       versicolor   virginica                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   variable     characteri   value        value        value        P value     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                stic                                                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Variable     Characteri   Value        Value        Value        P value     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                stic         (N=50)       (N=50)       (N=50)                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ───────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sepal.Leng   Mean ± SD    5.01 ±       5.94 ±       6.59 ±       &lt;0.001      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   th           (N)          0.352 (50)   0.516 (50)   0.636 (50)               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   th                        0.352        0.516        0.636                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sepal.Widt   Mean ± SD    3.43 ±       2.77 ±       2.97 ±       &lt;0.001      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   h            (N)          0.379 (50)   0.314 (50)   0.322 (50)               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   h                         0.379        0.314        0.322                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Leng   Median       1.5          4.35         5.55         &lt;0.001      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   th           [IQR] (N)    [1.4—1.58]   [4—4.6]      [5.1—5.88]               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                             (50)         (50)         (50)                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   th           [IQR]        [1.4—1.58]   [4—4.6]      [5.1—5.88]               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Widt   Median       0.2          1.3          2            &lt;0.001      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   h            [IQR] (N)    [0.2—0.3]    [1.2—1.5]    [1.8—2.3]                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                             (50)         (50)         (50)                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   h            [IQR]        [0.2—0.3]    [1.2—1.5]    [1.8—2.3]                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ───────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Significance determined using Analysis of variance (linear                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   model), Kruskal-Wallis rank sum test (continuous variables)                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Normality of distributions determined using Anderson-Darling                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   normality test                                                               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2, 3, P value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2, 3, P value</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Missing data</span></span></span>
 <span class="r-in"><span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.show_pvalue_method"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
@@ -253,8 +260,9 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Significance testing skipped due to missing values: z</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          clear                 colored                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable   characte   value      count      value      count      P value  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ristic                                                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Variable   Characte   Value      Count      Value      Count      P value  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               ristic                (N=16572              (N=37368            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                     )                     )                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    carat      Median     0.53       14921      0.74       33761      — †      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               [IQR]      [0.36—0.              [0.41—1.                       </span>
@@ -329,7 +337,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Normality of distributions determined using                                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Anderson-Darling normality test                                            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2, 3, 4, P value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2, 3, 4, P value</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="explicit_na.html">explicit_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">is_colored</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_population</span><span class="op">(</span><span class="op">-</span><span class="va">color</span>,</span></span>
@@ -364,12 +372,11 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Significance testing skipped due to missing values: z</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                  clear          colored                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        variable   characterist   value          value          P value    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   ic                                                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Variable   Characterist   Value          Value          P value    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   ic             (N=16572)      (N=37368)                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        carat      Median [IQR]   0.53           0.74           — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            [0.36—0.9]     [0.41—1.13]               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  (14921)        (33761)                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  [0.36—0.9]     [0.41—1.13]               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        cut        Fair % [95%    2.1%           3.0%           &lt;0.001 ††  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   CI] (N)        [1.9%—2.3%]    [2.8%—3.1%]               </span>
@@ -419,27 +426,22 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                  (1685)         (3728)                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        depth      Median [IQR]   61.8           61.9           — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            [61—62.5]      [61.1—62.5]               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  (14920)        (33664)                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  [61—62.5]      [61.1—62.5]               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        table      Median [IQR]   57 [56—59]     57 [56—59]     — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            (14925)        (33782)                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        price      Median [IQR]   1.78e+03       2.79e+03       — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            [893—4.12e+0   [992—6.01e+0              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  3] (14985)     3] (33690)                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  [893—4.12e+0   [992—6.01e+0              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  3]             3]                        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        x          Median [IQR]   5.24           5.83           — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            [4.58—6.18]    [4.77—6.7]                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  (14939)        (33638)                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  [4.58—6.18]    [4.77—6.7]                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        y          Median [IQR]   5.24           5.85           — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            [4.58—6.18]    [4.78—6.69]               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  (14897)        (33681)                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  [4.58—6.18]    [4.78—6.69]               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        z          Median [IQR]   3.22           3.6            — †        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   (N)            [2.81—3.83]    [2.95—4.13]               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                  (14985)        (33574)                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  [2.81—3.83]    [2.95—4.13]               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ─────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        †, Not calculated due to missing values (continuous);              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        ††, Fisher's exact test (categorical)                              </span>
@@ -448,7 +450,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>        IQR: Interquartile range; CI: Confidence interval                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Line two                                                           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2, P value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2, P value</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
 </code></pre></div>

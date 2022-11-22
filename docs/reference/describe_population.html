@@ -16,7 +16,7 @@ and counts for categorical data,"><meta property="og:image" content="https://bri
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,7 +131,7 @@ errors if this is not done correctly.</p></dd>
 <dt>layout</dt>
 <dd><p>(optional) various layouts are defined as default. As of this
 version of <code>tableone</code> they are
-"relaxed","compact","simple","single","missing". The layouts can be
+"relaxed","compact","micro","simple","single","missing". The layouts can be
 customised using the options <code>options("tableone.format_list"=list(...)")</code>,
 and this is described in more detail in the vignettes.</p></dd>
 
@@ -182,7 +182,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for Petal.Width</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for Species</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable           characteristic     value              count (N=150)     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Variable           Characteristic     Value              Count (N=150)     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Sepal.Length       Mean ± SD          5.84 ± 0.828       150               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
@@ -202,7 +202,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Normality of distributions determined using Anderson-Darling               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    normality test                                                             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Overriding the heuristics is possible:</span></span></span>
 <span class="r-in"><span><span class="va">iris</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">describe_population</span><span class="op">(</span></span></span>
@@ -215,7 +215,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> mean_sd summary for Petal.Width</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for Species</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable           characteristic     value              count (N=150)     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Variable           Characteristic     Value              Count (N=150)     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Sepal.Length       Mean ± SD          5.84 ± 0.828       150               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
@@ -235,7 +235,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Normality of distributions determined using Anderson-Darling               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    normality test                                                             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The counts sometimes seem redundant if there is no missing information:</span></span></span>
 <span class="r-in"><span><span class="va">diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">describe_population</span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -251,7 +251,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for z</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for is_colored</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        variable     characteristic     value              count (N=53940)  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Variable     Characteristic     Value              Count (N=53940)  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        carat        Median [IQR]       0.7 [0.4—1.04]     53940            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
@@ -312,7 +312,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Normality of distributions determined using                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Anderson-Darling normality test                                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># however in a data set with missing values the denominators are important:</span></span></span>
 <span class="r-in"><span><span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">describe_population</span><span class="op">(</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -328,7 +328,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for z</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for is_colored</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        variable     characteristic     value              count (N=53940)  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Variable     Characteristic     Value              Count (N=53940)  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        carat        Median [IQR]       0.7 [0.4—1.04]     48682            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
@@ -389,7 +389,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Normality of distributions determined using                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Anderson-Darling normality test                                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># for factor levels we can make the missing values more explicit</span></span></span>
 <span class="r-in"><span><span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="explicit_na.html">explicit_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
@@ -406,7 +406,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for z</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for is_colored</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        variable     characteristic     value              count (N=53940)  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Variable     Characteristic     Value              Count (N=53940)  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        carat        Median [IQR]       0.7 [0.4—1.04]     48682            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
@@ -474,7 +474,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Normality of distributions determined using                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Anderson-Darling normality test                                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># in the output above the price variable is not # presented the way we would</span></span></span>
 <span class="r-in"><span><span class="co"># like so here we override the number of decimal places shown for the price</span></span></span>
@@ -501,7 +501,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for Z</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for Is_colored</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable           characteristic     value              count (N=53940)   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Variable           Characteristic     Value              Count (N=53940)   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Carat              Median [IQR]       0·7 [0·4—1·04]     48682             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
@@ -568,7 +568,7 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Normality of distributions determined using Anderson-Darling               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    normality test                                                             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, characteristic, 1, 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

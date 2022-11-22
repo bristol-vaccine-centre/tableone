@@ -24,7 +24,7 @@ significance tests, should include Bonferroni adjustment."><meta property="og:im
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,13 +104,12 @@ formula is used as the intervention, in which case grouping is ignored.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>the outcomes are specified either as a <code>tidyselect</code> specification, in
-which case the grouping of the <code>df</code> input determines the intervention and
-the output is the same a <code><a href="compare_population.html">compare_population()</a></code> call with a tidyselect.
+<dd><p>the outcomes are specified either as a <code>tidyselect</code> specification,
+in which case the grouping of the <code>df</code> input determines the intervention
+and the output is the same a <code><a href="compare_population.html">compare_population()</a></code> call with a tidyselect.
 Alternatively a set of formulae can be provided that specify the outcomes
-on the left hand side, e.g. <code>outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...</code>
-in this case the <code>intervention</code> must be the same for all formulae and used
-to determine the comparison groups.</p></dd>
+on the left hand side, e.g. <code>outcome1 ~ intervention + cov1, outcome2 ~ intervention + cov1, ...</code> in this case the <code>intervention</code> must be the same
+for all formulae and used to determine the comparison groups.</p></dd>
 
 
 <dt>label_fn</dt>
@@ -145,7 +144,7 @@ errors if this is not done correctly.</p></dd>
 <dt>layout</dt>
 <dd><p>(optional) various layouts are defined as default. As of this
 version of <code>tableone</code> they are
-"relaxed","compact","simple","single","missing". The layouts can be
+"relaxed","compact","micro","simple","single","missing". The layouts can be
 customised using the options <code>options("tableone.format_list"=list(...)")</code>,
 and this is described in more detail in the vignettes.</p></dd>
 
