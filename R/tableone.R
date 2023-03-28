@@ -159,14 +159,73 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
   return(df)
 }
 
+
+#' Cut and label an integer valued quantity
+#'
+#' Deals with some annoying issues classifying integer data sets, such as ages, into groups. where you want to
+#' specify just the change over points as integers and clearly label the resulting ordered factor.
+#'
+#' @param x a vector of integer valued numbers, e.g. ages, counts
+#' @param cut_points a vector of integer valued cut points which define the lower, inclusive boundary of each group
+#' @param glue a glue spec that may be used to generate a label. It can use {low}, {high}, {next_low}, or {label} as values.
+#' @param lower_limit the minimum value we should include (this is inclusive for the bottom category) (default -Inf)
+#' @param upper_limit the maximum value we should include (this is also inclusive for the top category) (default Inf)
+#' @param ... not used
+#'
+#' @return an ordered factor of the integer
+#' @export
+#'
+#' @examples
+#' cut_integer(rbinom(20,20,0.5), c(5,10,15))
+#' cut_integer(floor(runif(100,-10,10)), cut_points = c(2,3,4,6), lower_limit=0, upper_limit=10)
+#' cut_integer(1:10, cut_points = c(1,3,9))
+cut_integer = function(x, cut_points, glue = "{label}", lower_limit = -Inf, upper_limit = Inf, ...) {
+
+  next_low = NULL # remove global binding note
+
+  if (!all(as.integer(x)==x,na.rm = TRUE)) warning("input to cut_integer(...) has been coerced to integer values")
+  x = floor(x)
+  if (!all(as.integer(cut_points)==cut_points)) stop("cut_points must be integer valued, and define the lower end of each category.")
+  if (any(cut_points <= lower_limit | cut_points >= upper_limit)) warning("cut_point values should be between lower_limit (",lower_limit,") and upper_limit (",upper_limit,").")
+  # make sure the limits are not included.
+  cut_points = cut_points[cut_points > lower_limit & cut_points < upper_limit]
+  # sort and uniquify
+  #
+  breaks = unique(sort(c(lower_limit,cut_points,upper_limit+1)))
+  labels = tibble::tibble(
+    low = utils::head(breaks,-1),
+    next_low = utils::head(dplyr::lead(breaks,n = 1),-1),
+    high = ifelse(next_low != upper_limit, next_low-1, upper_limit)
+  ) %>% dplyr::mutate(
+    label = dplyr::case_when(
+      low == high ~ sprintf("%1.0f",low),
+      low == -Inf ~ sprintf("<%1.0f",next_low),
+      high == Inf ~ sprintf("\u2265%1.0f",low),
+      TRUE ~ sprintf("%1.0f\u2012%1.0f",low, high)
+    )
+  ) %>% dplyr::mutate(
+    label2 = glue::glue(glue)
+  )
+
+  return(
+    cut(x,include.lowest = TRUE,breaks = breaks, labels=labels$label2, ordered_result = TRUE, right=FALSE)
+  )
+}
+
+
 # explicit NA regardless of whether the level exists
-.fct_explicit_na = function(f, na_level = "<missing>") {
+.fct_explicit_na = function(f, na_level = "<missing>", force = TRUE) {
   if (is.character(f)) f= factor(f)
   if (!is.factor(f)) stop("f must be a factor or a character vector")
   is_missing <- is.na(f)
-  f <- forcats::fct_expand(f, na_level)
-  f[is_missing] <- na_level
-  f
+  if (!any(is_missing) && force == FALSE) {
+    # nothing missing and level is optional
+    return(f)
+  } else {
+    f <- forcats::fct_expand(f, na_level)
+    f[is_missing] <- na_level
+    return(f)
+  }
 }
 
 #' Make NA values in factor columns explicit
@@ -189,13 +248,8 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
 #' # after
 #' missing_diamonds %>% explicit_na() %>% dplyr::group_by(cut) %>% dplyr::count()
 explicit_na = function(df, na_level = "<missing>", hide_if_empty = FALSE) {
-  if (hide_if_empty) {
-    df %>% dplyr::ungroup() %>%
-      dplyr::mutate(dplyr::across(tidyselect::where(is.factor), ~ forcats::fct_explicit_na(.x, na_level)))
-  } else {
-    df %>% dplyr::ungroup() %>%
-      dplyr::mutate(dplyr::across(tidyselect::where(is.factor), ~ .fct_explicit_na(.x, na_level)))
-  }
+  df %>% dplyr::ungroup() %>%
+      dplyr::mutate(dplyr::across(tidyselect::where(is.factor), ~ .fct_explicit_na(.x, na_level, force=!hide_if_empty)))
 }
 
 # missing_diamonds %>% data_missingness() %>% describe_population(tidyselect::everything())
@@ -275,7 +329,8 @@ describe_population = function(
   override_real_dp = list(),
   font_size = getOption("tableone.font_size",8),
   font = getOption("tableone.font","Arial"),
-  footer_text = NULL
+  footer_text = NULL,
+  show_binary_value=NULL
 ) {
   if (dplyr::is.grouped_df(df)) {
     .message("describe_population(...) ignores grouping.")
@@ -292,7 +347,7 @@ describe_population = function(
   }
   variable_col = as.symbol(getOption("tableone.variable_column_name","Variable"))
   characteristic_col = as.symbol(getOption("tableone.characteristic_column_name","Characteristic"))
-  fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp)
+  fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp, show_binary_value=show_binary_value)
 
   fmt = fmt %>% dplyr::rename(
     !!variable_col := variable,
@@ -394,7 +449,9 @@ describe_population = function(
 #'   closest on your system)
 #' @param footer_text any text that needs to be added at the end of the table,
 #'   setting this to FALSE dsables the whole footer (as does
-#'   `options("tableone.hide_footer"=TRUE)`) .
+#'   `options("tableone.hide_footer"=TRUE)`).
+#' @param show_binary_value if set this will filter the display of covariates where the number of possibilities
+#'   is exactly 2 to this value.
 #'
 #' @return a `huxtable` formatted table.
 #' @export
@@ -429,7 +486,8 @@ compare_population = function(
   p_format = names(.pvalue.defaults),
   font_size = getOption("tableone.font_size",8),
   font = getOption("tableone.font","Arial"),
-  footer_text = NULL
+  footer_text = NULL,
+  show_binary_value = NULL
 ) {
   cols = .parse_vars(df, ...)
   p_format = match.arg(p_format)
@@ -457,7 +515,7 @@ compare_population = function(
   } else {
     format = getOption("tableone.format_list", default.format[[layout]])
   }
-  fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp)
+  fmt = .format_summary(summary, format=format, override_percent_dp = override_percent_dp, override_real_dp=override_real_dp, show_binary_value=show_binary_value)
 
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
   variable_col = as.symbol(getOption("tableone.variable_column_name","Variable"))
@@ -526,7 +584,7 @@ compare_population = function(
     if (!is.null(.characteristic)) tmp2 = tmp2 %>% dplyr::filter(level == .characteristic)
     simple = list(
       # "subtype_count" = "{.sprintf_na('%1.1f%% %s (%d/%d - %s)',prob.0.5*100,as.character(level),n,N,.group)}",
-      "subtype_count" = "{.sprintf_na('%1.1f%% - %s (%d/%d)',prob.0.5*100,.group,n,N)}",
+      "subtype_count" = "{.sprintf_na('%1.1f%% - %s (%d/%d)',prob.0.5*100,.group,x,n)}",
       "median_iqr" = "{.sprintf_na('%1.3g (%s)',q.0.5, .group)}",
       "mean_sd" = "{.sprintf_na('%1.3g (%s)',mean, .group)}"
     )
@@ -536,8 +594,7 @@ compare_population = function(
       glue = simple[[l$.summary_type]]
       out[[i]] = glue::glue_data(l, glue)
     }
-
-    s = out %>% paste0(collapse = " versus ")
+    s = out %>% glue::glue_collapse(sep = ", ", last = " and ")
     p = tmp %>% dplyr::select(.significance_test) %>% tidyr::unnest(.significance_test) %>%
       dplyr::pull(p.value) %>% p_fun()
     # q = tmp %>% dplyr::select(.significance_test) %>% tidyr::unnest(.significance_test) %>%
@@ -624,11 +681,11 @@ compare_population = function(
 #' @return a list of accessor functions for the summary data allowing granular
 #'   access to the results of the analysis:
 #'
-#'   * `compare(.variable, .characteristic = NULL)` -
+#'   * `comparison$compare(.variable, .characteristic = NULL)` -
 #'   prints a comparison between the different
 #'   intervention groups for the specified variable (and optionally the given
 #'   characteristic if it is a categorical variable).
-#'   * `filter(.variable, .intervention = NULL, .characteristic = NULL)`
+#'   * `comparison$filter(.variable, .intervention = NULL, .characteristic = NULL)`
 #'   extracts a given variable
 #'   (e.g. `gender`), optionally for a given level of intervention (e.g.
 #'   `control`) and if categorical a given characteristic (e.g. `male`). This
@@ -636,11 +693,11 @@ compare_population = function(
 #'   qualifying intervention, variable and characteristic combinations,
 #'   significance tests (and power analyses) for the qualifying variable
 #'   (comparing intervention groups).
-#'   * `signif_tests(.variable)` - extracts for
+#'   * `comparison$signif_tests(.variable)` - extracts for
 #'   a given variable (e.g. `gender`) the significance tests (and optionally
 #'   power analyses) of the univariate comparison between different
 #'   interventions and the variable.
-#'   * `summary_stats(.variable, .intervention = NULL, .characteristic = NULL)`
+#'   * `comparison$summary_stats(.variable, .intervention = NULL, .characteristic = NULL)`
 #'   extracts a given variable (e.g. `gender`),
 #'   optionally for a given level of intervention (e.g. `control`) and if
 #'   categorical a given characteristic (e.g. `male`). This returns only the
@@ -725,7 +782,8 @@ compare_outcomes = function(df,
       p_format = names(.pvalue.defaults),
       font_size = getOption("tableone.font_size",8),
       font = getOption("tableone.font","Arial"),
-      footer_text = NULL
+      footer_text = NULL,
+      show_binary_value = NULL
 ) {
   if (!.is_formula_interface(...)) {
     compare_population(df, ..., label_fn = label_fn, units = units,
@@ -753,7 +811,7 @@ compare_outcomes = function(df,
     compare_population(df, new_form, label_fn = label_fn, units = units,
        override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
        override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
-       font = font, footer_text = footer_text
+       font = font, footer_text = footer_text, show_binary_value = show_binary_value
     )
   }
 }
@@ -834,8 +892,7 @@ compare_missing = function(
   df_missing = .data_missingness(df)
   shape = .get_shape(df_missing,cols,label_fn)
   summary = .summary_stats(shape)
-  fmt = .format_summary(summary, layout = "missing") %>%
-    dplyr::filter(characteristic == "missing") %>%
+  fmt = .format_summary(summary, layout = "missing", show_binary_value="missing") %>%
     dplyr::select(-characteristic)
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
   sign = .significance_tests(summary)

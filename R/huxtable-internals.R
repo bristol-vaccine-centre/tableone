@@ -49,6 +49,10 @@
   x %>% lapply(rlang::as_label) %>% dplyr::syms()
 }
 
+.as_symbol_list.list = function(x,...) {
+  lapply(x, function(x) if (is.name(x)) x else dplyr::sym(as.character(x)))
+}
+
 .as_symbol_list.default = function(x,...) {
   dplyr::syms(as.character(x))
 }
@@ -80,25 +84,34 @@
 # sorts by appearance order for characters and factor order by factors.
 .nested_arrange = function(tidyDf, groupVars) {
   .o=.o2=NULL
-  colOrder = tidyDf %>% dplyr::ungroup() %>% dplyr::select(!!!groupVars) %>% dplyr::distinct() %>% dplyr::mutate(.o=0, .o2=dplyr::row_number())
+  colOrder = tidyDf %>% dplyr::ungroup() %>% dplyr::select(!!!groupVars) %>% dplyr::distinct() %>% dplyr::mutate(.o="0", .o2=dplyr::row_number())
+  mult = ceiling(log10(nrow(colOrder)))
+  fmt = paste0("%s-%0",mult,"d")
+
   for (colGroup in groupVars) {
     col = colOrder %>% dplyr::pull(!!colGroup)
     if (col %>% is.factor()) {
-      colOrder = colOrder %>% dplyr::mutate(.o = .o*100000 + ifelse(is.na(!!colGroup),99999,as.integer(!!colGroup)))
+      colOrder = colOrder %>% dplyr::mutate(.o = sprintf(fmt,.o,ifelse(is.na(!!colGroup),10^mult-1,as.integer(!!colGroup))))
     } else {
+
+      # This logic turns out to be unnecessary I think. It woudl be good to test
+      # the functionality it was trying to achieve which is the natural ordering of the last column of
+
       if (rlang::as_label(colGroup) == rlang::as_label(utils::tail(groupVars,1)[[1]])) {
         # a text column in the last group is the row label unless proven otherwise
         # if you want a different order than the exact original data order then
         # convert to a factor
-        colOrder = colOrder %>% dplyr::mutate(.o = .o*100000 + .o2)
+        colOrder = colOrder %>% dplyr::mutate(.o = sprintf(fmt,.o,.o2))
       } else {
+
         # if the column is not the last one then we want the order to be the
         # unique values of the data in data presentation order
-        colOrder = colOrder %>% dplyr::mutate(.o = .o*100000 + match(!!colGroup, unique(!!colGroup)))
+        colOrder = colOrder %>% dplyr::mutate(.o = sprintf(fmt,.o,match(!!colGroup, unique(!!colGroup))))
+
       }
     }
   }
-  colOrder = colOrder %>% dplyr::mutate(.order = dplyr::dense_rank(.o)) %>% dplyr::select(-.o,-.o2)
+  colOrder = colOrder %>% dplyr::arrange(.o) %>% dplyr::mutate(.order = dplyr::row_number()) %>% dplyr::select(-.o,-.o2)
   return(tidyDf %>% dplyr::inner_join(colOrder, by=.as_join_list(groupVars)))
 }
 

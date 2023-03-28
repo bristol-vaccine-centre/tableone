@@ -17,7 +17,8 @@ compare_population(
   p_format = names(.pvalue.defaults),
   font_size = getOption("tableone.font_size", 8),
   font = getOption("tableone.font", "Arial"),
-  footer_text = NULL
+  footer_text = NULL,
+  show_binary_value = NULL
 )
 }
 \arguments{
@@ -91,7 +92,10 @@ closest on your system)}
 
 \item{footer_text}{any text that needs to be added at the end of the table,
 setting this to FALSE dsables the whole footer (as does
-\code{options("tableone.hide_footer"=TRUE)}) .}
+\code{options("tableone.hide_footer"=TRUE)}).}
+
+\item{show_binary_value}{if set this will filter the display of covariates where the number of possibilities
+is exactly 2 to this value.}
 }
 \value{
 a \code{huxtable} formatted table.

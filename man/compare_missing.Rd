@@ -58,7 +58,7 @@ to include the predictor.}
 
 \item{footer_text}{any text that needs to be added at the end of the table,
 setting this to FALSE dsables the whole footer (as does
-\code{options("tableone.hide_footer"=TRUE)}) .}
+\code{options("tableone.hide_footer"=TRUE)}).}
 }
 \value{
 a \code{huxtable} formatted table.

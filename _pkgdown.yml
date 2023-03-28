@@ -13,6 +13,7 @@ reference:
   - compare_outcomes
   - extract_comparison
   - remove_missing
+  - count_table
 - title: "Supporting functions"
   desc: >
     Modify data for making tabular summaries, making missing data more
@@ -23,6 +24,7 @@ reference:
   - get_footer_text
   - as_vars
   - format_pvalue
+  - cut_integer
 - title: "Configuration"
   contents:
   - default.format

@@ -138,7 +138,7 @@
 # df_shape = diamonds %>%  dplyr::mutate(is_clear = ifelse(clarity>"VS2","clear","less clear")) %>% dplyr::group_by(is_clear) %>% .get_shape()
 # df_summary = df_shape %>% .summary_stats()
 # df_summary %>% .format_summary()
-.format_summary = function(df_summary, layout = names(default.format), format = NULL, override_percent_dp = list(), override_real_dp = list() ) {
+.format_summary = function(df_summary, layout = names(default.format), format = NULL, override_percent_dp = list(), override_real_dp = list(), show_binary_value=NULL ) {
 
   layout = match.arg(layout)
   if(is.null(format)) format = getOption("tableone.format_list", default.format[[layout]])
@@ -174,8 +174,6 @@
   } else {
     df_summary = df_summary %>% dplyr::mutate(.real_dp = NA)
   }
-
-
 
   # why does the R world have such a dim view of loops
   # This is basically much more tractable than the equivalent in
@@ -238,6 +236,13 @@
 
     # and we nest this back one item at a time. this col will now be a list of
     # tibbles grouped by intervention as before
+    if (
+        all(outdata$type == "categorical") &&
+        length(levels(outdata$level)) == 2 &&
+        any(show_binary_value %in% levels(outdata$level))
+      ) {
+      outdata = outdata %>% dplyr::filter(level %in% show_binary_value)
+    }
     df_summary$.labelled_data[[i]] = outdata %>% dplyr::select(!!!grps, characteristic, .tbl_col_name, .tbl_col_value, .order2, .order3)
   }
 

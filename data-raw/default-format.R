@@ -53,7 +53,7 @@ default.format = list(
 
   micro = list(
     subtype_count = list(
-      characteristic = "{level}% (N)",
+      characteristic = "{level} % (N)",
       "Value (N={N})" = "{.sprintf_na('%1.1f%% (%d)',prob.0.5*100,x)}"
     ),
     median_iqr = list(

@@ -56,6 +56,7 @@
 .col_type = function(col, max_levels) {
   tmp = col
   if (is.factor(tmp)) return("categorical")
+  if (is.character(tmp) & length(unique(tmp)) < max_levels) return("categorical")
   if (is.logical(tmp)) return("categorical")
   if (is.numeric(tmp) & length(unique(tmp)) < max_levels) return("categorical")
   if (is.numeric(tmp)) return("continuous")
@@ -67,6 +68,7 @@
 .col_levels = function(col, max_levels) {
   tmp = col
   if (is.factor(tmp)) return(length(levels(tmp)))
+  if (is.character(tmp) & length(unique(tmp)) < max_levels) return(length(unique(tmp)))
   if (is.logical(tmp)) return(2)
   if (is.numeric(tmp) & length(unique(tmp)) < max_levels) return(length(unique(tmp)))
   return(NA_integer_)
