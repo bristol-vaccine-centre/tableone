@@ -27,6 +27,10 @@ count_table(
 
 \item{denomExpr}{defines how the numerator is defined in the context of the column and row (ungrouped one level)}
 
+\item{totalExpr}{defines how the column level total is defined}
+
+\item{subgroupLevel}{defines how the numerator grouping is defined in terms of the row groupings}
+
 \item{glue}{a named list of column value specifications.}
 }
 \value{

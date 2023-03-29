@@ -7,6 +7,8 @@
 #' @param colGroupVars the column groupings of the table.
 #' @param numExpr defines how the numerator is defined in the context of the column and row groups (e.g. dplyr::n())
 #' @param denomExpr defines how the numerator is defined in the context of the column and row (ungrouped one level)
+#' @param totalExpr defines how the column level total is defined
+#' @param subgroupLevel defines how the numerator grouping is defined in terms of the row groupings
 #' @param glue a named list of column value specifications.
 #'
 #' @return a huxtable with the count and proportions of the rows groups

@@ -4,5 +4,5 @@ utils::globalVariables(c(".comparison_method",".content",".label",".labelled_dat
                          "default.format","level","lower","method","n","p.method","p.value",
                          "path","type","upper","variable","where","x","y",".cols",".group",
                          ".order3", ".override_power", ".power_method", ".summary_data",
-                         ".tbl_col_name", ".tbl_col_value", ".unit", "N_present", "N_total"
+                         ".tbl_col_name", ".tbl_col_value", ".unit", "N_present", "N_total","N","tag","value"
 ))
