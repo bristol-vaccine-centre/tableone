@@ -288,3 +288,20 @@
   t2[headers,col] = ""
   return(t2)
 }
+
+
+
+# # TODO: a knitr engine for a long format table
+# # Probably needs a longformat -> huxtable converter also.
+# .knitr_engine = function(options) {
+#   content = options$code
+#   # parse content into data frame
+#   #
+#   #
+#   out = "whatever output"
+#   # this is for text output... how to return a hux object and have it
+#   # rendered by knitr?
+#   knitr::engine_output(options, content, out)
+# }
+#
+# knitr::knit_engines$set(tidy_table = .knitr_engine)

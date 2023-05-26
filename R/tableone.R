@@ -332,10 +332,11 @@ describe_population = function(
   footer_text = NULL,
   show_binary_value=NULL
 ) {
-  if (dplyr::is.grouped_df(df)) {
-    .message("describe_population(...) ignores grouping.")
-    df = df %>% dplyr::ungroup()
-  }
+  # if (dplyr::is.grouped_df(df)) {
+  #   .message("describe_population(...) ignores grouping.")
+  #   df = df %>% dplyr::ungroup()
+  # }
+  grps = df %>% groups()
   cols = .parse_vars(df, ...)
   label_fn = purrr::as_mapper(label_fn)
   shape = .get_shape(df,cols,label_fn,units)
@@ -356,7 +357,7 @@ describe_population = function(
 
   hux = fmt %>% .hux_tidy(
     rowGroupVars = dplyr::vars(!!variable_col, !!characteristic_col),
-    colGroupVars = dplyr::vars(.tbl_col_name),
+    colGroupVars = dplyr::vars(!!!grps,.tbl_col_name),
     defaultFontSize= font_size,
     defaultFont = font,
     displayRedundantColumnNames=FALSE)
