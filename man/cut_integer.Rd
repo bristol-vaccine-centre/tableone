@@ -34,7 +34,7 @@ Deals with some annoying issues classifying integer data sets, such as ages, int
 specify just the change over points as integers and clearly label the resulting ordered factor.
 }
 \examples{
-cut_integer(rbinom(20,20,0.5), c(5,10,15))
-cut_integer(floor(runif(100,-10,10)), cut_points = c(2,3,4,6), lower_limit=0, upper_limit=10)
+cut_integer(stats::rbinom(20,20,0.5), c(5,10,15))
+cut_integer(floor(stats::runif(100,-10,10)), cut_points = c(2,3,4,6), lower_limit=0, upper_limit=10)
 cut_integer(1:10, cut_points = c(1,3,9))
 }

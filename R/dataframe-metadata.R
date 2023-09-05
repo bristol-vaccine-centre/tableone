@@ -55,10 +55,12 @@
 # is column categorical or continuous?
 .col_type = function(col, max_levels) {
   tmp = col
+  if (is.ordered(tmp)) return("ordered")
   if (is.factor(tmp)) return("categorical")
   if (is.character(tmp) & length(unique(tmp)) < max_levels) return("categorical")
   if (is.logical(tmp)) return("categorical")
   if (is.numeric(tmp) & length(unique(tmp)) < max_levels) return("categorical")
+  if (is.numeric(tmp) & length(unique(tmp)) < max_levels) return("ordered")
   if (is.numeric(tmp)) return("continuous")
   return(NA_character_)
 }

@@ -2,6 +2,7 @@
 # c("tidyselect","rlang") %>% lapply(usethis::use_package)
 
 # look for a dataframe as the first argument in the call stack
+# TODO: this maybe depends on alphabetical order of parameter names
 .search_call_stack = function(nframe = sys.nframe()-1) {
   frame = sys.frame(nframe)
   first_arg_name = ls(frame)[1]
@@ -84,7 +85,7 @@ as_vars = function(tidyselect, data=NULL) {
 # .parse_vars(iris, Species ~ Petal.Width + Missing)
 .parse_vars = function(df, ..., .side="rhs") {
   if (.is_character_list(...)) {
-    return(.parse_character(df, ...))
+    return(.parse_character(...))
   }
   if (.is_vars_interface(...)) {
     return(c(...) %>% sapply(rlang::as_label) %>% lapply(as.symbol))
@@ -199,4 +200,56 @@ as_vars = function(tidyselect, data=NULL) {
     FALSE
   })
   return(out)
+}
+
+
+# .pair_apply(diamonds, chi = ~ stats::chisq.test(.x,.y), .cols = tidyselect::where(is.factor)) %>% dplyr::mutate(pvalue = purrr::map_dbl(chi, ~.x$p.value))
+# .pair_apply(diamonds, chi = chisq.test, .cols = tidyselect::where(is.factor)) %>% dplyr::mutate(pvalue = purrr::map_dbl(chi, ~.x$p.value))
+# .pair_apply(diamonds, chi = ~ stats::chisq.test(.x,.y)$p.value, method = ~ "chisq", .cols = tidyselect::where(is.factor))
+# .pair_apply(diamonds, error = ~ stop("error in cols"), .cols_x = tidyselect::where(is.factor),.cols_y = tidyselect::where(is.numeric))
+# iris %>% dplyr::group_by(Species) %>% .pair_apply(cor = cor, method = ~ "chisq", .cols = tidyselect::where(is.numeric))
+.pair_apply = function(df, ..., .cols = tidyselect::everything(), .cols_x = NULL, .cols_y = NULL, .diagonal=FALSE) {
+  .cols = rlang::enexpr(.cols)
+  .cols_x = rlang::enexpr(.cols_x)
+  .cols_y = rlang::enexpr(.cols_y)
+  if (dplyr::is.grouped_df(df)) return(df %>% dplyr::group_modify(function(d,g,...) .pair_apply(d, ...), ..., .cols=!!.cols, .cols_x=!!.cols_x, .cols_y=!!.cols_y))
+  if (is.null(.cols_x)) .cols_x = .cols
+  if (is.null(.cols_y)) .cols_y = .cols
+  dfx = df %>% dplyr::select(!!.cols_x)
+  dfy = df %>% dplyr::select(!!.cols_y)
+  dots = rlang::list2(...)
+
+  err2 = character()
+  out2 = dplyr::bind_rows(
+    lapply(colnames(dfx), function(xcol) {
+      x = dplyr::pull(dfx,xcol)
+      dplyr::bind_rows(
+        lapply(colnames(dfy), function(ycol) {
+          if (.diagonal || xcol != ycol) {
+            y = dplyr::pull(dfy,ycol)
+            out = tibble::tibble(var1 = xcol, var2 = ycol)
+            for (name in names(dots)) {
+              fn = purrr::as_mapper(dots[[name]])
+              res = try(fn(x, y), silent = TRUE)
+              if (inherits(res, "try-error")) {
+                reason = attr(res,"condition")$message
+                err2 <<- c(err2,reason)
+                res = NA
+              }
+              if (is.atomic(res)) {
+                out = out %>% dplyr::mutate(!!name := res)
+              } else {
+                out = out %>% dplyr::mutate(!!name := list(res))
+              }
+            }
+            return(out)
+          } else {
+            return(NULL)
+          }
+        })
+      )
+    })
+  )
+  if (length(err2) > 0) warning(unique(err2))
+  return(out2)
 }

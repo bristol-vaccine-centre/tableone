@@ -19,9 +19,9 @@
 # randomly selectively remove data
 .make_missing = function(df, p_missing=0.1) {
   df %>%
-    dplyr::mutate(across(tidyselect::where(is.factor), .fns = ~ ifelse(stats::runif(length(.x)) < p_missing, NA, as.character(.x)) %>% factor(levels = as.character(levels(.x)), ordered = is.ordered(.x)))) %>%
-    dplyr::mutate(across(tidyselect::where(is.numeric), .fns = ~ ifelse(stats::runif(length(.x)) < p_missing, NA, .x))) %>%
-    dplyr::mutate(across(tidyselect::where(is.logical), .fns = ~ ifelse(stats::runif(length(.x)) < p_missing, NA, .x)))
+    dplyr::mutate(dplyr::across(tidyselect::where(is.factor), .fns = ~ ifelse(stats::runif(length(.x)) < p_missing, NA, as.character(.x)) %>% factor(levels = as.character(levels(.x)), ordered = is.ordered(.x)))) %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.numeric), .fns = ~ ifelse(stats::runif(length(.x)) < p_missing, NA, .x))) %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.logical), .fns = ~ ifelse(stats::runif(length(.x)) < p_missing, NA, .x)))
 }
 
 # make test data

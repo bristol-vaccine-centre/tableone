@@ -7,13 +7,14 @@
 compare_missing(
   df,
   ...,
-  label_fn = ~.x,
+  label_fn = label_extractor(df),
   p_format = names(.pvalue.defaults),
   font_size = getOption("tableone.font_size", 8),
   font = getOption("tableone.font", "Arial"),
   significance_limit = 0.05,
   missingness_limit = 0.1,
-  footer_text = NULL
+  footer_text = NULL,
+  raw_output = FALSE
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ to include the predictor.}
 \item{footer_text}{any text that needs to be added at the end of the table,
 setting this to FALSE dsables the whole footer (as does
 \code{options("tableone.hide_footer"=TRUE)}).}
+
+\item{raw_output}{return comparison as tidy dataframe rather than formatted table}
 }
 \value{
 a \code{huxtable} formatted table.

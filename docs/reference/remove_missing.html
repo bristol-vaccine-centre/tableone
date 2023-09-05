@@ -12,7 +12,7 @@ models to exclude missing data from the predictors."><meta property="og:image" c
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@ models to exclude missing data from the predictors.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">remove_missing</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  label_fn <span class="op">=</span> <span class="op">~</span><span class="va">.x</span>,</span>
+<span>  label_fn <span class="op">=</span> <span class="fu"><a href="label_extractor.html">label_extractor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
 <span>  significance_limit <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  missingness_limit <span class="op">=</span> <span class="fl">0.1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -135,11 +135,11 @@ to include the predictor.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Data is missing not at random (compared to Species) at a p-value&lt;0.013 (0.05 over 4 comparisons) for variables Petal.Width.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> . ~ Species + Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x561f1a6d80a0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562635de73e0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> . ~ Species + Petal.Length + Sepal.Length</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x561f1a6d80a0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562635de73e0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

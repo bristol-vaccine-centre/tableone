@@ -25,6 +25,8 @@ reference:
   - as_vars
   - format_pvalue
   - cut_integer
+  - label_extractor
+  - set_labels
 - title: "Configuration"
   contents:
   - default.format

@@ -34,7 +34,7 @@ default.format = list(
 
   compact = list(
     subtype_count = list(
-      characteristic = "{level} % [95% CI] (N)",
+      characteristic = "{level} % [95% CI] (n)",
       "Value (N={N})" = "{.sprintf_na('%1.1f%% [%1.1f%%\u2014%1.1f%%] (%d)',prob.0.5*100,prob.0.025*100,prob.0.975*100,x)}"
     ),
     median_iqr = list(
@@ -46,14 +46,14 @@ default.format = list(
       "Value (N={N})" = "{.sprintf_na('%1.3g \u00B1 %1.3g',mean,sd)}"
     ),
     skipped = list(
-      characteristic = "(N)",
+      characteristic = "(n)",
       "Value (N={N})" = "{.sprintf_na('\u2014 (%d)',n)}"
     )
   ),
 
   micro = list(
     subtype_count = list(
-      characteristic = "{level} % (N)",
+      characteristic = "{level} % (n)",
       "Value (N={N})" = "{.sprintf_na('%1.1f%% (%d)',prob.0.5*100,x)}"
     ),
     median_iqr = list(
@@ -76,15 +76,15 @@ default.format = list(
       "Value (N={N})" = "{.sprintf_na('%1.1f%% (%d/%d)',prob.0.5*100,x,n)}"
     ),
     median_iqr = list(
-      characteristic = "Median (N)",
+      characteristic = "Median (n)",
       "Value (N={N})" = "{.sprintf_na('%1.3g (%d)',q.0.5,n)}"
     ),
     mean_sd = list(
-      characteristic = "Mean (N)",
+      characteristic = "Mean (n)",
       "Value (N={N})" = "{.sprintf_na('%1.3g (%d)',mean,n)}"
     ),
     skipped = list(
-      characteristic = "(N)",
+      characteristic = "(n)",
       "Value (N={N})" = "{.sprintf_na('\u2014 (%d)',n)}"
     )
   ),

@@ -37,6 +37,20 @@
   return(tibble::tibble(p.value = pval, p.method = "Fisher's exact test"))
 }
 
+# ordered data
+.do_cochran_armitage = function(xy_df) {
+  if (any(xy_df$y > 2)) stop("too many groups for a Chi-squared Test for Trend in Proportions")
+
+  tmp = xy_df %>%
+    dplyr::group_by(x,y) %>% dplyr::count() %>%
+    dplyr::group_by(x) %>% dplyr::mutate(N = sum(n)) %>%
+    dplyr::filter(y==1)
+
+  pval = tryCatch({stats::prop.trend.test(tmp$n, tmp$N) %>% broom::tidy() %>% dplyr::pull(p.value)}, error=function(e) NA)
+  return(tibble::tibble(p.value = pval, p.method = "Chi-squared Test for Trend in Proportions"))
+
+}
+
 # xy_df = twoclass %>% dplyr::group_by(is_clear) %>% dplyr::mutate(y=dplyr::cur_group_id(), x=price) %>% dplyr::select(y,x)
 # xy_df %>% .do_ttest()
 .do_ttest = function(xy_df) {
@@ -266,6 +280,7 @@
 # these functions must accept a dataframe with y (cateogory) and x (data) columns.
 # and output a single row tibble containing a p-value and a method column
 .comparison.fns = list(
+  "chi-sq trend" = .do_cochran_armitage,
   "fisher" = .do_fisher,
   "t-test" = .do_ttest,
   "2-sided wilcoxon" = .do_wilcoxon,
@@ -300,6 +315,8 @@
     df_shape = df_shape %>% dplyr::mutate(
       .comparison_method = dplyr::case_when(
         # categorical:
+        .comparisons == 2 & .type == "ordered" & .p_missing == 0 ~ "chi-sq trend",
+        .type == "ordered" ~ "fisher",
         .type == "categorical" ~ "fisher",
         # 2 sided continuous:
         # continuous normally distributed
@@ -439,7 +456,7 @@ format_pvalue = function(p.value, p_format = names(.pvalue.defaults)) {
   p_col = as.symbol(getOption("tableone.pvalue_column_name","P value"))
 
   fun = getOption("tableone.pvalue_formatter",.pvalue.defaults[[p_format]])
-  method = getOption("tableone.show_pvalue_method",FALSE)
+  method = getOption("tableone.show_pvalue_method",TRUE)
 
   tmp = df_signif %>% dplyr::select(variable = .label, .type, .significance_test) %>%
     tidyr::unnest(.significance_test)

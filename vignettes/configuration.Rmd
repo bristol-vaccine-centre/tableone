@@ -79,7 +79,7 @@ gcd %>% compare_population(formula)
 * Change the font and font size
 * Change the labelling of the p-value column
 * Change the format of the p-value
-* Show the method for the p-value as daggers
+* Hide the daggers for the method for the p-value
 
 ```{r}
 old = options(
@@ -92,7 +92,7 @@ old = options(
   # a vector of characters. The example here is a function that returns a function.
   "tableone.pvalue_formatter" = 
           scales::label_pvalue(accuracy = 0.01,decimal.mark = "\u00B7"),
-  "tableone.show_pvalue_method"=TRUE
+  "tableone.show_pvalue_method"=FALSE
 )
 
 

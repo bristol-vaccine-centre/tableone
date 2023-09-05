@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">extract_comparison</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  label_fn <span class="op">=</span> <span class="op">~</span><span class="va">.x</span>,</span>
+<span>  label_fn <span class="op">=</span> <span class="fu"><a href="label_extractor.html">label_extractor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
 <span>  override_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  p_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">.pvalue.defaults</span><span class="op">)</span>,</span>
 <span>  override_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -119,7 +119,7 @@ here is overridden by the <code>option("tableone.pvalue_formatter"=function(...)
 <dt>override_method</dt>
 <dd><p>if you want to override the comparison method for a
 particular variable the options are
-"fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
+"chi-sq trend","fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
 specify this on a column by column bases with a named list (e.g
 <code>c("Petal.Width"="t-test")</code>)</p></dd>
 

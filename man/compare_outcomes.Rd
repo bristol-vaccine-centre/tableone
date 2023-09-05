@@ -7,7 +7,7 @@
 compare_outcomes(
   df,
   ...,
-  label_fn = ~.x,
+  label_fn = label_extractor(df),
   units = list(),
   override_type = list(),
   layout = "compact",

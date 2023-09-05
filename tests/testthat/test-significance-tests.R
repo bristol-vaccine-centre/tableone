@@ -4,20 +4,20 @@
 }
 
 
-test_that("ks works", {
+testthat::test_that("ks works", {
   # not normally distributes
   # these should be non significant
   testthat::expect_true(.df_shape2()$.source[[1]] %>% .do_ks() %>% dplyr::pull(p.value) > 0.05)
 })
 
 
-test_that("wilcoxon works", {
+testthat::test_that("wilcoxon works", {
   # not normally distributes
   # these should be non significant
   testthat::expect_true(.df_shape2()$.source[[1]] %>% .do_wilcoxon() %>% dplyr::pull(p.value) > 0.05)
 })
 
-test_that("fisher works", {
+testthat::test_that("fisher works", {
   # categorical / binary
   # these should be non significant
   testthat::expect_true(.df_shape2()$.source[[3]] %>% .do_fisher() %>% dplyr::pull(p.value) < 0.05)
@@ -29,13 +29,13 @@ test_that("fisher works", {
   tmp$.source[[4]] %>% .do_fisher() %>% dplyr::pull(p.value) > 0.05
 })
 
-test_that("t-test works", {
+testthat::test_that("t-test works", {
   # not normally distributes
   # these should be non significant as difference is quite small
   testthat::expect_true(.df_shape2()$.source[[2]] %>% .do_ttest() %>% dplyr::pull(p.value) > 0.05)
 })
 
-test_that("multiclass comparison works", {
+testthat::test_that("multiclass comparison works", {
   tmp = multi_class_negative %>% .get_shape(test_cols)
   # differences should be non significant
   # normal data
@@ -48,7 +48,7 @@ test_that("multiclass comparison works", {
 })
 
 
-test_that("signifincance tests",{
+testthat::test_that("signifincance tests",{
   tmp = multi_class_negative %>% .get_shape(test_cols)
   st = tmp %>% .significance_tests()
   # options("avoncap.show_pvalue_method"=TRUE)

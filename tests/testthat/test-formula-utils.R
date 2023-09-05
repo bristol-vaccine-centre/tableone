@@ -14,7 +14,7 @@
 #   lapply(l, lapply, as_label)
 # }
 
-test_that("multiple formula parsing", {
+testthat::test_that("multiple formula parsing", {
 
   testthat::expect_warning(
     testthat::expect_warning(
@@ -54,14 +54,14 @@ test_that("multiple formula parsing", {
 })
 
 
-test_that("tidyselect parsing", {
+testthat::test_that("tidyselect parsing", {
   testthat::expect_equal(
     .parse_tidyselect(iris,tidyselect::everything()),
     .s(colnames(iris))
   )
 })
 
-test_that("formula detection", {
+testthat::test_that("formula detection", {
   testthat::expect_true(.is_formula_interface(~ Species + Petal.Width + Missing))
   testthat::expect_true(.is_formula_interface(~ Species + Petal.Width + Missing, a ~ b+c))
   testthat::expect_true(.is_formula_interface(c(~ Species + Petal.Width + Missing, a ~ b+c)))
@@ -70,7 +70,7 @@ test_that("formula detection", {
   testthat::expect_true(.is_formula_interface())
 })
 
-test_that("vars parsing (single)", {
+testthat::test_that("vars parsing (single)", {
   # where dots is either a function (in which case we only want rhs) or a tidyselect.
 
   testthat::expect_equal(

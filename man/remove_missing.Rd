@@ -7,7 +7,7 @@
 remove_missing(
   df,
   ...,
-  label_fn = ~.x,
+  label_fn = label_extractor(df),
   significance_limit = 0.05,
   missingness_limit = 0.1
 )

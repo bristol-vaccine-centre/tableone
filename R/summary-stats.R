@@ -92,6 +92,7 @@
     # TODO: as a function that takes the dataframe?
     df_shape = df_shape %>% dplyr::mutate(
       .summary_type = dplyr::case_when(
+        .type == "ordered" ~ "subtype_count",
         .type == "categorical" ~ "subtype_count",
         .type == "continuous" & .p_is_normal >= normality_signif ~ "mean_sd",
         .type == "continuous" ~ "median_iqr",

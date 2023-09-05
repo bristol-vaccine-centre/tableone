@@ -1,20 +1,20 @@
 # library(testthat)
 
-test_that("column symbol name extraction", {
+testthat::test_that("column symbol name extraction", {
   testthat::expect_equal(
     .col_symbols(one_class_test_100) %>% .col_names(),
     colnames(one_class_test_100)
   )
 })
 
-test_that("columns are ignored", {
+testthat::test_that("columns are ignored", {
   testthat::expect_equal(
     .pull_cols(test_cols, one_class_test_100) %>% length(),
     length(test_cols)
   )
 })
 
-test_that("columns extract", {
+testthat::test_that("columns extract", {
   df1 = .select_content(test_cols, one_class_test_100)[[1]]
   testthat::expect_equal(df1$x, one_class_test_100$uniform_variable)
 
@@ -23,7 +23,7 @@ test_that("columns extract", {
   testthat::expect_equal(length(df2), 3)
 })
 
-test_that("col types correct", {
+testthat::test_that("col types correct", {
   col = .pull_cols(test_cols, one_class_test_100)
   testthat::expect_true( .col_type(col[[1]],100) == "continuous")
   testthat::expect_true( .col_type(col[[3]],100) == "categorical")
@@ -31,14 +31,14 @@ test_that("col types correct", {
   testthat::expect_true( .col_type(col[[5]],100) == "categorical")
 })
 
-test_that("col levels", {
+testthat::test_that("col levels", {
   col = .pull_cols(test_cols, one_class_test_100)
   testthat::expect_true( .col_levels(col[[3]],100) == 2)
   testthat::expect_true( .col_levels(col[[4]],100) == 3)
   testthat::expect_true( .col_levels(col[[5]],100) == 10)
 })
 
-test_that("normality check works",{
+testthat::test_that("normality check works",{
   col = .pull_cols(test_cols, one_class_test_100)
   testthat::expect_true( .p_is_normal(col[[1]],"ad") < 0.05)
 
@@ -53,17 +53,17 @@ test_that("normality check works",{
 
 })
 
-test_that("ties detected", {
+testthat::test_that("ties detected", {
   col = rep(stats::runif(50,1,2),2)
   testthat::expect_equal(.p_ties(col),0.5)
 })
 
-test_that("missing detected", {
+testthat::test_that("missing detected", {
   col = c(stats::runif(50,1,2),rep(NA,50))
   testthat::expect_equal(.p_missing(col),0.5)
 })
 
-test_that("shape dataframe approx correct", {
+testthat::test_that("shape dataframe approx correct", {
   shape = .get_shape(one_class_test_100, cols=test_cols)
   testthat::expect_equal(nrow(shape), length(test_cols))
 
@@ -74,7 +74,7 @@ test_that("shape dataframe approx correct", {
   testthat::expect_equal(shape$.type, shape2$.type)
 })
 
-test_that("shape units are assigned", {
+testthat::test_that("shape units are assigned", {
   shape = .get_shape(one_class_test_100, cols=test_cols, units=list("uniform_variable"="varUnit"))
   testthat::expect_true("varUnit" %in% shape$.unit)
 })

@@ -236,6 +236,8 @@ cautious of the findings. Because of the missingness `tableone` will not
 calculate p-values. If factor values are missing (as in this case) then we
 can include them as a new group and get a more robust comparison which includes
 the distribution of missingness, and for which we can calculate a p-value. 
+However previously ordered variables, are now regarded as unordered as we cannot
+determine the value of a missing level. 
 
 ```{r}
 discrete_cgd %>% explicit_na() %>% compare_population(formula)

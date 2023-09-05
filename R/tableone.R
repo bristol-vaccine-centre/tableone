@@ -176,8 +176,8 @@ make_factors = function(df, ..., .logical = c("yes","no"), .numeric = "{name}={v
 #' @export
 #'
 #' @examples
-#' cut_integer(rbinom(20,20,0.5), c(5,10,15))
-#' cut_integer(floor(runif(100,-10,10)), cut_points = c(2,3,4,6), lower_limit=0, upper_limit=10)
+#' cut_integer(stats::rbinom(20,20,0.5), c(5,10,15))
+#' cut_integer(floor(stats::runif(100,-10,10)), cut_points = c(2,3,4,6), lower_limit=0, upper_limit=10)
 #' cut_integer(1:10, cut_points = c(1,3,9))
 cut_integer = function(x, cut_points, glue = "{label}", lower_limit = -Inf, upper_limit = Inf, ...) {
 
@@ -224,7 +224,7 @@ cut_integer = function(x, cut_points, glue = "{label}", lower_limit = -Inf, uppe
   } else {
     f <- forcats::fct_expand(f, na_level)
     f[is_missing] <- na_level
-    return(f)
+    return(factor(f,ordered=FALSE))
   }
 }
 
@@ -321,7 +321,7 @@ explicit_na = function(df, na_level = "<missing>", hide_if_empty = FALSE) {
 describe_population = function(
   df,
   ...,
-  label_fn = ~ .x,
+  label_fn = label_extractor(df),
   units = list(),
   override_type = list(),
   layout = "single",
@@ -336,7 +336,7 @@ describe_population = function(
   #   .message("describe_population(...) ignores grouping.")
   #   df = df %>% dplyr::ungroup()
   # }
-  grps = df %>% groups()
+  grps = df %>% dplyr::groups()
   cols = .parse_vars(df, ...)
   label_fn = purrr::as_mapper(label_fn)
   shape = .get_shape(df,cols,label_fn,units)
@@ -376,6 +376,67 @@ describe_population = function(
       huxtable::set_bottom_border(row=huxtable::final(),value=0)
   }
   return(hux)
+}
+
+
+#' Set an attribute
+#'
+#' @param df a dataframe
+#' @param labels a vector of labels, one for each column
+#' @param attribute the name of the label attribute (defaults to `"label"`)
+#'
+#' @return the same dataframe with each column labelled
+#' @export
+#'
+#' @examples
+#' iris = set_labels(iris,
+#'   c("Sepal Length", "Sepal Width",
+#'     "Petal Length", "Petal Width",  "Species"
+#'    ))
+#' fn = label_extractor(iris,tolower)
+#' fn(colnames(iris))
+set_labels = function(df, labels, attribute="label") {
+  if (length(labels) != ncol(df)) stop("Labels must be same length as dataframe columns")
+  i = 0
+  for(label in labels) {
+    i = i+1
+    attr(df[[i]],attribute) = label
+  }
+  return(df)
+}
+
+#' Extract labels from a datafrane column attributes
+#'
+#' Retrieve column labels are embedded as an attribute of each column.
+#'
+#' @param df a dataframe containgin some labels
+#' @param ... additional string manipulation functions to apply e.g. `tolower`
+#' @param attribute the name of the label containing attribute (defaults to `"label"`)
+#'
+#' @return a labelling function. This is specific to the dataframe provided in `df`
+#' @export
+#'
+#' @examples
+#' iris = set_labels(iris, c(
+#'     "Sepal Length", "Sepal Width",
+#'     "Petal Length", "Petal Width",  "Species"
+#'  ))
+#' fn = label_extractor(iris,tolower)
+#' fn(colnames(iris))
+label_extractor = function(df, ..., attribute="label") {
+  labels = unname(sapply(df, function(x) { tmp = attr(x,attribute); if (is.null(tmp)) return(NA_character_) else return(tmp) }))
+  cols = ifelse(is.na(labels), colnames(df), labels)
+  dots = rlang::list2(...)
+  for (fn in dots) {
+    if (is.function(fn)) cols = fn(cols)
+  }
+  names(cols) = colnames(df)
+  return(
+    function(x) {
+      if (any(!x %in% names(cols))) stop("The `label_extractor` does not recognise the columns in this dataframe.\nWEach label_extractor is specific to one dataframe.")
+      cols[x]
+    }
+  )
 }
 
 
@@ -453,6 +514,7 @@ describe_population = function(
 #'   `options("tableone.hide_footer"=TRUE)`).
 #' @param show_binary_value if set this will filter the display of covariates where the number of possibilities
 #'   is exactly 2 to this value.
+#' @param raw_output return comparison as tidy dataframe rather than formatted table
 #'
 #' @return a `huxtable` formatted table.
 #' @export
@@ -463,7 +525,7 @@ describe_population = function(
 #' iris %>% dplyr::group_by(Species) %>% compare_population(tidyselect::everything())
 #'
 #' # Missing data
-#' old = options("tableone.show_pvalue_method"=TRUE)
+#' old = options("tableone.show_pvalue_method"=FALSE)
 #' missing_diamonds %>% dplyr::group_by(is_colored) %>% compare_population(-color, layout="relaxed")
 #'
 #' tmp = missing_diamonds %>% explicit_na() %>% dplyr::group_by(is_colored)
@@ -477,7 +539,7 @@ describe_population = function(
 compare_population = function(
   df,
   ...,
-  label_fn = ~ .x,
+  label_fn = label_extractor(df),
   units = list(),
   override_type = list(),
   override_method = list(),
@@ -488,7 +550,8 @@ compare_population = function(
   font_size = getOption("tableone.font_size",8),
   font = getOption("tableone.font","Arial"),
   footer_text = NULL,
-  show_binary_value = NULL
+  show_binary_value = NULL,
+  raw_output = FALSE
 ) {
   cols = .parse_vars(df, ...)
   p_format = match.arg(p_format)
@@ -509,6 +572,10 @@ compare_population = function(
   }
   label_fn = purrr::as_mapper(label_fn)
 
+  if (df %>% dplyr::n_groups() > getOption("tableone.max_comparisons",10)) {
+    stop("The number of groups being compared is ",df %>% dplyr::n_groups()," which is more than the maximum allowed by `options('tableone.max_comparisons'=...)`, which is currently ",getOption("tableone.max_comparisons",10))
+  }
+
   shape = .get_shape(df,cols,label_fn)
   summary = .summary_stats(shape,override_type = override_type)
   if (is.list(layout)) {
@@ -522,7 +589,7 @@ compare_population = function(
   variable_col = as.symbol(getOption("tableone.variable_column_name","Variable"))
   characteristic_col = as.symbol(getOption("tableone.characteristic_column_name","Characteristic"))
 
-  method = getOption("tableone.show_pvalue_method",FALSE)
+  method = getOption("tableone.show_pvalue_method",TRUE)
 
   sign = .significance_tests(summary,override_method = override_method) %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(sign, by="variable")
@@ -531,6 +598,8 @@ compare_population = function(
     !!variable_col := variable,
     !!characteristic_col := characteristic
   )
+
+  if (raw_output) return(fmt)
 
   hux = fmt %>% .hux_tidy(
       rowGroupVars = dplyr::vars(!!variable_col, !!p_col, !!characteristic_col),
@@ -708,7 +777,7 @@ compare_population = function(
 extract_comparison = function(
     df,
     ...,
-    label_fn = ~ .x,
+    label_fn = label_extractor(df),
     override_type = list(),
     p_format = names(.pvalue.defaults),
     override_method = list(),
@@ -774,7 +843,7 @@ extract_comparison = function(
 #' @export
 compare_outcomes = function(df,
       ...,
-      label_fn = ~ .x,
+      label_fn = label_extractor(df),
       units = list(),
       override_type = list(),
       layout = "compact",
@@ -790,7 +859,7 @@ compare_outcomes = function(df,
     compare_population(df, ..., label_fn = label_fn, units = units,
       override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
       override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
-      font = font, footer_text = footer_text
+      font = font, footer_text = footer_text, show_binary_value = show_binary_value
     )
   } else {
     rhs = .parse_formulae(df, ..., side="rhs")
@@ -833,6 +902,7 @@ compare_outcomes = function(df,
 #'   data is missing at random.
 #' @param missingness_limit the limit at which too much data is missing
 #'   to include the predictor.
+#' @param raw_output return comparison as tidy dataframe rather than formatted table
 #'
 #' @return a `huxtable` formatted table.
 #' @export
@@ -855,13 +925,14 @@ compare_outcomes = function(df,
 compare_missing = function(
     df,
     ...,
-    label_fn = ~ .x,
+    label_fn = label_extractor(df),
     p_format = names(.pvalue.defaults),
     font_size = getOption("tableone.font_size",8),
     font = getOption("tableone.font","Arial"),
     significance_limit = 0.05,
     missingness_limit = 0.1,
-    footer_text = NULL
+    footer_text = NULL,
+    raw_output = FALSE
 ) {
   cols = .parse_vars(df, ...)
   p_format = match.arg(p_format)
@@ -879,6 +950,10 @@ compare_missing = function(
       "Otherwise this is likely a mistake."
     )
     cols = cols %>% setdiff(intervention)
+  }
+
+  if (df %>% dplyr::n_groups() > getOption("tableone.max_comparisons",10)) {
+    stop("The number of groups being compared is ",df %>% dplyr::n_groups()," which is more than the maximum allowed by `options('tableone.max_comparisons'=...)`, which is currently ",getOption("tableone.max_comparisons",10))
   }
 
   footer = footer_text
@@ -910,6 +985,9 @@ compare_missing = function(
 
   fsign = sign %>% .format_significance(p_format)
   fmt = fmt %>% dplyr::left_join(fsign, by="variable")
+
+  if (raw_output) return(fmt)
+
   hux = fmt %>% .hux_tidy(
     rowGroupVars = dplyr::vars(variable, !!p_col),
     colGroupVars = c(intervention, dplyr::sym(".tbl_col_name")),
@@ -954,7 +1032,7 @@ compare_missing = function(
 #' remove_missing(df, ~ Species + Petal.Width + Sepal.Width, ~ Species + Petal.Length + Sepal.Length)
 remove_missing = function(df,
       ...,
-      label_fn = ~ .x,
+      label_fn = label_extractor(df),
       significance_limit = 0.05,
       missingness_limit = 0.1
 ) {
@@ -1017,7 +1095,9 @@ remove_missing = function(df,
 .mnar_message = function(mnar, intervention, significance_limit, comparisons, label_fn) {
   label_fn = getOption("tableone.labeller",label_fn)
   sprintf("Data is missing not at random (compared to %s) at a p-value<%1.3f (%1.2f over %d comparisons) for variables %s.",
-          label_fn(rlang::as_label(intervention)),
+          paste0(
+            lapply(sapply(intervention, rlang::as_label),label_fn),
+            collapse=", "),
           significance_limit / comparisons,
           significance_limit,
           comparisons,

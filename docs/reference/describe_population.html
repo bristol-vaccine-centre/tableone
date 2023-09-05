@@ -16,7 +16,7 @@ and counts for categorical data,"><meta property="og:image" content="https://bri
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@ and counts for categorical data,</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">describe_population</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  label_fn <span class="op">=</span> <span class="op">~</span><span class="va">.x</span>,</span>
+<span>  label_fn <span class="op">=</span> <span class="fu"><a href="label_extractor.html">label_extractor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
 <span>  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  override_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"single"</span>,</span>
@@ -474,8 +474,6 @@ is exactly 2 to this value.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                        [30.3%—31.1%]                       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     colored % [95%     69.3%              37368/53940      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     CI]                [68.9%—69.7%]                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     &lt;missing&gt; % [95%   0.0% [0.0%—0.0%]   0/53940          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     CI]                                                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ──────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Normality of distributions determined using                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Anderson-Darling normality test                                     </span>
@@ -568,8 +566,6 @@ is exactly 2 to this value.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                          [30·3%—31·1%]                        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       colored % [95%     69·3%              37368/53940       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       CI]                [68·9%—69·7%]                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       &lt;missing&gt; % [95%   0·0% [0·0%—0·0%]   0/53940           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       CI]                                                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Normality of distributions determined using Anderson-Darling               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    normality test                                                             </span>

@@ -10,7 +10,7 @@
   two_class_test %>% .get_shape(test_cols)
 }
 
-test_that("subgroup summary is OK", {
+testthat::test_that("subgroup summary is OK", {
   grp_df = .df_shape()$.source[[1]]
   testthat::expect_equal(
     # n.b. x is not subtype count, n is group count (non missing)
@@ -20,7 +20,7 @@ test_that("subgroup summary is OK", {
 })
 
 
-test_that("median iqr is OK", {
+testthat::test_that("median iqr is OK", {
   input = attributes(one_class_test_1000)$input
   tmp = .median_iqr(.df_shape1()$.source[[1]])
   testthat::expect_true(
@@ -31,7 +31,7 @@ test_that("median iqr is OK", {
 })
 
 
-test_that("mean sd is OK", {
+testthat::test_that("mean sd is OK", {
   input = attributes(one_class_test_1000)$input
   tmp = .mean_sd(.df_shape1()$.source[[2]])
   testthat::expect_true(
@@ -45,7 +45,7 @@ test_that("mean sd is OK", {
 
 # TODO: test overridden summary stat types
 
-test_that("summary stat is high level OK", {
+testthat::test_that("summary stat is high level OK", {
   ss = .df_shape1() %>% .summary_stats()
   testthat::expect_equal(
     ss$.summary_type,
@@ -53,7 +53,7 @@ test_that("summary stat is high level OK", {
   )
 })
 
-test_that("format summary is high level OK", {
+testthat::test_that("format summary is high level OK", {
   ss = .df_shape1() %>% .summary_stats()
   fs = ss %>% .format_summary()
 

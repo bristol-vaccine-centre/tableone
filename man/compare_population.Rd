@@ -7,7 +7,7 @@
 compare_population(
   df,
   ...,
-  label_fn = ~.x,
+  label_fn = label_extractor(df),
   units = list(),
   override_type = list(),
   override_method = list(),
@@ -18,7 +18,8 @@ compare_population(
   font_size = getOption("tableone.font_size", 8),
   font = getOption("tableone.font", "Arial"),
   footer_text = NULL,
-  show_binary_value = NULL
+  show_binary_value = NULL,
+  raw_output = FALSE
 )
 }
 \arguments{
@@ -62,7 +63,7 @@ errors if this is not done correctly.}
 
 \item{override_method}{if you want to override the comparison method for a
 particular variable the options are
-"fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
+"chi-sq trend","fisher","t-test","2-sided wilcoxon","2-sided ks","anova","kruskal-wallis","no comparison" and you
 specify this on a column by column bases with a named list (e.g
 \code{c("Petal.Width"="t-test")})}
 
@@ -96,6 +97,8 @@ setting this to FALSE dsables the whole footer (as does
 
 \item{show_binary_value}{if set this will filter the display of covariates where the number of possibilities
 is exactly 2 to this value.}
+
+\item{raw_output}{return comparison as tidy dataframe rather than formatted table}
 }
 \value{
 a \code{huxtable} formatted table.
@@ -114,7 +117,7 @@ of whether data is correlated to intervention.
 iris \%>\% dplyr::group_by(Species) \%>\% compare_population(tidyselect::everything())
 
 # Missing data
-old = options("tableone.show_pvalue_method"=TRUE)
+old = options("tableone.show_pvalue_method"=FALSE)
 missing_diamonds \%>\% dplyr::group_by(is_colored) \%>\% compare_population(-color, layout="relaxed")
 
 tmp = missing_diamonds \%>\% explicit_na() \%>\% dplyr::group_by(is_colored)
