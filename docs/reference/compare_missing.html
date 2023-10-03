@@ -20,7 +20,7 @@ intervention."><meta property="og:image" content="https://bristol-vaccine-centre
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ intervention."><meta property="og:image" content="https://bristol-vaccine-centre
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compares missing data against an intervention in a summary table</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bristol-vaccine-centre/tableone/blob/HEAD/R/tableone.R" class="external-link"><code>R/tableone.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bristol-vaccine-centre/tableone/blob/HEAD/R/missing-data.R" class="external-link"><code>R/missing-data.R</code></a></small>
       <div class="d-none name"><code>compare_missing.Rd</code></div>
     </div>
 
@@ -190,25 +190,25 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        clear              colored                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             variable   missing % (N)      missing % (N)      p-value  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           ────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             carat      10.0%              9.7%               0.26 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             carat      10.0%              9.7%               0.26     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1651/16572)       (3607/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             z          9.6%               10.2%              0.04 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             z          9.6%               10.2%              0.04     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1587/16572)       (3794/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             cut        9.6%               10.2%              0.05 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             cut        9.6%               10.2%              0.05     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1592/16572)       (3795/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             color      9.7%               10.1%              0.18 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             color      9.7%               10.1%              0.18     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1607/16572)       (3764/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             clarity    10.2%              10.0%              0.49 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             clarity    10.2%              10.0%              0.49     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1685/16572)       (3728/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             depth      10.0%              9.9%               0.84 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             depth      10.0%              9.9%               0.84     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1652/16572)       (3704/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             table      9.9%               9.6%               0.22 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             table      9.9%               9.6%               0.22     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1647/16572)       (3586/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             price      9.6%               9.8%               0.35 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             price      9.6%               9.8%               0.35     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1587/16572)       (3678/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             x          9.9%               10.0%              0.65 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x          9.9%               10.0%              0.65     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1633/16572)       (3730/37368)                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             y          10.1%              9.9%               0.39 †   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             y          10.1%              9.9%               0.39     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        (1675/16572)       (3687/37368)                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           ────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             More than 10% of data is missing for variables            </span>
@@ -231,10 +231,10 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-out co"><span class="r-pr">#&gt;</span>       variable       missing %      missing %      missing %      p-value  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      (N)            (N)            (N)                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ───────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    — †      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    — †      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Petal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    — †      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Petal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    — †      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Petal.Length   0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Petal.Width    0.0% (0/50)    0.0% (0/50)    0.0% (0/50)    —        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ───────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -246,33 +246,36 @@ setting this to FALSE dsables the whole footer (as does
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for normal_variable</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for binomial_class</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for multinom_class</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for ordered_class</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for discrete</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for ignore_me</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on uniform_variable</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on normal_variable</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on binomial_class</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on multinom_class</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on ordered_class</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on discrete</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> fisher test on ignore_me</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       10% missing        20% missing                          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    variable           missing % (N)      missing % (N)      p-value           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    uniform_variable   9.3% (93/1000)     20.4% (204/1000)   &lt;0.001 †          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    normal_variable    10.6% (106/1000)   20.7% (207/1000)   &lt;0.001 †          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    binomial_class     9.6% (96/1000)     18.0% (180/1000)   &lt;0.001 †          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    multinom_class     8.9% (89/1000)     20.3% (203/1000)   &lt;0.001 †          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    discrete           8.0% (80/1000)     19.7% (197/1000)   &lt;0.001 †          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ignore_me          100.0%             100.0%             1 †               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    uniform_variable   7.3% (73/1000)     18.9% (189/1000)   &lt;0.001            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    normal_variable    9.9% (99/1000)     19.3% (193/1000)   &lt;0.001            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    binomial_class     9.9% (99/1000)     18.8% (188/1000)   &lt;0.001            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    multinom_class     10.1% (101/1000)   17.9% (179/1000)   &lt;0.001            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ordered_class      9.9% (99/1000)     19.1% (191/1000)   &lt;0.001            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    discrete           10.6% (106/1000)   19.6% (196/1000)   &lt;0.001            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ignore_me          100.0%             100.0%             1                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       (1000/1000)        (1000/1000)                          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ─────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    More than 10% of data is missing for variables uniform_variable,           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    normal_variable, binomial_class, multinom_class, discrete,                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    ignore_me.                                                                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    normal_variable, binomial_class, multinom_class, ordered_class,            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    discrete, ignore_me.                                                       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Data is missing not at random (compared to grouping) at a                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    p-value&lt;0.008 (0.05 over 6 comparisons) for variables                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    p-value&lt;0.007 (0.05 over 7 comparisons) for variables                      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    uniform_variable, normal_variable, binomial_class,                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    multinom_class, discrete.                                                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    multinom_class, ordered_class, discrete.                                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: variable, 1, 2, p-value</span>
 <span class="r-in"><span></span></span>

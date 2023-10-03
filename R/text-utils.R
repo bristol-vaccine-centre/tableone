@@ -1,5 +1,33 @@
 ## text utilities ----
 
+### P-values ----
+
+.pvalue.defaults = list(
+  sampl = function(p) dplyr::case_when(p<0.001 ~ "<0.001", TRUE ~ .sprintf_na("%1.2g",p)),
+  nejm = function(p) dplyr::case_when(p<0.001 ~ "<0.001", TRUE ~ .sprintf_na("%1.1g",p)),
+  jama = function(p) dplyr::case_when(p<0.001 ~ "<0.001", p>0.99~">0.99", TRUE ~ .sprintf_na("%1.2g",p)),
+  lancet = function(p) dplyr::case_when(p<0.0001 ~ "<0.0001", TRUE ~ .sprintf_na("%1.2g",p)),
+  aim = function(p) dplyr::case_when(p<0.001 ~ "<0.001", p>= 0.001 & p<0.2 ~ .sprintf_na("%1.3f",p), TRUE ~ .sprintf_na("%1.2f",p))
+)
+
+#' Format a p-value
+#'
+#' Uses the default formatter set globally in `options("tableone.pvalue_formatter")` in
+#' preference the one defined by `p_format` which is only used if no default is set.
+#'
+#' @param p.value the p-value to be formatted
+#' @param p_format a name of a p-value formatter (one of `r paste0(names(.pvalue.defaults),collapse=", ")`)
+#'
+#' @return a formatted P-value
+#' @export
+format_pvalue = function(p.value, p_format = names(.pvalue.defaults)) {
+  p_format = match.arg(p_format)
+  fun = getOption("tableone.pvalue_formatter",.pvalue.defaults[[p_format]])
+  fun(p.value)
+}
+
+### Missing value sprintfs ----
+
 # .sprintf_no_na("%1.0f %s",c(1.0,2.0),c(NA,"sdfsdf"))
 .sprintf_no_na = function(fmt, ...) {
   .na.value = getOption("tableone.na","\u2014")
@@ -23,6 +51,8 @@
   tmp = .replace_dp(tmp)
   ifelse(all_na, .na.value, tmp)
 }
+
+### post hoc change sprintf dp ----
 
 # .replace_dp(c("1.0",".3","1.2.3","a.3", "[1.2]"), sep="\u00B7")
 .replace_dp = function(c, sep=getOption("tableone.dp",".")) {
@@ -51,6 +81,12 @@
   return(fmt)
 }
 
+### optional text ----
+
 .maybe = function(s) {
   return(ifelse(is.na(s),"",s))
+}
+
+`%||%` = function(x,y) {
+  if (is.null(x)) return(y) else return(x)
 }

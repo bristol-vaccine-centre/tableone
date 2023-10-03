@@ -49,16 +49,16 @@ testthat::test_that("summary stat is high level OK", {
   ss = .df_shape1() %>% .summary_stats()
   testthat::expect_equal(
     ss$.summary_type,
-    c("median_iqr","mean_sd","subtype_count","subtype_count","median_iqr")
+    c("median_iqr","mean_sd","subtype_count","subtype_count","subtype_count","median_iqr")
   )
 })
 
 testthat::test_that("format summary is high level OK", {
   ss = .df_shape1() %>% .summary_stats()
-  fs = ss %>% .format_summary()
+  fs = ss %>% .format_summary(format = default.format$single)
 
   ss2 = .df_shape2() %>% .summary_stats()
-  fs2 = ss2 %>% .format_summary()
+  fs2 = ss2 %>% .format_summary(format = default.format$single)
   testthat::expect_equal(
     fs %>% dplyr::filter(.tbl_col_name=="Value") %>% dplyr::pull(.tbl_col_value),
     fs2 %>% dplyr::filter(grouping == "second group") %>%
@@ -67,6 +67,6 @@ testthat::test_that("format summary is high level OK", {
 
   ss = .df_shape1() %>% .summary_stats()
   # TODO: some error checking for bad formats woudl be helpful here
-  fs = ss %>% .format_summary(override_percent_dp = list(binomial_class=6), override_real_dp = list(normal_variable="5g"))
+  fs = ss %>% .format_summary(format = default.format$single, override_percent_dp = list(binomial_class=6), override_real_dp = list(normal_variable="5g"))
   # difficult to test. ?vignette
 })

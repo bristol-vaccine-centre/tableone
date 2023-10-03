@@ -257,13 +257,16 @@ general use case for `tableone`.
 
 # revert the labeller setting to the default
 # and additionally hide the footer.
-options("tableone.labeller"=NULL)
-options("tableone.show_pvalue_method"=FALSE)
-options("tableone.hide_footer"=TRUE)
+old = options(
+  "tableone.labeller"=NULL,
+  "tableone.show_pvalue_method"=FALSE,
+  "tableone.hide_footer"=TRUE)
 
 # the heuristics detect that Petals in the iris data set are not normally
 # distributed and hence report median and IQR:
 iris %>% dplyr::group_by(Species) %>% compare_population(tidyselect::everything())
+
+options(old)
 ```
 
 The `missing_diamonds` data set which is included in this package has 10% of 

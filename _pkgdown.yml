@@ -8,12 +8,24 @@ reference:
     Create tabular summaries of data in a simple manner.
   contents:
   - describe_population
+  - describe_data
   - compare_population
-  - compare_missing
   - compare_outcomes
-  - extract_comparison
+  - group_comparison
+  - compare_missing
   - remove_missing
   - count_table
+  - extract_comparison
+- title: "S3 functions"
+  desc: >
+    Create tabular summaries of data in a simple manner.
+  contents:
+  - as_t1_shape
+  - as_t1_signif
+  - as_t1_summary
+  - as_huxtable.t1_shape
+  - as_huxtable.t1_signif
+  - as_huxtable.t1_summary
 - title: "Supporting functions"
   desc: >
     Modify data for making tabular summaries, making missing data more
@@ -22,11 +34,12 @@ reference:
   - make_factors
   - explicit_na
   - get_footer_text
-  - as_vars
   - format_pvalue
   - cut_integer
   - label_extractor
   - set_labels
+  - extract_units
+  - set_units
 - title: "Configuration"
   contents:
   - default.format

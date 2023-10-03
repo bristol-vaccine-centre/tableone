@@ -25,6 +25,24 @@
     <loc>https://bristol-vaccine-centre.github.io/tableone/index.html</loc>
   </url>
   <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_huxtable.t1_shape.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_huxtable.t1_signif.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_huxtable.t1_summary.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_t1_shape.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_t1_signif.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_t1_summary.html</loc>
+  </url>
+  <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/as_vars.html</loc>
   </url>
   <url>
@@ -52,6 +70,9 @@
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/default.format.html</loc>
   </url>
   <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/describe_data.html</loc>
+  </url>
+  <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/describe_population.html</loc>
   </url>
   <url>
@@ -64,10 +85,16 @@
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/extract_comparison.html</loc>
   </url>
   <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/extract_units.html</loc>
+  </url>
+  <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/format_pvalue.html</loc>
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/get_footer_text.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/group_comparison.html</loc>
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/index.html</loc>
@@ -101,6 +128,9 @@
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/set_labels.html</loc>
+  </url>
+  <url>
+    <loc>https://bristol-vaccine-centre.github.io/tableone/reference/set_units.html</loc>
   </url>
   <url>
     <loc>https://bristol-vaccine-centre.github.io/tableone/reference/test_cols.html</loc>

@@ -20,7 +20,7 @@ of whether data is correlated to intervention."><meta property="og:image" conten
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ of whether data is correlated to intervention."><meta property="og:image" conten
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compares the population against an intervention in a summary table</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bristol-vaccine-centre/tableone/blob/HEAD/R/tableone.R" class="external-link"><code>R/tableone.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bristol-vaccine-centre/tableone/blob/HEAD/R/compare_population.R" class="external-link"><code>R/compare_population.R</code></a></small>
       <div class="d-none name"><code>compare_population.Rd</code></div>
     </div>
 
@@ -76,7 +76,7 @@ of whether data is correlated to intervention.</p>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  label_fn <span class="op">=</span> <span class="fu"><a href="label_extractor.html">label_extractor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
-<span>  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  units <span class="op">=</span> <span class="fu"><a href="extract_units.html">extract_units</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
 <span>  override_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  override_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"compact"</span>,</span>
@@ -195,7 +195,7 @@ is exactly 2 to this value.</p></dd>
 
 
 <dt>raw_output</dt>
-<dd><p>return comparison as tidy dataframe rather than formatted table</p></dd>
+<dd><p>return comparison as <code>t1_signif</code> dataframe rather than formatted table</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -234,14 +234,17 @@ is exactly 2 to this value.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ───────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   †, Analysis of variance (linear model) (continuous); ††,                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Kruskal-Wallis rank sum test (continuous)                                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Normality of distributions determined using Anderson-Darling                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   normality test                                                               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Normal distributions determined by the Anderson-Darling test                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   (P&gt;0.005)                                                                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   An adjusted P value of 0.0125 may be considered significant.                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2, 3, P value</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Missing data</span></span></span>
 <span class="r-in"><span><span class="va">old</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="st">"tableone.show_pvalue_method"</span><span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">is_colored</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">compare_population</span><span class="op">(</span><span class="op">-</span><span class="va">color</span>, layout<span class="op">=</span><span class="st">"relaxed"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">missing_diamonds</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">is_colored</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">compare_population</span><span class="op">(</span><span class="op">-</span><span class="va">color</span>, layout<span class="op">=</span><span class="st">"relaxed"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> median_iqr summary for carat</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for cut</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> subtype_count summary for clarity</span>
@@ -346,8 +349,10 @@ is exactly 2 to this value.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Significance determined using Not calculated due to                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    missing values (continuous variables) or Not calculated                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    due to missing values (ordered variables)                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Normality of distributions determined using                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Anderson-Darling normality test                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Normal distributions determined by the Anderson-Darling                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    test (P&gt;0.005)                                                              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    An adjusted P value of 0.00556 may be considered                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    significant.                                                                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2, 3, 4, P value</span>
 <span class="r-in"><span></span></span>
@@ -458,10 +463,12 @@ is exactly 2 to this value.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Significance determined using Fisher's exact test                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     (categorical variables) or Not calculated due to missing                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     values (continuous variables)                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Normality of distributions determined using Anderson-Darling              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normality test                                                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Normal distributions determined by the Anderson-Darling test              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (P&gt;0.005)                                                                 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     IQR: Interquartile range; CI: Confidence interval                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Line two                                                                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     An adjusted P value of 0.00556 may be considered                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     significant.                                                              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Column names: Variable, Characteristic, 1, 2, P value</span>
 <span class="r-in"><span></span></span>

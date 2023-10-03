@@ -6,20 +6,22 @@ source(here::here("vignettes/vignette-utils.R"))
 set.seed(100)
 
 # Cols ----
-test_cols = dplyr::vars(uniform_variable, normal_variable, binomial_class, multinom_class, discrete)
+test_cols = dplyr::vars(uniform_variable, normal_variable, binomial_class, multinom_class, ordered_class, discrete)
 usethis::use_data(test_cols, overwrite = TRUE)
 
-bad_test_cols = dplyr::vars(uniform_variable, normal_variable, non_existant_class, multinom_class, discrete)
+bad_test_cols = dplyr::vars(uniform_variable, normal_variable, non_existant_class, multinom_class, ordered_class, discrete)
 usethis::use_data(bad_test_cols, overwrite = TRUE)
 
 # One class ----
 one_class_test_100 = .one_class()
-usethis::use_data(one_class_test_1000, overwrite = TRUE)
-
-one_class_test_1000 = .one_class(n=1000, mean=0.1, binom_p = 0.6,
-                                 multinom_p = c("one"=0.2,"two"=0.4,"three"=0.4),
-                                 discrete = ~floor(scales::squish(rnorm(.x,5,2),c(0,9))))
 usethis::use_data(one_class_test_100, overwrite = TRUE)
+
+one_class_test_1000 = .one_class(
+  n=1000, mean=0.1, binom_p = 0.6,
+  multinom_p = c("one"=0.2,"two"=0.4,"three"=0.4),
+  ordered_p = c("1-2"=0.2,"3-4"=0.3,"5+"=0.5),
+  discrete = ~floor(scales::squish(rnorm(.x,5,2),c(0,9))))
+usethis::use_data(one_class_test_1000, overwrite = TRUE)
 
 # Multi class -----
 two_class_test = bind_rows(

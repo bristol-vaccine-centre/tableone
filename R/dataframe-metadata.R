@@ -2,7 +2,10 @@
 
 ### setup normality tests ----
 .name_of = function(fun) {
-  return(fun(stats::rnorm(50))$method)
+  return(
+    stringr::str_remove(
+      fun(stats::rnorm(50))$method, " normality"
+    ))
 }
 
 #' @importFrom nortest ad.test
@@ -76,6 +79,15 @@
   return(NA_integer_)
 }
 
+.col_level_names = function(col, max_levels) {
+  tmp = col
+  if (is.factor(tmp)) return(levels(tmp))
+  if (is.character(tmp) & length(unique(tmp)) < max_levels) return(unique(tmp))
+  if (is.logical(tmp)) return(c("true","false"))
+  if (is.numeric(tmp) & length(unique(tmp)) < max_levels) return(unique(as.character(tmp)))
+  return(NULL)
+}
+
 # is the data normal according to a test
 # test type is found from `.normality.tests`
 .p_is_normal = function(col, method = c("ad","cvm","lillie","pearson","sf"), trans=function(x) x) {
@@ -95,6 +107,11 @@
 # what fraction of the col vector is missing?
 .p_missing = function(col) {
   return(1 - length(stats::na.omit(col)) / length(col))
+}
+
+# what fraction of the col vector is missing?
+.n_missing = function(col) {
+  return(length(col) - length(stats::na.omit(col)))
 }
 
 # gets metadata about the dataframe necessary to decide on comparison tests
@@ -140,6 +157,7 @@ any columns."
 
   max_levels = getOption("tableone.max_discrete_levels",0)
   normality_test = getOption("tableone.normality_test","ad")
+  normality_signif = getOption("tableone.normality_significance",0.005)
 
   not_matched = setdiff(.col_names(cols), colnames(df))
   if (length(not_matched)>0) {
@@ -158,13 +176,75 @@ any columns."
     .unit = lapply(.name,function(n) units[[n]]) %>% sapply(function(x) ifelse(is.null(x),"",x)),
     .type = lapply(.content, .col_type, max_levels) %>% unlist(),
     .levels = lapply(.content, .col_levels, max_levels) %>% unlist(),
+    .level_names = lapply(.content, .col_level_names, max_levels),
     .p_is_normal = lapply(.content, .p_is_normal, method=normality_test) %>% unlist(),
     # .p_is_log_normal = lapply(.content, .p_is_normal, method=normality_test, trans=log) %>% unlist(),
     .p_ties = lapply(.content, .p_ties) %>% unlist(),
     .p_missing = lapply(.content, .p_missing) %>% unlist()
-  )
+
+  ) %>% dplyr::mutate(
+    # What kind of summary by default
+    .summary_type = dplyr::case_when(
+      .type == "ordered" ~ "subtype_count",
+      .type == "categorical" ~ "subtype_count",
+      .type == "continuous" & .p_is_normal >= normality_signif ~ "mean_sd",
+      .type == "continuous" ~ "median_iqr",
+      TRUE ~ "skipped"
+    )
+  ) %>%
+    .determine_comparison_method()
+
 
   .normality_test_name = .normality.tests[[normality_test]]$name
-  structure(tmp, methods = list(normality_test = .normality_test_name))
+  structure(
+    tmp,
+    methods = list(normality_test = .normality_test_name),
+    class = c("t1_metadata", class(tmp))
+  )
 
+}
+
+.determine_comparison_method = function(df_shape) {
+
+  normality_signif = getOption("tableone.normality_significance",0.005)
+  ties_cutoff = getOption("tableone.tolerance_to_ties",0.25)
+
+  if (!".comparison_method" %in% colnames(df_shape)) {
+    # what kind of summary stats?
+    df_shape = df_shape %>% dplyr::mutate(
+      .is_normal = .p_is_normal >= normality_signif,
+      .is_tied = .p_ties >= ties_cutoff,
+      .comparison_method = dplyr::case_when(
+        .comparisons == 1 ~ "no comparison",
+        # categorical:
+        .comparisons == 2 & .type == "ordered" & .p_missing == 0 ~ "chi-sq trend",
+        # ordered with missing data is not ordered.
+        .type == "ordered" ~ "fisher",
+        .type == "categorical" ~ "fisher",
+        # 2 sided continuous:
+        # continuous normally distributed
+        .comparisons == 2 & .type == "continuous" & .is_normal >= normality_signif ~ "t-test",
+        # continuous not normally distributed with ties
+        .comparisons == 2 & .type == "continuous" & !.is_normal & .is_tied ~ "2-sided wilcoxon",
+        # continuous not normally distributed without ties
+        .comparisons == 2 & .type == "continuous" & !.is_normal & !.is_tied ~ "2-sided ks",
+        # multi-way continuous:
+        # continuous normally distributed
+        .comparisons > 2 & .type == "continuous" & .is_normal ~ "anova",
+        # continuous not normally distributed
+        .comparisons > 2 & .type == "continuous" & !.is_normal ~ "kruskal-wallis",
+        TRUE ~ "no comparison"
+      )
+    )
+  }
+  return(df_shape)
+}
+
+.describe_normality_test = function() {
+  normality_test = getOption("tableone.normality_test","ad")
+  normality_signif = getOption("tableone.normality_significance",0.005)
+  sprintf("Normal distributions determined by the %s (P>%1.1g)",
+    .normality.tests[[normality_test]]$name,
+    normality_signif
+  )
 }

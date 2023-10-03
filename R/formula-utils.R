@@ -1,34 +1,30 @@
 # package depends
 # c("tidyselect","rlang") %>% lapply(usethis::use_package)
 
-# look for a dataframe as the first argument in the call stack
-# TODO: this maybe depends on alphabetical order of parameter names
+# look for a dataframe as the first argument of a function in the call stack
+# z = function(a) {.search_call_stack()}
+# y = function(a) {a}
+# x = function(df, a_default="a") {return(y(y(y(z()))))}
+# x(iris)
 .search_call_stack = function(nframe = sys.nframe()-1) {
   frame = sys.frame(nframe)
-  first_arg_name = ls(frame)[1]
+  first_arg_name = names(formals(sys.function(nframe)))[[1]]
   try({
-    data = suppressWarnings(first_arg_name %>% get(envir=frame))
+    data = suppressWarnings(get(first_arg_name, envir=frame))
     if(is.data.frame(data)) return(data)
-  })
+  },silent = TRUE)
   nframe = nframe-1
   if (nframe < 1) stop("no data frame found")
   .search_call_stack(nframe)
 }
 
-
-#' Reuse tidy-select syntax outside of a tidy-select function
-#'
-#' @param tidyselect a tidyselect syntax which will be evaluated in context by looking for a call in the call stack that includes a dataframe as the first argument
-#' @param data (optional) a specific dataframe with which to evaluate the tidyselect
-#'
-#' @return a list of symbols resulting from the evaluation of the tidyselect in the context of the current call stack (or a provided data frame)
-#' @export
-as_vars = function(tidyselect, data=NULL) {
+.as_vars = function(tidyselect, data=NULL) {
   expr = rlang::enquo(tidyselect)
   if(is.null(data)) data = .search_call_stack()
   res = tidyselect::eval_select(expr,data)
   lapply(names(res), as.symbol)
 }
+
 
 # .parse_formulae(iris, ~ Species + Petal.Width + Missing, a ~ b+Sepal.Width)
 # .parse_formulae(iris, Species ~ Petal.Width + Missing, a ~ b+Sepal.Width, side="lhs")
@@ -85,7 +81,7 @@ as_vars = function(tidyselect, data=NULL) {
 # .parse_vars(iris, Species ~ Petal.Width + Missing)
 .parse_vars = function(df, ..., .side="rhs") {
   if (.is_character_list(...)) {
-    return(.parse_character(...))
+    return(.parse_character(df, ...))
   }
   if (.is_vars_interface(...)) {
     return(c(...) %>% sapply(rlang::as_label) %>% lapply(as.symbol))
@@ -149,23 +145,40 @@ as_vars = function(tidyselect, data=NULL) {
   return(out)
 }
 
+.maybe_formula = function(f) {
+  tryCatch(
+    rlang::is_bare_formula(f),
+    error = function(e) FALSE
+  )
+}
+
 # where dots is either a function (in which case we only want rhs) or a tidyselect.
 # .is_formula_interface(~ Species + Petal.Width + Missing)
 # .is_formula_interface(~ Species + Petal.Width + Missing, a ~ b+c)
 # .is_formula_interface(c(~ Species + Petal.Width + Missing, a ~ b+c))
 # .is_formula_interface(list(~ Species + Petal.Width + Missing, a ~ b+c))
 # .is_formula_interface(list(~ Species + Petal.Width + Missing, "not a formula"))
+# .is_formula_interface(~ Species + Petal.Width + Missing, Accidental + comma)
 # .is_formula_interface(tidyselect::everything())
 # .is_formula_interface()
 .is_formula_interface = function(...) {
-  out = tryCatch({
-    tmp = suppressWarnings(sapply(c(...),rlang::is_bare_formula))
-    return(all(tmp))
-  }, error = function(e) {
-    # could have been a tidyselect.
-    FALSE
-  })
-  return(out)
+  out = tryCatch(
+    suppressWarnings(sapply(c(...),.maybe_formula)),
+    error = function(e) {
+        # could have been a tidyselect.
+        FALSE
+    })
+  if (all(out)) return(TRUE)
+  if (length(out) > 1 & out[1]==TRUE) stop("The first argument is a formula, but the rest could not be evaluated as such. Sometimes this happens if your formula accidentally contains a comma.")
+  return(FALSE)
+  # out = tryCatch({
+  #   tmp = suppressWarnings(sapply(c(...),rlang::is_bare_formula))
+  #   return(all(tmp))
+  # }, error = function(e) {
+  #   # could have been a tidyselect.
+  #   FALSE
+  # })
+  # return(out)
 }
 
 # .is_vars_interface(list(~ Species + Petal.Width + Missing, "not a formula"))

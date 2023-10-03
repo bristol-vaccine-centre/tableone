@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,14 +67,14 @@
         <dd>Describe the population in a summary table</dd>
       </dl><dl><dt>
           
+          <code><a href="describe_data.html">describe_data()</a></code> 
+        </dt>
+        <dd>Describe the data types and consistence</dd>
+      </dl><dl><dt>
+          
           <code><a href="compare_population.html">compare_population()</a></code> 
         </dt>
         <dd>Compares the population against an intervention in a summary table</dd>
-      </dl><dl><dt>
-          
-          <code><a href="compare_missing.html">compare_missing()</a></code> 
-        </dt>
-        <dd>Compares missing data against an intervention in a summary table</dd>
       </dl><dl><dt>
           
           <code><a href="compare_outcomes.html">compare_outcomes()</a></code> 
@@ -82,9 +82,14 @@
         <dd>Compares multiple outcomes against an intervention in a summary table</dd>
       </dl><dl><dt>
           
-          <code><a href="extract_comparison.html">extract_comparison()</a></code> 
+          <code><a href="group_comparison.html">group_comparison()</a></code> 
         </dt>
-        <dd>Get summary comparisons and statistics between variables as raw data.</dd>
+        <dd>Extract one or more comparisons for inserting into text.</dd>
+      </dl><dl><dt>
+          
+          <code><a href="compare_missing.html">compare_missing()</a></code> 
+        </dt>
+        <dd>Compares missing data against an intervention in a summary table</dd>
       </dl><dl><dt>
           
           <code><a href="remove_missing.html">remove_missing()</a></code> 
@@ -95,6 +100,52 @@
           <code><a href="count_table.html">count_table()</a></code> 
         </dt>
         <dd>Group data count and calculate proportions by column.</dd>
+      </dl><dl><dt>
+          
+          <code><a href="extract_comparison.html">extract_comparison()</a></code> 
+        </dt>
+        <dd>Get summary comparisons and statistics between variables as raw data.</dd>
+      </dl></div><div class="section level2">
+      <h2 id="s-functions">S3 functions<a class="anchor" aria-label="anchor" href="#s-functions"></a></h2>
+      
+      <p class="section-desc"></p><p>Create tabular summaries of data in a simple manner.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="as_t1_shape.html">as_t1_shape()</a></code> 
+        </dt>
+        <dd>Summarise a data set</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_t1_signif.html">as_t1_signif()</a></code> 
+        </dt>
+        <dd>Compares the population against an intervention</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_t1_summary.html">as_t1_summary()</a></code> 
+        </dt>
+        <dd>Summarise a population</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_huxtable.t1_shape.html">as_huxtable(<i>&lt;t1_shape&gt;</i>)</a></code> 
+        </dt>
+        <dd>Convert a <code>t1_summary</code> object to a <code>huxtable</code></dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_huxtable.t1_signif.html">as_huxtable(<i>&lt;t1_signif&gt;</i>)</a></code> 
+        </dt>
+        <dd>Convert a <code>t1_signif</code> S3 class to a huxtable</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_huxtable.t1_summary.html">as_huxtable(<i>&lt;t1_summary&gt;</i>)</a></code> 
+        </dt>
+        <dd>Convert a <code>t1_summary</code> object to a <code>huxtable</code></dd>
       </dl></div><div class="section level2">
       <h2 id="supporting-functions">Supporting functions<a class="anchor" aria-label="anchor" href="#supporting-functions"></a></h2>
       
@@ -123,11 +174,6 @@
         <dd>Get footer text if available</dd>
       </dl><dl><dt>
           
-          <code><a href="as_vars.html">as_vars()</a></code> 
-        </dt>
-        <dd>Reuse tidy-select syntax outside of a tidy-select function</dd>
-      </dl><dl><dt>
-          
           <code><a href="format_pvalue.html">format_pvalue()</a></code> 
         </dt>
         <dd>Format a p-value</dd>
@@ -140,12 +186,22 @@
           
           <code><a href="label_extractor.html">label_extractor()</a></code> 
         </dt>
-        <dd>Extract labels from a datafrane column attributes</dd>
+        <dd>Extract labels from a dataframe column attributes</dd>
       </dl><dl><dt>
           
           <code><a href="set_labels.html">set_labels()</a></code> 
         </dt>
-        <dd>Set an attribute</dd>
+        <dd>Set a label attribute</dd>
+      </dl><dl><dt>
+          
+          <code><a href="extract_units.html">extract_units()</a></code> 
+        </dt>
+        <dd>Extracts units set as dataframe column attributes</dd>
+      </dl><dl><dt>
+          
+          <code><a href="set_units.html">set_units()</a></code> 
+        </dt>
+        <dd>Title</dd>
       </dl></div><div class="section level2">
       <h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a></h2>
       

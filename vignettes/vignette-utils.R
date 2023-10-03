@@ -28,6 +28,7 @@
 .one_class = function(
     n = 100, median = 2, IQR = 1, mean = 0, sd=2, binom_p = 0.3,
     multinom_p = c("one"=0.1,"two"=0.2,"three"=0.7),
+    ordered_p = c("1-2"=0.5,"3-4"=0.3,"5+"=0.2),
     discrete = ~ floor(stats::runif(.x,0,10))
 ) {
   argg <- as.list(environment())
@@ -37,6 +38,7 @@
     normal_variable = stats::rnorm(n,mean,sd),
     binomial_class = stats::rbinom(n,1,binom_p)==1,
     multinom_class = .mclass(n, multinom_p),
+    ordered_class = .mclass(n, ordered_p) %>% factor(levels = names(ordered_p), ordered = TRUE),
     discrete = discrete,
     ignore_me = NA
   )

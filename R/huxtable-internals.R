@@ -4,10 +4,23 @@
 
 # .check_font("Helvetica")
 .check_font = function(family) {
+  f = tryCatch(get("check_font", mode="function", envir = rlang::env_parent()), error = function(e) NULL)
+  if (!is.null(f)) return(f(family))
+  path = NULL
   match = systemfonts::match_font(family)
   family2 = systemfonts::system_fonts() %>% dplyr::filter(path == match$path) %>% dplyr::pull(family) %>% unique()
   if(length(family2) == 0) stop("No suitable font substitute for: ",family)
   return(family2[[1]])
+}
+
+# Fonts and colours from plot ----
+
+#' @noRd
+#' @examples
+#' .hux_used_fonts(iris %>% hux_default_layout(defaultFont="Roboto"))
+.hux_used_fonts = function(hux) {
+  tmp2 = attributes(hux)
+  return(unique(as.vector(tmp2$font)))
 }
 
 # A tidy article theme for huxtables
@@ -126,7 +139,7 @@
 # Convert a dataframe to a huxtable with nested rows and columns.
 .hux_tidy = function(tidyDf, rowGroupVars, colGroupVars, missing="\u2014", na="\u2014", displayRedundantColumnNames = FALSE, ...) {
 
-  name = .y = .x = value = rows = NULL  # remove global binding note
+  name = .y = .x = value = rows = .order = NULL  # remove global binding note
   rowGroupVars = .as_symbol_list(rowGroupVars)
   colGroupVars = .as_symbol_list(colGroupVars)
 

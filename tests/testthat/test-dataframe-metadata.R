@@ -27,15 +27,15 @@ testthat::test_that("col types correct", {
   col = .pull_cols(test_cols, one_class_test_100)
   testthat::expect_true( .col_type(col[[1]],100) == "continuous")
   testthat::expect_true( .col_type(col[[3]],100) == "categorical")
-  testthat::expect_true( .col_type(col[[5]],4) == "continuous")
-  testthat::expect_true( .col_type(col[[5]],100) == "categorical")
+  testthat::expect_true( .col_type(col[[6]],4) == "continuous")
+  testthat::expect_true( .col_type(col[[5]],100) == "ordered")
 })
 
 testthat::test_that("col levels", {
   col = .pull_cols(test_cols, one_class_test_100)
   testthat::expect_true( .col_levels(col[[3]],100) == 2)
   testthat::expect_true( .col_levels(col[[4]],100) == 3)
-  testthat::expect_true( .col_levels(col[[5]],100) == 10)
+  testthat::expect_true( .col_levels(col[[6]],100) == 10)
 })
 
 testthat::test_that("normality check works",{

@@ -84,34 +84,20 @@
 # df_shape %>% .summary_stats()
 .summary_stats = function(df_shape, override_type = list() ) {
 
-  normality_signif = getOption("tableone.normality_significance",0.005)
   override_type = as.list(override_type)
 
-  if (!".summary_type" %in% colnames(df_shape)) {
-    # what kind of summary stats?
-    # TODO: as a function that takes the dataframe?
-    df_shape = df_shape %>% dplyr::mutate(
-      .summary_type = dplyr::case_when(
-        .type == "ordered" ~ "subtype_count",
-        .type == "categorical" ~ "subtype_count",
-        .type == "continuous" & .p_is_normal >= normality_signif ~ "mean_sd",
-        .type == "continuous" ~ "median_iqr",
-        TRUE ~ "skipped"
-      )
+  # See if user wants to override summary type?
+  if (length(override_type) > 0) {
+    if (any(!override_type %in% names(.summary_types)))
+      stop("override types must be one of ", paste0(names(.summary_types),collapse=", "))
+    # override_type = list("multinom_class"="mean_sd")
+    override = tibble::tibble(
+      .name = names(override_type),
+      .override_type = unname(unlist(override_type))
     )
-    # See if user wants to override?
-    if (length(override_type) > 0) {
-      if (any(!override_type %in% names(.summary_types)))
-        stop("override types must be one of ", paste0(names(.summary_types),collapse=", "))
-      # override_type = list("multinom_class"="mean_sd")
-      override = tibble::tibble(
-        .name = names(override_type),
-        .override_type = unlist(override_type)
-      )
-      df_shape = df_shape %>% dplyr::left_join(override, by=".name") %>%
-        dplyr::mutate(.summary_type = ifelse(!is.na(.override_type), .override_type, .summary_type)) %>%
-        dplyr::select(-.override_type)
-    }
+    df_shape = df_shape %>% dplyr::left_join(override, by=".name") %>%
+      dplyr::mutate(.summary_type = ifelse(!is.na(.override_type), .override_type, .summary_type)) %>%
+      dplyr::select(-.override_type)
   }
 
   df_shape$.summary_data = list(rep(NA,nrow(df_shape)))
@@ -130,133 +116,8 @@
       N_present = sapply(.content, function(x) length(stats::na.omit(x)))
     )
 
-  return(df_shape)
+  return(structure(
+    df_shape,
+    class = c("t1_summary",class(df_shape))))
 }
 
-# print the summary stats for each of the columns of a dataframe, into
-# a prettified table with control for layout as defined in default.format
-# this can be overwritten in "tableone.format_list" option
-# df_shape = diamonds %>%  dplyr::mutate(is_clear = ifelse(clarity>"VS2","clear","less clear")) %>% dplyr::group_by(is_clear) %>% .get_shape()
-# df_summary = df_shape %>% .summary_stats()
-# df_summary %>% .format_summary()
-.format_summary = function(df_summary, layout = names(default.format), format = NULL, override_percent_dp = list(), override_real_dp = list(), show_binary_value=NULL ) {
-
-  layout = match.arg(layout)
-  if(is.null(format)) format = getOption("tableone.format_list", default.format[[layout]])
-  override_percent_dp = as.list(override_percent_dp)
-  override_real_dp = as.list(override_real_dp)
-
-
-  if (!".glue" %in% colnames(df_summary)) {
-    df_summary = df_summary %>% dplyr::mutate(
-      .glue = format[.summary_type]
-    )
-  }
-
-  # Override decimal points
-  if (length(override_percent_dp) > 0) {
-    override = tibble::tibble(
-      .name = names(override_percent_dp),
-      .percent_dp = unlist(override_percent_dp)
-    )
-    jc = if(is.null(names(override_percent_dp))) character() else ".name"
-    df_summary = df_summary %>% dplyr::left_join(override, by=jc)
-  } else {
-    df_summary = df_summary %>% dplyr::mutate(.percent_dp = NA)
-  }
-
-  if (length(override_real_dp) > 0) {
-    override = tibble::tibble(
-      .name = names(override_real_dp),
-      .real_dp = unlist(override_real_dp)
-    )
-    jc = if(is.null(names(override_real_dp))) character() else ".name"
-    df_summary = df_summary %>% dplyr::left_join(override, by=jc)
-  } else {
-    df_summary = df_summary %>% dplyr::mutate(.real_dp = NA)
-  }
-
-  # why does the R world have such a dim view of loops
-  # This is basically much more tractable than the equivalent in
-  # map / lapply madness and worked immediately.
-  df_summary = df_summary %>% dplyr::mutate(.labelled_data = list(rep(tibble::tibble(),nrow(df_summary))))
-
-  for (i in 1:nrow(df_summary)) {
-    df_row = df_summary %>% dplyr::filter(dplyr::row_number() == i)
-
-    grps = df_row$.summary_data[[1]] %>% dplyr::groups()
-    data = df_row %>% tidyr::unnest(.summary_data)
-    data = data %>% dplyr::group_by(!!!grps) %>%
-      dplyr::rename(
-        name = .name,
-        label = .label,
-        unit = .unit,
-        type = .type
-      )
-
-    # at this point data should be one row per intervention group and level in the data
-    # with all the stats on a given intervention / level combination for a specific
-    # variable (defined by the row of the df_summary). The precise list of
-    # things available to the glue spec is dependent on the nature of the variable
-    glue = df_row$.glue[[1]]
-
-    # firstly handle characteristic column. This is in every definition as is the
-    # effective table row label. We might expect `{unit}` in here but mostly this
-    # will be static text, or the `{level}` name for categorical data. This should
-    # be the same across intervention groups but probably different between levels.
-    thisglue = glue[["characteristic"]]
-    # TODO: here is where "characteristic" gets given its name. Probably easier to rename
-    # this later when printed.
-    named_data = data %>% dplyr::mutate(characteristic = glue::glue(thisglue))
-    outdata = named_data %>% dplyr::filter(FALSE)
-
-    # for the remaining formatted columns in our definition we are after a long format:
-    order3 = 1
-    for (newcol in setdiff(names(glue),"characteristic")) {
-
-      # newcol is potentially a glue spec. This is possibly going to be different
-      # for different interventions (e.g. might reference `N` as total in each)
-      # intervention, or even ({N}/{N_total}) for example. It should not reference
-      # anything that changes on a variable level or the columns will be different
-      # on a variable by variable basis (which is not what is generally wanted)
-      # the intervention group itself will be a heading above this one.
-      thisglue = glue[[newcol]]
-      thisglue = .adjust_fmt(thisglue, percent = df_row$.percent_dp[[1]], real = df_row$.real_dp[[1]])
-
-      # we want a long format tibble now with
-      # .tbl_col_name and .tbl_col_value
-      tmp = named_data %>% dplyr::mutate(
-        .tbl_col_name = as.character(glue::glue_data(df_row, newcol)),
-        .tbl_col_value = glue::glue(thisglue),
-        .order3 = order3
-      )
-      outdata = dplyr::bind_rows(outdata, tmp)
-
-      order3 = order3+1
-    }
-
-    # and we nest this back one item at a time. this col will now be a list of
-    # tibbles grouped by intervention as before
-    if (
-        all(outdata$type == "categorical") &&
-        length(levels(outdata$level)) == 2 &&
-        any(show_binary_value %in% levels(outdata$level))
-      ) {
-      outdata = outdata %>% dplyr::filter(level %in% show_binary_value)
-    }
-    df_summary$.labelled_data[[i]] = outdata %>% dplyr::select(!!!grps, characteristic, .tbl_col_name, .tbl_col_value, .order2, .order3)
-  }
-
-  tmp = suppressMessages(
-    df_summary %>%
-      # TODO: here is where "variable" gets given its name. Probably easier to rename
-      # this later when printed
-      dplyr::select(variable = .label, .order, .labelled_data) %>%
-      tidyr::unnest(.labelled_data) %>%
-      dplyr::relocate(!!!grps) %>%
-      dplyr::arrange(!!!grps, .order, .order2, .order3) %>%
-      dplyr::select(-.order,-.order2,-.order3)
-  )
-  return(structure(tmp, methods = get_footer_text(df_summary)))
-
-}
