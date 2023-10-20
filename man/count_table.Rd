@@ -13,7 +13,10 @@ count_table(
   totalExpr = dplyr::n(),
   subgroupLevel = length(rowGroupVars),
   glue = list(`Count [\%] (N={sprintf("\%d",N)})` =
-    "{sprintf(\\"\%d/\%d [\%1.1f\%\%]\\", x, n, mean*100)}")
+    "{sprintf(\\"\%d/\%d [\%1.1f\%\%]\\", x, n, mean*100)}"),
+  label_fn = label_extractor(df),
+  font_size = getOption("tableone.font_size", 8),
+  font = getOption("tableone.font", "Arial")
 )
 }
 \arguments{
@@ -32,6 +35,20 @@ count_table(
 \item{subgroupLevel}{defines how the numerator grouping is defined in terms of the row groupings}
 
 \item{glue}{a named list of column value specifications.}
+
+\item{label_fn}{(optional) a function for mapping a co-variate column name to
+printable label. This is by default a no-operation and the output table
+will contain the dataframe column names as labels. A simple alternative
+would be some form of \link[dplyr:case_when]{dplyr::case_when} lookup, or a string function such
+as \link[stringr:case]{stringr::str_to_sentence}. (N.b. this function must be vectorised).
+Any value provided here will be overridden by the
+\code{options("tableone.labeller" = my_label_fn)} which allows global setting of
+the labeller.}
+
+\item{font_size}{(optional) the font size for the table in points}
+
+\item{font}{(optional) the font family for the table (which will be matched to
+closest on your system)}
 }
 \value{
 a huxtable with the count and proportions of the rows groups

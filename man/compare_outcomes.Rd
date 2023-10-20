@@ -17,7 +17,8 @@ compare_outcomes(
   font_size = getOption("tableone.font_size", 8),
   font = getOption("tableone.font", "Arial"),
   footer_text = NULL,
-  show_binary_value = NULL
+  show_binary_value = NULL,
+  raw_output = FALSE
 )
 }
 \arguments{
@@ -86,6 +87,8 @@ setting this to FALSE dsables the whole footer (as does
 
 \item{show_binary_value}{if set this will filter the display of covariates where the number of possibilities
 is exactly 2 to this value.}
+
+\item{raw_output}{return comparison as \code{t1_signif} dataframe rather than formatted table}
 }
 \value{
 a \code{huxtable} formatted table.

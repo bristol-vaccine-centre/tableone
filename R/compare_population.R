@@ -103,13 +103,15 @@ compare_outcomes = function(df,
                             font_size = getOption("tableone.font_size",8),
                             font = getOption("tableone.font","Arial"),
                             footer_text = NULL,
-                            show_binary_value = NULL
+                            show_binary_value = NULL,
+                            raw_output = FALSE
 ) {
   if (!.is_formula_interface(...)) {
     compare_population(df, ..., label_fn = label_fn, units = units,
                        override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
                        override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
-                       font = font, footer_text = footer_text, show_binary_value = show_binary_value
+                       font = font, footer_text = footer_text, show_binary_value = show_binary_value,
+                       raw_output = raw_output
     )
   } else {
     rhs = .parse_formulae(df, ..., side="rhs")
@@ -131,7 +133,8 @@ compare_outcomes = function(df,
     compare_population(df, new_form, label_fn = label_fn, units = units,
                        override_type = override_type, layout = layout, override_percent_dp = override_percent_dp,
                        override_real_dp = override_real_dp, p_format = p_format, font_size = font_size,
-                       font = font, footer_text = footer_text, show_binary_value = show_binary_value
+                       font = font, footer_text = footer_text, show_binary_value = show_binary_value,
+                       raw_output = raw_output
     )
   }
 }
@@ -609,9 +612,12 @@ group_comparison = function(
     dplyr::summarise(t = paste0(sprintf("%s (%s variables)",.methods,.type), collapse=" or ")) %>%
     dplyr::pull(t)
   if (method) {
+    # TODO: don;t really want to account for .type when p.method is "Not
+    # calculated due to missing values"
     methods = methods %>% dplyr::mutate(daggers = lapply(1:nrow(methods), rep_len, x="\u2020") %>% lapply(paste0, collapse="") %>% unlist())
     tmp = tmp %>% dplyr::left_join(methods, by=c("p.method",".type")) %>%
       dplyr::mutate(!!p_col := paste0(fun(p.value)," ",daggers))
+
     methods_key = paste0(sprintf("%s, %s (%s)",methods$daggers,methods$p.method, methods$.type), collapse = "; ")
     tmp = structure(tmp %>% dplyr::select(variable, !!p_col),
                     methods = c(list(
@@ -636,5 +642,3 @@ group_comparison = function(
 
   return(tmp)
 }
-
-

@@ -1,6 +1,6 @@
 Package: tableone
 Title: Descriptive Tables for Observational or Interventional Studies
-Version: 0.4.2
+Version: 0.4.2.9003
 Authors@R: 
     person(given = "Robert",
            family = "Challen",

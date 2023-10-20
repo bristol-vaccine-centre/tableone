@@ -5,6 +5,7 @@
 #' @param df a dataframe of linelist items
 #' @param rowGroupVars the rows of the table. The last one of these is the denominator grouping
 #' @param colGroupVars the column groupings of the table.
+#' @inheritParams compare_population
 #' @param numExpr defines how the numerator is defined in the context of the column and row groups (e.g. dplyr::n())
 #' @param denomExpr defines how the numerator is defined in the context of the column and row (ungrouped one level)
 #' @param totalExpr defines how the column level total is defined
@@ -16,20 +17,38 @@
 #'
 #' @examples
 #' diamonds %>% count_table(dplyr::vars(cut,clarity), dplyr::vars(color), subgroupLevel = 1)
-count_table = function(df, rowGroupVars, colGroupVars, numExpr = dplyr::n(), denomExpr = dplyr::n(), totalExpr = dplyr::n(), subgroupLevel = length(rowGroupVars), glue = list(
-  # 'Count (N={sprintf("%d",n)})' = '{sprintf("%d", x)}',
-  # 'Proportion [95% CI]' = '{sprintf("%1.1f%% [%1.1f \u2014 %1.1f]", mean*100, lower*100, upper*100)}'
-  'Count [%] (N={sprintf("%d",N)})' = '{sprintf("%d/%d [%1.1f%%]", x, n, mean*100)}'
-)) {
+count_table = function(df, rowGroupVars, colGroupVars,
+
+                       numExpr = dplyr::n(), denomExpr = dplyr::n(), totalExpr = dplyr::n(),
+                       subgroupLevel = length(rowGroupVars),
+                       glue = list(
+                        # 'Count (N={sprintf("%d",n)})' = '{sprintf("%d", x)}',
+                        # 'Proportion [95% CI]' = '{sprintf("%1.1f%% [%1.1f \u2014 %1.1f]", mean*100, lower*100, upper*100)}'
+                        'Count [%] (N={sprintf("%d",N)})' = '{sprintf("%d/%d [%1.1f%%]", x, n, mean*100)}'
+                      ),
+                      label_fn = label_extractor(df),
+                      font_size = getOption("tableone.font_size",8),
+                      font = getOption("tableone.font","Arial")
+) {
+
+  label_fn = getOption("tableone.labeller",label_fn)
+  label_fn = purrr::as_mapper(label_fn)
+
+  rowGroupVars2 = label_fn(sapply(rowGroupVars, rlang::as_label)) %>% lapply(as.symbol)
+  colGroupVars2 = label_fn(sapply(colGroupVars, rlang::as_label)) %>% lapply(as.symbol)
 
   .count_data(
-    df, rowGroupVars, colGroupVars, {{numExpr}}, {{denomExpr}}, {{totalExpr}}, subgroupLevel, glue
+    df, rowGroupVars, colGroupVars, label_fn, {{numExpr}}, {{denomExpr}}, {{totalExpr}}, subgroupLevel, glue
   ) %>%
-  .hux_tidy(rowGroupVars = rowGroupVars, colGroupVars = c(colGroupVars,dplyr::vars(tag)))
+  .hux_tidy(
+    rowGroupVars = rowGroupVars2,
+    colGroupVars = c(colGroupVars2,as.symbol("tag")),
+    defaultFontSize= font_size,
+    defaultFont = font)
 
 }
 
-.count_data = function(df, rowGroupVars, colGroupVars, numExpr = dplyr::n(), denomExpr = dplyr::n(), totalExpr = dplyr::n(), subgroupLevel = length(rowGroupVars), glue = list(
+.count_data = function(df, rowGroupVars, colGroupVars, label_fn, numExpr = dplyr::n(), denomExpr = dplyr::n(), totalExpr = dplyr::n(), subgroupLevel = length(rowGroupVars), glue = list(
   # 'Count (N={sprintf("%d",n)})' = '{sprintf("%d", x)}',
   # 'Proportion [95% CI]' = '{sprintf("%1.1f%% [%1.1f \u2014 %1.1f]", mean*100, lower*100, upper*100)}'
   'Count [%] (N={sprintf("%d",N)})' = '{sprintf("%d/%d [%1.1f%%]", x, n, mean*100)}'
@@ -64,6 +83,9 @@ count_table = function(df, rowGroupVars, colGroupVars, numExpr = dplyr::n(), den
     )
     tmp3 = tmp3 %>% dplyr::bind_rows(tmp2)
   }
+
+  names(rowGroupVars) = label_fn(sapply(rowGroupVars, rlang::as_label))
+  names(colGroupVars) = label_fn(sapply(colGroupVars, rlang::as_label))
 
   tmp3 %>%
     dplyr::select(!!!rowGroupVars, !!!colGroupVars, tag, value)

@@ -51,7 +51,14 @@
     huxtable::set_font(huxtable::everywhere,huxtable::everywhere,defaultFont)
 }
 
-
+.hux_add_footer = function(hux, footer) {
+  if (!is.null(footer) & length(footer) > 0) {
+    hux = hux %>%
+      huxtable::insert_row(paste0(footer,collapse="\n"), after=nrow(hux), colspan = ncol(hux), fill="") %>%
+      huxtable::set_bottom_border(row=huxtable::final(),value=0)
+  }
+  return(hux)
+}
 
 ## symbol conversion ----
 .as_symbol_list = function(x,...) {
@@ -63,7 +70,7 @@
 }
 
 .as_symbol_list.list = function(x,...) {
-  lapply(x, function(x) if (is.name(x)) x else dplyr::sym(as.character(x)))
+  lapply(x, function(.x) if (is.name(.x)) .x else dplyr::sym(as.character(.x)))
 }
 
 .as_symbol_list.default = function(x,...) {
@@ -138,6 +145,10 @@
 
 # Convert a dataframe to a huxtable with nested rows and columns.
 .hux_tidy = function(tidyDf, rowGroupVars, colGroupVars, missing="\u2014", na="\u2014", displayRedundantColumnNames = FALSE, ...) {
+
+  if (length(colGroupVars) == 0) {
+    displayRedundantColumnNames = TRUE
+  }
 
   name = .y = .x = value = rows = .order = NULL  # remove global binding note
   rowGroupVars = .as_symbol_list(rowGroupVars)
