@@ -3,7 +3,14 @@
 # Change a dataset of values into a dataset of logical missing indicators
 # missing_diamonds %>% data_missingness() %>% describe_population(tidyselect::everything())
 .data_missingness = function(df) {
-  df %>% dplyr::mutate(dplyr::across(tidyselect::everything(), ~ ifelse(is.na(.x) | is.infinite(.x) | is.nan(.x), "missing", "not missing") %>% factor(levels = c("missing","not missing"))))
+  df %>% dplyr::mutate(
+    dplyr::across(
+      tidyselect::where(~ !is.list(.x)),
+      ~ ifelse(is.na(.x) | is.infinite(.x) | is.nan(.x), "missing", "not missing") %>% factor(levels = c("missing","not missing")))) %>%
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::where(~ is.list(.x)),
+        ~ ifelse(lapply(.x,length)==0, "missing", "not missing") %>% factor(levels = c("missing","not missing"))))
 }
 
 #' Compares missing data against an intervention in a summary table

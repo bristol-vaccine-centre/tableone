@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">tableone</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,10 @@
 <span>  totalExpr <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  subgroupLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rowGroupVars</span><span class="op">)</span>,</span>
 <span>  glue <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`Count [%] (N={sprintf("%d",N)})` <span class="op">=</span></span>
-<span>    <span class="st">"{sprintf(\"%d/%d [%1.1f%%]\", x, n, mean*100)}"</span><span class="op">)</span></span>
+<span>    <span class="st">"{sprintf(\"%d/%d [%1.1f%%]\", x, n, mean*100)}"</span><span class="op">)</span>,</span>
+<span>  label_fn <span class="op">=</span> <span class="fu"><a href="label_extractor.html">label_extractor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
+<span>  font_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"tableone.font_size"</span>, <span class="fl">8</span><span class="op">)</span>,</span>
+<span>  font <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"tableone.font"</span>, <span class="st">"Arial"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,6 +105,26 @@
 
 <dt>glue</dt>
 <dd><p>a named list of column value specifications.</p></dd>
+
+
+<dt>label_fn</dt>
+<dd><p>(optional) a function for mapping a co-variate column name to
+printable label. This is by default a no-operation and the output table
+will contain the dataframe column names as labels. A simple alternative
+would be some form of <a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">dplyr::case_when</a> lookup, or a string function such
+as <a href="https://stringr.tidyverse.org/reference/case.html" class="external-link">stringr::str_to_sentence</a>. (N.b. this function must be vectorised).
+Any value provided here will be overridden by the
+<code>options("tableone.labeller" = my_label_fn)</code> which allows global setting of
+the labeller.</p></dd>
+
+
+<dt>font_size</dt>
+<dd><p>(optional) the font size for the table in points</p></dd>
+
+
+<dt>font</dt>
+<dd><p>(optional) the font family for the table (which will be matched to
+closest on your system)</p></dd>
 
 </dl></div>
     <div class="section level2">
