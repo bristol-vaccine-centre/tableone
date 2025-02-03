@@ -3,6 +3,8 @@
 
 # tableone: Descriptive Tables for Observational or Interventional Studies <a href='https://bristol-vaccine-centre.github.io/tableone/index.html'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
+THIS REPOSITORY HAS BEEN SUPERSEDED. THE NEW REPOSITORY IS [HERE](https://github.com/ai4ci/huxtableone)
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/bristol-vaccine-centre/tableone/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bristol-vaccine-centre/tableone/actions/workflows/R-CMD-check.yaml)
